@@ -293,7 +293,15 @@
     font-family:'JetBrains Mono',monospace;
     letter-spacing:0.06em;
     text-transform:uppercase;
-    margin-bottom:22px;
+    margin-bottom:6px;
+  }
+  .word-tag{
+    text-align:center;
+    font-size:11.5px;
+    font-weight:600;
+    color:#7a9e6f;
+    margin-bottom:16px;
+    min-height:14px;
   }
   .options{
     display:grid;
@@ -481,6 +489,7 @@
       <button class="speak-btn" id="speakBtn" type="button" aria-label="発音を再生">🔊</button>
     </div>
     <div class="word-cat" id="wordCat">tervehdykset</div>
+    <div class="word-tag" id="wordTag"></div>
     <div class="voice-note hidden" id="voiceNote">この端末にはフィンランド語の音声が見つからないため、発音の再生をスキップしています</div>
     <div class="voice-label" id="voiceLabel"></div>
     <div class="options" id="optionsGrid"></div>
@@ -979,6 +988,7 @@
     streakCount: document.getElementById('streakCount'),
     wordFi: document.getElementById('wordFi'),
     wordCat: document.getElementById('wordCat'),
+    wordTag: document.getElementById('wordTag'),
     optionsGrid: document.getElementById('optionsGrid'),
     scoreBig: document.getElementById('scoreBig'),
     scoreLabel: document.getElementById('scoreLabel'),
@@ -1011,6 +1021,66 @@
   let arcLen = 0;
   let locked = false;
   let roundActive = false;
+
+  // --- spaced repetition (Leitner-style) ---
+  const WORD_STATS_KEY = 'quiz-word-stats';
+  const BOX_INTERVAL_DAYS = [0, 1, 3, 7, 14, 30]; // box 0 (new/wrong) .. box 5 (mastered)
+  let wordStats = {};
+
+  function loadWordStats(){
+    try{
+      const raw = localStorage.getItem(WORD_STATS_KEY);
+      wordStats = raw ? JSON.parse(raw) : {};
+      if(!wordStats || typeof wordStats !== 'object') wordStats = {};
+    }catch(err){
+      wordStats = {};
+    }
+  }
+
+  function persistWordStats(){
+    try{
+      localStorage.setItem(WORD_STATS_KEY, JSON.stringify(wordStats));
+    }catch(err){
+      console.error('学習状況の保存に失敗しました', err);
+    }
+  }
+
+  function updateWordStat(word, correct){
+    const stat = wordStats[word.fi] || {box: 0};
+    stat.box = correct ? Math.min(stat.box + 1, BOX_INTERVAL_DAYS.length - 1) : 0;
+    const dueDate = new Date(Date.now() + BOX_INTERVAL_DAYS[stat.box] * 86400000);
+    stat.due = dueDate.toISOString();
+    wordStats[word.fi] = stat;
+    persistWordStats();
+  }
+
+  // Weight: never-seen words get a strong boost (so new words keep appearing),
+  // overdue review words get boosted the longer they've been overdue, and
+  // words that were just reviewed and aren't due yet get a small weight so
+  // they can still occasionally show up for extra reinforcement.
+  function getWordWeight(word){
+    const stat = wordStats[word.fi];
+    if(!stat) return 5;
+    const dueTime = new Date(stat.due).getTime();
+    const now = Date.now();
+    if(now >= dueTime){
+      const overdueDays = (now - dueTime) / 86400000;
+      return 3 + Math.min(overdueDays, 10) * 0.3;
+    }
+    return 0.15;
+  }
+
+  // Efraimidis–Spirakis weighted sampling without replacement.
+  function weightedSample(pool, k){
+    const keyed = pool.map(item => ({
+      item,
+      key: Math.pow(Math.random(), 1 / Math.max(getWordWeight(item), 0.01)),
+    }));
+    keyed.sort((a, b) => b.key - a.key);
+    return keyed.slice(0, k).map(x => x.item);
+  }
+
+  loadWordStats();
 
   let finnishVoice = null;
   let voiceAvailable = false;
@@ -1142,7 +1212,7 @@
   function startRound(){
     const pool = WORDS.filter(w=>selectedCats.has(w.cat));
     const size = Math.min(ROUND_SIZE, pool.length);
-    deck = shuffle(pool).slice(0, size);
+    deck = shuffle(weightedSample(pool, size));
     qi = 0; score = 0; streak = 0; bestStreak = 0; missed = [];
     roundActive = true;
     showScreen('quiz');
@@ -1158,6 +1228,14 @@
     els.streakCount.textContent = streak;
     els.wordFi.textContent = item.fi;
     els.wordCat.textContent = catLabel(item.cat);
+    const stat = wordStats[item.fi];
+    if(!stat){
+      els.wordTag.textContent = '🆕 新出単語';
+    } else if(Date.now() >= new Date(stat.due).getTime()){
+      els.wordTag.textContent = '🔁 復習のタイミング';
+    } else {
+      els.wordTag.textContent = '';
+    }
     speakWord(item.fi);
 
     const wrongPool = WORDS.filter(w=>w.ja!==item.ja);
@@ -1180,6 +1258,7 @@
     const correct = opt.ja === item.ja;
     const allBtns = Array.from(els.optionsGrid.children);
     allBtns.forEach(b=>b.disabled = true);
+    updateWordStat(item, correct);
 
     if(correct){
       btn.classList.add('correct');

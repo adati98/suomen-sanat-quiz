@@ -1,0 +1,1261 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Suomen Sanat — フィンランド語単語クイズ</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@500;700;900&family=Fraunces:ital,opsz,wght@0,9..144,500;0,9..144,600;0,9..144,700;1,9..144,600;1,9..144,700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ink:#122036;
+    --ink-2:#1a3050;
+    --birch:#F6F1E7;
+    --birch-dim:#E7DFCF;
+    --lingon:#C23B32;
+    --moss:#5F8A5A;
+    --ember:#E2A63B;
+    --frost:#9FBAD1;
+    --radius:18px;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    background:var(--ink);
+    background-image:
+      radial-gradient(ellipse at 50% -10%, rgba(226,166,59,0.10), transparent 55%),
+      radial-gradient(ellipse at 50% 120%, rgba(95,138,90,0.10), transparent 50%);
+    color:var(--birch);
+    font-family:'Inter',sans-serif;
+    min-height:100vh;
+    display:flex;
+    align-items:flex-start;
+    justify-content:center;
+    padding:28px 16px 60px;
+  }
+  .app{
+    width:100%;
+    max-width:640px;
+  }
+  .eyebrow{
+    font-family:'JetBrains Mono',monospace;
+    font-size:12px;
+    letter-spacing:0.14em;
+    text-transform:uppercase;
+    color:var(--frost);
+    text-align:center;
+    margin-bottom:4px;
+  }
+  h1{
+    font-family:'Fraunces',serif;
+    font-optical-sizing:auto;
+    font-weight:700;
+    font-style:italic;
+    font-size:clamp(28px,7vw,42px);
+    text-align:center;
+    margin:0 0 4px;
+    letter-spacing:-0.01em;
+  }
+  .subtitle{
+    text-align:center;
+    color:var(--frost);
+    font-size:14px;
+    margin-bottom:22px;
+  }
+
+  /* ---- Arc progress (midnight sun) ---- */
+  .arc-wrap{
+    position:relative;
+    width:100%;
+    max-width:420px;
+    margin:4px auto 8px;
+  }
+  .arc-svg{ width:100%; height:auto; display:block; }
+  .arc-track{ fill:none; stroke:rgba(159,186,209,0.22); stroke-width:3; stroke-linecap:round; }
+  .arc-fill{ fill:none; stroke:var(--ember); stroke-width:3; stroke-linecap:round; }
+  .sun{ transition: cx 0.5s ease, cy 0.5s ease; }
+  .arc-caption{
+    font-family:'JetBrains Mono',monospace;
+    font-size:12px;
+    color:var(--frost);
+    text-align:center;
+    margin-top:-6px;
+  }
+
+  /* ---- Cards ---- */
+  .card{
+    background:var(--birch);
+    color:var(--ink);
+    border-radius:var(--radius);
+    padding:28px 24px;
+    margin-top:18px;
+  }
+  .hidden{ display:none !important; }
+
+  /* Start screen */
+  .cat-grid{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:10px;
+    margin:18px 0 22px;
+  }
+  .cat-chip{
+    display:flex;
+    align-items:center;
+    gap:9px;
+    background:var(--birch-dim);
+    border:2px solid transparent;
+    border-radius:12px;
+    padding:11px 12px;
+    cursor:pointer;
+    font-weight:600;
+    font-size:14px;
+    transition:border-color .15s ease, background .15s ease;
+    user-select:none;
+  }
+  .cat-chip input{ accent-color:var(--moss); width:16px; height:16px; flex:none; }
+  .cat-chip.active{ border-color:var(--moss); background:#EAF2E6; }
+  .cat-chip-text{
+    display:flex;
+    flex-direction:column;
+    line-height:1.25;
+  }
+  .cat-chip-ja{ font-weight:700; }
+  .cat-chip-fi{
+    font-family:'JetBrains Mono',monospace;
+    font-weight:500;
+    font-size:11px;
+    color:#8a8471;
+  }
+  .cat-count{
+    font-family:'JetBrains Mono',monospace;
+    font-size:11px;
+    color:#6b6656;
+    margin-left:auto;
+  }
+  .level-note{
+    font-size:13px;
+    color:#5b5648;
+    background:var(--birch-dim);
+    border-radius:10px;
+    padding:10px 14px;
+    margin-bottom:6px;
+  }
+  .btn{
+    font-family:'Unbounded',sans-serif;
+    font-weight:700;
+    font-size:15px;
+    border:none;
+    border-radius:12px;
+    padding:14px 22px;
+    cursor:pointer;
+    width:100%;
+    transition:transform .08s ease, filter .15s ease;
+  }
+  .btn:active{ transform:scale(0.98); }
+  .btn:focus-visible{ outline:3px solid var(--ember); outline-offset:2px; }
+  .btn-primary{ background:var(--ink); color:var(--birch); }
+  .btn-primary:hover{ filter:brightness(1.2); }
+  .btn-ghost{
+    background:transparent;
+    color:var(--frost);
+    border:1px solid rgba(159,186,209,0.4);
+    font-family:'Inter',sans-serif;
+    font-weight:600;
+    font-size:13px;
+    padding:10px 16px;
+  }
+  .btn-ghost:hover{ background:rgba(159,186,209,0.1); }
+
+  /* Quiz screen */
+  .quiz-meta{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    font-family:'JetBrains Mono',monospace;
+    font-size:12px;
+    color:var(--frost);
+    padding:0 2px;
+    margin-bottom:6px;
+    gap:8px;
+  }
+  .quit-btn{
+    font-family:'Inter',sans-serif;
+    font-size:11.5px;
+    font-weight:600;
+    color:#a5443c;
+    background:none;
+    border:1px solid rgba(194,59,50,0.35);
+    border-radius:8px;
+    padding:5px 9px;
+    cursor:pointer;
+    flex:none;
+  }
+  .quit-btn:hover{ background:rgba(194,59,50,0.08); }
+  .quit-btn:focus-visible{ outline:3px solid var(--ink); outline-offset:2px; }
+  .streak{ color:var(--ember); font-weight:700; }
+  .word-fi{
+    font-family:'Fraunces',serif;
+    font-optical-sizing:auto;
+    font-weight:600;
+    font-size:clamp(32px,8.5vw,48px);
+    text-align:center;
+    margin:6px 0 4px;
+    line-height:1.15;
+    letter-spacing:-0.01em;
+    word-break:break-word;
+  }
+  .word-fi-row{
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    gap:12px;
+  }
+  .speak-btn{
+    flex:none;
+    width:44px;
+    height:44px;
+    border-radius:50%;
+    border:2px solid var(--birch-dim);
+    background:var(--birch-dim);
+    font-size:19px;
+    cursor:pointer;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    transition:transform .1s ease, background .15s ease;
+  }
+  .speak-btn:hover{ background:#EDE6D6; }
+  .speak-btn:active{ transform:scale(0.92); }
+  .speak-btn:focus-visible{ outline:3px solid var(--ink); outline-offset:2px; }
+  .speak-btn.speaking{ background:var(--ember); border-color:var(--ember); }
+  .speak-btn:disabled{ opacity:0.4; cursor:not-allowed; }
+  .speak-btn:disabled:hover{ background:var(--birch-dim); }
+  .voice-note{
+    text-align:center;
+    font-size:11.5px;
+    color:#a08a3a;
+    background:#FBF3DD;
+    border-radius:8px;
+    padding:6px 10px;
+    margin:-14px 0 16px;
+  }
+  .voice-label{
+    text-align:center;
+    font-family:'JetBrains Mono',monospace;
+    font-size:10.5px;
+    color:#8a8471;
+    margin:-14px 0 16px;
+  }
+
+  .inline-warning{
+    text-align:center;
+    font-size:12.5px;
+    color:var(--lingon);
+    margin-top:8px;
+    font-weight:600;
+  }
+
+  .modal-overlay{
+    position:fixed;
+    inset:0;
+    background:rgba(10,16,28,0.6);
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    padding:20px;
+    z-index:1000;
+  }
+  .modal-box{
+    background:var(--birch);
+    color:var(--ink);
+    border-radius:16px;
+    padding:24px 22px;
+    width:100%;
+    max-width:340px;
+  }
+  .modal-message{
+    font-size:15px;
+    font-weight:600;
+    text-align:center;
+    margin-bottom:18px;
+    line-height:1.5;
+  }
+  .modal-btns{
+    display:flex;
+    gap:10px;
+  }
+  .modal-btns .btn{ flex:1; }
+  .word-cat{
+    text-align:center;
+    font-size:12px;
+    color:#7a7461;
+    font-family:'JetBrains Mono',monospace;
+    letter-spacing:0.06em;
+    text-transform:uppercase;
+    margin-bottom:22px;
+  }
+  .options{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:10px;
+  }
+  @media (max-width:420px){
+    .options{ grid-template-columns:1fr; }
+    .cat-grid{ grid-template-columns:1fr; }
+  }
+  .opt{
+    background:var(--birch-dim);
+    border:2px solid transparent;
+    border-radius:12px;
+    padding:15px 12px;
+    font-size:16px;
+    font-weight:600;
+    cursor:pointer;
+    text-align:center;
+    color:var(--ink);
+    transition:transform .08s ease, background .15s ease, border-color .15s ease;
+  }
+  .opt:hover{ transform:translateY(-1px); background:#EDE6D6; }
+  .opt:focus-visible{ outline:3px solid var(--ink); outline-offset:2px; }
+  .opt.correct{ background:var(--moss); color:#fff; border-color:var(--moss); }
+  .opt.wrong{ background:var(--lingon); color:#fff; border-color:var(--lingon); }
+  .opt[disabled]{ cursor:default; }
+  .opt[disabled]:hover{ transform:none; }
+
+  /* Result screen */
+  .score-big{
+    font-family:'Unbounded',sans-serif;
+    font-weight:900;
+    font-size:52px;
+    text-align:center;
+    margin:2px 0 2px;
+  }
+  .score-label{
+    text-align:center;
+    color:#6b6656;
+    font-size:13px;
+    font-family:'JetBrains Mono',monospace;
+    letter-spacing:0.08em;
+    text-transform:uppercase;
+    margin-bottom:20px;
+  }
+  .missed-title{
+    font-size:13px;
+    font-weight:700;
+    color:#5b5648;
+    margin:18px 0 8px;
+  }
+  .missed-row{
+    display:flex;
+    justify-content:space-between;
+    padding:9px 4px;
+    border-bottom:1px solid var(--birch-dim);
+    font-size:14px;
+  }
+  .missed-row .fi{ font-weight:700; }
+  .missed-row .ja{ color:#6b6656; }
+  .result-btns{ display:flex; gap:10px; margin-top:20px; }
+  .result-btns .btn{ flex:1; }
+  @media (prefers-reduced-motion: reduce){
+    *{ transition:none !important; }
+  }
+
+  /* History */
+  .history-panel{
+    margin-top:14px;
+    border-top:1px solid var(--birch-dim);
+    padding-top:14px;
+  }
+  .history-empty{
+    font-size:13px;
+    color:#7a7461;
+    text-align:center;
+    padding:10px 0;
+  }
+  .history-row{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:10px;
+    padding:10px 4px;
+    border-bottom:1px solid var(--birch-dim);
+    font-size:13px;
+  }
+  .history-row:last-child{ border-bottom:none; }
+  .history-date{
+    font-family:'JetBrains Mono',monospace;
+    font-size:11.5px;
+    color:#7a7461;
+    flex:none;
+    width:120px;
+  }
+  .history-cats{
+    flex:1;
+    color:#5b5648;
+    overflow:hidden;
+    text-overflow:ellipsis;
+    white-space:nowrap;
+  }
+  .history-score{
+    font-family:'JetBrains Mono',monospace;
+    font-weight:700;
+    flex:none;
+  }
+  .history-clear{
+    display:block;
+    margin:12px auto 0;
+    background:none;
+    border:none;
+    color:var(--lingon);
+    font-size:12px;
+    font-family:'Inter',sans-serif;
+    cursor:pointer;
+    text-decoration:underline;
+  }
+  .history-loading{
+    font-size:13px;
+    color:#7a7461;
+    text-align:center;
+    padding:10px 0;
+  }
+  .history-summary{
+    display:grid;
+    grid-template-columns:repeat(3, 1fr);
+    gap:8px;
+    margin-bottom:16px;
+  }
+  .summary-stat{
+    background:var(--birch-dim);
+    border-radius:10px;
+    padding:12px 6px;
+    text-align:center;
+  }
+  .summary-num{
+    font-family:'Unbounded',sans-serif;
+    font-weight:700;
+    font-size:20px;
+    color:var(--ink);
+  }
+  .summary-label{
+    font-size:10.5px;
+    color:#7a7461;
+    margin-top:2px;
+  }
+</style>
+</head>
+<body>
+<div class="app">
+  <div class="eyebrow">Suomea sanasta sanaan</div>
+  <h1>Suomen Sanat</h1>
+  <div class="subtitle">フィンランド語 基本単語クイズ — 挨拶・数字・色 など</div>
+
+  <div class="arc-wrap">
+    <svg class="arc-svg" viewBox="0 0 400 130">
+      <path id="arcTrack" class="arc-track" d="M 20 120 A 180 92 0 0 1 380 120"></path>
+      <path id="arcFill" class="arc-fill" d="M 20 120 A 180 92 0 0 1 380 120" stroke-dasharray="0 1000"></path>
+      <circle id="sunDot" class="sun" cx="20" cy="120" r="9" fill="#E2A63B"></circle>
+    </svg>
+    <div class="arc-caption" id="arcCaption">昇る太陽と一緒に進もう</div>
+  </div>
+
+  <!-- START SCREEN -->
+  <div class="card" id="startScreen">
+    <div class="level-note">レベル：初心者（挨拶・数字などの基本単語）</div>
+    <div class="cat-grid" id="catGrid"></div>
+    <button class="btn btn-primary" id="startBtn">はじめる</button>
+    <div class="inline-warning hidden" id="startWarning">少なくとも1つカテゴリーを選んでください</div>
+    <button class="btn btn-ghost" id="historyToggleBtn" style="margin-top:10px;">記録を見る</button>
+    <div id="historyPanel" class="history-panel hidden"></div>
+  </div>
+
+  <!-- QUIZ SCREEN -->
+  <div class="card hidden" id="quizScreen">
+    <div class="quiz-meta">
+      <span id="qIndex">問題 1 / 15</span>
+      <span>連続正解 <span class="streak" id="streakCount">0</span></span>
+      <button class="quit-btn" id="quitBtn" type="button">✕ やめる</button>
+    </div>
+    <div class="word-fi-row">
+      <div class="word-fi" id="wordFi">kiitos</div>
+      <button class="speak-btn" id="speakBtn" type="button" aria-label="発音を再生">🔊</button>
+    </div>
+    <div class="word-cat" id="wordCat">tervehdykset</div>
+    <div class="voice-note hidden" id="voiceNote">この端末にはフィンランド語の音声が見つからないため、発音の再生をスキップしています</div>
+    <div class="voice-label" id="voiceLabel"></div>
+    <div class="options" id="optionsGrid"></div>
+  </div>
+
+  <!-- RESULT SCREEN -->
+  <div class="card hidden" id="resultScreen">
+    <div class="score-big" id="scoreBig">12 / 15</div>
+    <div class="score-label" id="scoreLabel">お見事！</div>
+    <div id="missedWrap"></div>
+    <div class="result-btns">
+      <button class="btn btn-ghost" id="backBtn">カテゴリーを選び直す</button>
+      <button class="btn btn-primary" id="retryBtn">もう一度</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay hidden" id="confirmOverlay">
+  <div class="modal-box">
+    <div class="modal-message" id="confirmMessage">クイズを中断しますか？</div>
+    <div class="modal-btns">
+      <button class="btn btn-ghost" id="confirmCancelBtn">キャンセル</button>
+      <button class="btn btn-primary" id="confirmOkBtn">中断する</button>
+    </div>
+  </div>
+</div>
+
+<script>
+(function(){
+  const WORDS = [
+    // tervehdykset — greetings
+    {fi:"hei", ja:"やあ／こんにちは", cat:"tervehdykset"},
+    {fi:"moi", ja:"やあ（カジュアル）", cat:"tervehdykset"},
+    {fi:"hyvää huomenta", ja:"おはよう", cat:"tervehdykset"},
+    {fi:"hyvää iltaa", ja:"こんばんは", cat:"tervehdykset"},
+    {fi:"näkemiin", ja:"さようなら", cat:"tervehdykset"},
+    {fi:"kiitos", ja:"ありがとう", cat:"tervehdykset"},
+    {fi:"ole hyvä", ja:"どういたしまして", cat:"tervehdykset"},
+    {fi:"anteeksi", ja:"すみません", cat:"tervehdykset"},
+    {fi:"kyllä", ja:"はい", cat:"tervehdykset"},
+    {fi:"ei", ja:"いいえ", cat:"tervehdykset"},
+    // numerot — numbers
+    {fi:"yksi", ja:"1（いち）", cat:"numerot"},
+    {fi:"kaksi", ja:"2（に）", cat:"numerot"},
+    {fi:"kolme", ja:"3（さん）", cat:"numerot"},
+    {fi:"neljä", ja:"4（よん）", cat:"numerot"},
+    {fi:"viisi", ja:"5（ご）", cat:"numerot"},
+    {fi:"kuusi", ja:"6（ろく）", cat:"numerot"},
+    {fi:"seitsemän", ja:"7（なな）", cat:"numerot"},
+    {fi:"kahdeksan", ja:"8（はち）", cat:"numerot"},
+    {fi:"yhdeksän", ja:"9（きゅう）", cat:"numerot"},
+    {fi:"kymmenen", ja:"10（じゅう）", cat:"numerot"},
+    // värit — colors
+    {fi:"punainen", ja:"赤", cat:"värit"},
+    {fi:"sininen", ja:"青", cat:"värit"},
+    {fi:"vihreä", ja:"緑", cat:"värit"},
+    {fi:"keltainen", ja:"黄色", cat:"värit"},
+    {fi:"musta", ja:"黒", cat:"värit"},
+    {fi:"valkoinen", ja:"白", cat:"värit"},
+    {fi:"ruskea", ja:"茶色", cat:"värit"},
+    {fi:"harmaa", ja:"灰色", cat:"värit"},
+    // eläimet — animals
+    {fi:"koira", ja:"犬", cat:"eläimet"},
+    {fi:"kissa", ja:"猫", cat:"eläimet"},
+    {fi:"hevonen", ja:"馬", cat:"eläimet"},
+    {fi:"lintu", ja:"鳥", cat:"eläimet"},
+    {fi:"kala", ja:"魚", cat:"eläimet"},
+    {fi:"karhu", ja:"熊", cat:"eläimet"},
+    {fi:"susi", ja:"狼", cat:"eläimet"},
+    {fi:"poro", ja:"トナカイ", cat:"eläimet"},
+    // ruoka — food
+    {fi:"leipä", ja:"パン", cat:"ruoka"},
+    {fi:"vesi", ja:"水", cat:"ruoka"},
+    {fi:"maito", ja:"牛乳", cat:"ruoka"},
+    {fi:"kahvi", ja:"コーヒー", cat:"ruoka"},
+    {fi:"omena", ja:"りんご", cat:"ruoka"},
+    {fi:"liha", ja:"肉", cat:"ruoka"},
+    {fi:"juusto", ja:"チーズ", cat:"ruoka"},
+    {fi:"peruna", ja:"じゃがいも", cat:"ruoka"},
+    // perhe — family
+    {fi:"äiti", ja:"母", cat:"perhe"},
+    {fi:"isä", ja:"父", cat:"perhe"},
+    {fi:"sisko", ja:"姉／妹", cat:"perhe"},
+    {fi:"veli", ja:"兄／弟", cat:"perhe"},
+    {fi:"lapsi", ja:"子供", cat:"perhe"},
+    {fi:"mies", ja:"男性／夫", cat:"perhe"},
+    {fi:"nainen", ja:"女性", cat:"perhe"},
+    {fi:"ystävä", ja:"友達", cat:"perhe"},
+    // yleiset sanat — everyday nouns
+    {fi:"talo", ja:"家", cat:"yleiset sanat"},
+    {fi:"kirja", ja:"本", cat:"yleiset sanat"},
+    {fi:"auto", ja:"車", cat:"yleiset sanat"},
+    {fi:"koulu", ja:"学校", cat:"yleiset sanat"},
+    {fi:"aurinko", ja:"太陽", cat:"yleiset sanat"},
+    {fi:"kuu", ja:"月", cat:"yleiset sanat"},
+    {fi:"meri", ja:"海", cat:"yleiset sanat"},
+    {fi:"metsä", ja:"森", cat:"yleiset sanat"},
+    {fi:"järvi", ja:"湖", cat:"yleiset sanat"},
+    // lisää numeroita — more numbers
+    {fi:"yksitoista", ja:"11（じゅういち）", cat:"numerot"},
+    {fi:"kaksitoista", ja:"12（じゅうに）", cat:"numerot"},
+    {fi:"kaksikymmentä", ja:"20（にじゅう）", cat:"numerot"},
+    {fi:"kolmekymmentä", ja:"30（さんじゅう）", cat:"numerot"},
+    {fi:"neljäkymmentä", ja:"40（よんじゅう）", cat:"numerot"},
+    {fi:"viisikymmentä", ja:"50（ごじゅう）", cat:"numerot"},
+    {fi:"sata", ja:"100（ひゃく）", cat:"numerot"},
+    {fi:"tuhat", ja:"1000（せん）", cat:"numerot"},
+    // vuodenajat — seasons
+    {fi:"kevät", ja:"春", cat:"vuodenajat"},
+    {fi:"kesä", ja:"夏", cat:"vuodenajat"},
+    {fi:"syksy", ja:"秋", cat:"vuodenajat"},
+    {fi:"talvi", ja:"冬", cat:"vuodenajat"},
+    // kuukaudet — months
+    {fi:"tammikuu", ja:"1月", cat:"kuukaudet"},
+    {fi:"helmikuu", ja:"2月", cat:"kuukaudet"},
+    {fi:"maaliskuu", ja:"3月", cat:"kuukaudet"},
+    {fi:"huhtikuu", ja:"4月", cat:"kuukaudet"},
+    {fi:"toukokuu", ja:"5月", cat:"kuukaudet"},
+    {fi:"kesäkuu", ja:"6月", cat:"kuukaudet"},
+    {fi:"heinäkuu", ja:"7月", cat:"kuukaudet"},
+    {fi:"elokuu", ja:"8月", cat:"kuukaudet"},
+    {fi:"syyskuu", ja:"9月", cat:"kuukaudet"},
+    {fi:"lokakuu", ja:"10月", cat:"kuukaudet"},
+    {fi:"marraskuu", ja:"11月", cat:"kuukaudet"},
+    {fi:"joulukuu", ja:"12月", cat:"kuukaudet"},
+    // viikonpäivät — days of the week
+    {fi:"maanantai", ja:"月曜日", cat:"viikonpäivät"},
+    {fi:"tiistai", ja:"火曜日", cat:"viikonpäivät"},
+    {fi:"keskiviikko", ja:"水曜日", cat:"viikonpäivät"},
+    {fi:"torstai", ja:"木曜日", cat:"viikonpäivät"},
+    {fi:"perjantai", ja:"金曜日", cat:"viikonpäivät"},
+    {fi:"lauantai", ja:"土曜日", cat:"viikonpäivät"},
+    {fi:"sunnuntai", ja:"日曜日", cat:"viikonpäivät"},
+    // sää — weather
+    {fi:"aurinkoista", ja:"晴れ", cat:"sää"},
+    {fi:"sataa", ja:"雨が降る", cat:"sää"},
+    {fi:"lunta", ja:"雪（が降る）", cat:"sää"},
+    {fi:"tuulista", ja:"風が強い", cat:"sää"},
+    {fi:"pilvistä", ja:"曇り", cat:"sää"},
+    {fi:"kylmä", ja:"寒い", cat:"sää"},
+    {fi:"lämmin", ja:"暖かい", cat:"sää"},
+    {fi:"kuuma", ja:"暑い", cat:"sää"},
+    // keho — body
+    {fi:"pää", ja:"頭", cat:"keho"},
+    {fi:"silmä", ja:"目", cat:"keho"},
+    {fi:"korva", ja:"耳", cat:"keho"},
+    {fi:"nenä", ja:"鼻", cat:"keho"},
+    {fi:"suu", ja:"口", cat:"keho"},
+    {fi:"käsi", ja:"手", cat:"keho"},
+    {fi:"jalka", ja:"足", cat:"keho"},
+    {fi:"sydän", ja:"心臓", cat:"keho"},
+    {fi:"hiukset", ja:"髪", cat:"keho"},
+    {fi:"selkä", ja:"背中", cat:"keho"},
+    // vaatteet — clothing
+    {fi:"paita", ja:"シャツ", cat:"vaatteet"},
+    {fi:"housut", ja:"ズボン", cat:"vaatteet"},
+    {fi:"hame", ja:"スカート", cat:"vaatteet"},
+    {fi:"takki", ja:"コート", cat:"vaatteet"},
+    {fi:"kengät", ja:"靴", cat:"vaatteet"},
+    {fi:"hattu", ja:"帽子", cat:"vaatteet"},
+    {fi:"sukat", ja:"靴下", cat:"vaatteet"},
+    {fi:"käsine", ja:"手袋", cat:"vaatteet"},
+    // koti — house & rooms
+    {fi:"keittiö", ja:"キッチン", cat:"koti"},
+    {fi:"makuuhuone", ja:"寝室", cat:"koti"},
+    {fi:"olohuone", ja:"リビング", cat:"koti"},
+    {fi:"kylpyhuone", ja:"浴室", cat:"koti"},
+    {fi:"ikkuna", ja:"窓", cat:"koti"},
+    {fi:"ovi", ja:"ドア", cat:"koti"},
+    {fi:"pöytä", ja:"テーブル", cat:"koti"},
+    {fi:"tuoli", ja:"椅子", cat:"koti"},
+    {fi:"sänky", ja:"ベッド", cat:"koti"},
+    {fi:"sohva", ja:"ソファ", cat:"koti"},
+    // ammatit — professions
+    {fi:"opettaja", ja:"先生", cat:"ammatit"},
+    {fi:"lääkäri", ja:"医者", cat:"ammatit"},
+    {fi:"insinööri", ja:"エンジニア", cat:"ammatit"},
+    {fi:"poliisi", ja:"警察官", cat:"ammatit"},
+    {fi:"kokki", ja:"料理人", cat:"ammatit"},
+    {fi:"taiteilija", ja:"芸術家", cat:"ammatit"},
+    {fi:"myyjä", ja:"店員", cat:"ammatit"},
+    {fi:"sairaanhoitaja", ja:"看護師", cat:"ammatit"},
+    // verbit — common verbs
+    {fi:"olla", ja:"〜である", cat:"verbit"},
+    {fi:"mennä", ja:"行く", cat:"verbit"},
+    {fi:"tulla", ja:"来る", cat:"verbit"},
+    {fi:"syödä", ja:"食べる", cat:"verbit"},
+    {fi:"juoda", ja:"飲む", cat:"verbit"},
+    {fi:"nukkua", ja:"眠る", cat:"verbit"},
+    {fi:"puhua", ja:"話す", cat:"verbit"},
+    {fi:"lukea", ja:"読む", cat:"verbit"},
+    {fi:"kirjoittaa", ja:"書く", cat:"verbit"},
+    {fi:"ostaa", ja:"買う", cat:"verbit"},
+    {fi:"tehdä", ja:"する／作る", cat:"verbit"},
+    {fi:"nähdä", ja:"見る", cat:"verbit"},
+    {fi:"kuulla", ja:"聞く", cat:"verbit"},
+    {fi:"rakastaa", ja:"愛する", cat:"verbit"},
+    {fi:"oppia", ja:"学ぶ", cat:"verbit"},
+    // adjektiivit — adjectives
+    {fi:"iso", ja:"大きい", cat:"adjektiivit"},
+    {fi:"pieni", ja:"小さい", cat:"adjektiivit"},
+    {fi:"hyvä", ja:"良い", cat:"adjektiivit"},
+    {fi:"huono", ja:"悪い", cat:"adjektiivit"},
+    {fi:"kaunis", ja:"美しい", cat:"adjektiivit"},
+    {fi:"uusi", ja:"新しい", cat:"adjektiivit"},
+    {fi:"vanha", ja:"古い", cat:"adjektiivit"},
+    {fi:"nopea", ja:"速い", cat:"adjektiivit"},
+    {fi:"hidas", ja:"遅い", cat:"adjektiivit"},
+    {fi:"helppo", ja:"簡単な", cat:"adjektiivit"},
+    {fi:"vaikea", ja:"難しい", cat:"adjektiivit"},
+    // luonto — nature
+    {fi:"taivas", ja:"空", cat:"luonto"},
+    {fi:"tähti", ja:"星", cat:"luonto"},
+    {fi:"pilvi", ja:"雲", cat:"luonto"},
+    {fi:"sade", ja:"雨", cat:"luonto"},
+    {fi:"lumi", ja:"雪", cat:"luonto"},
+    {fi:"tuuli", ja:"風", cat:"luonto"},
+    {fi:"kivi", ja:"石", cat:"luonto"},
+    {fi:"hiekka", ja:"砂", cat:"luonto"},
+    // liikenne — transportation
+    {fi:"juna", ja:"電車", cat:"liikenne"},
+    {fi:"bussi", ja:"バス", cat:"liikenne"},
+    {fi:"lentokone", ja:"飛行機", cat:"liikenne"},
+    {fi:"laiva", ja:"船", cat:"liikenne"},
+    {fi:"polkupyörä", ja:"自転車", cat:"liikenne"},
+    {fi:"taksi", ja:"タクシー", cat:"liikenne"},
+    // tunteet — emotions
+    {fi:"onnellinen", ja:"幸せな", cat:"tunteet"},
+    {fi:"surullinen", ja:"悲しい", cat:"tunteet"},
+    {fi:"vihainen", ja:"怒っている", cat:"tunteet"},
+    {fi:"väsynyt", ja:"疲れた", cat:"tunteet"},
+    {fi:"iloinen", ja:"嬉しい", cat:"tunteet"},
+    {fi:"peloissaan", ja:"怖がっている", cat:"tunteet"},
+    // aika — time
+    {fi:"tänään", ja:"今日", cat:"aika"},
+    {fi:"huomenna", ja:"明日", cat:"aika"},
+    {fi:"eilen", ja:"昨日", cat:"aika"},
+    {fi:"nyt", ja:"今", cat:"aika"},
+    {fi:"myöhemmin", ja:"後で", cat:"aika"},
+    {fi:"aamu", ja:"朝", cat:"aika"},
+    {fi:"ilta", ja:"夜", cat:"aika"},
+    {fi:"yö", ja:"夜中", cat:"aika"},
+    {fi:"päivä", ja:"昼／日", cat:"aika"},
+    // kysymyssanat — question words
+    {fi:"mitä", ja:"何", cat:"kysymyssanat"},
+    {fi:"kuka", ja:"誰", cat:"kysymyssanat"},
+    {fi:"missä", ja:"どこ", cat:"kysymyssanat"},
+    {fi:"milloin", ja:"いつ", cat:"kysymyssanat"},
+    {fi:"miksi", ja:"なぜ", cat:"kysymyssanat"},
+    {fi:"miten", ja:"どうやって", cat:"kysymyssanat"},
+    // hedelmät ja vihannekset — fruits & vegetables
+    {fi:"banaani", ja:"バナナ", cat:"hedelmät ja vihannekset"},
+    {fi:"appelsiini", ja:"オレンジ", cat:"hedelmät ja vihannekset"},
+    {fi:"mansikka", ja:"いちご", cat:"hedelmät ja vihannekset"},
+    {fi:"viinirypäle", ja:"ぶどう", cat:"hedelmät ja vihannekset"},
+    {fi:"porkkana", ja:"にんじん", cat:"hedelmät ja vihannekset"},
+    {fi:"tomaatti", ja:"トマト", cat:"hedelmät ja vihannekset"},
+    {fi:"kurkku", ja:"きゅうり", cat:"hedelmät ja vihannekset"},
+    {fi:"sipuli", ja:"たまねぎ", cat:"hedelmät ja vihannekset"},
+    // juomat — drinks
+    {fi:"tee", ja:"紅茶", cat:"juomat"},
+    {fi:"mehu", ja:"ジュース", cat:"juomat"},
+    {fi:"olut", ja:"ビール", cat:"juomat"},
+    {fi:"viini", ja:"ワイン", cat:"juomat"},
+    // koulu — school
+    {fi:"oppilas", ja:"生徒", cat:"koulu"},
+    {fi:"kynä", ja:"ペン", cat:"koulu"},
+    {fi:"vihko", ja:"ノート", cat:"koulu"},
+    {fi:"pulpetti", ja:"机", cat:"koulu"},
+    {fi:"luokka", ja:"教室", cat:"koulu"},
+    // urheilu — sports
+    {fi:"jalkapallo", ja:"サッカー", cat:"urheilu"},
+    {fi:"uinti", ja:"水泳", cat:"urheilu"},
+    {fi:"juoksu", ja:"ランニング", cat:"urheilu"},
+    {fi:"hiihto", ja:"スキー", cat:"urheilu"},
+    {fi:"jääkiekko", ja:"アイスホッケー", cat:"urheilu"},
+    // teknologia — technology
+    {fi:"puhelin", ja:"電話", cat:"teknologia"},
+    {fi:"tietokone", ja:"コンピューター", cat:"teknologia"},
+    {fi:"internet", ja:"インターネット", cat:"teknologia"},
+    {fi:"sähköposti", ja:"メール", cat:"teknologia"},
+    {fi:"televisio", ja:"テレビ", cat:"teknologia"},
+    // keittiövälineet — kitchen items
+    {fi:"lusikka", ja:"スプーン", cat:"keittiövälineet"},
+    {fi:"haarukka", ja:"フォーク", cat:"keittiövälineet"},
+    {fi:"veitsi", ja:"ナイフ", cat:"keittiövälineet"},
+    {fi:"lautanen", ja:"お皿", cat:"keittiövälineet"},
+    {fi:"kuppi", ja:"カップ", cat:"keittiövälineet"},
+    {fi:"pannu", ja:"フライパン", cat:"keittiövälineet"},
+    // lisää eläimiä — more animals
+    {fi:"lammas", ja:"羊", cat:"eläimet"},
+    {fi:"sika", ja:"豚", cat:"eläimet"},
+    {fi:"kana", ja:"鶏", cat:"eläimet"},
+    {fi:"jänis", ja:"うさぎ", cat:"eläimet"},
+    {fi:"orava", ja:"リス", cat:"eläimet"},
+    {fi:"käärme", ja:"蛇", cat:"eläimet"},
+  ];
+
+  const CATS = [...new Set(WORDS.map(w=>w.cat))];
+  const CAT_LABELS = {
+    "tervehdykset": "挨拶",
+    "numerot": "数字",
+    "värit": "色",
+    "eläimet": "動物",
+    "ruoka": "食べ物",
+    "perhe": "家族",
+    "yleiset sanat": "日常語",
+    "vuodenajat": "季節",
+    "kuukaudet": "月",
+    "viikonpäivät": "曜日",
+    "sää": "天気",
+    "keho": "体",
+    "vaatteet": "服",
+    "koti": "家・部屋",
+    "ammatit": "職業",
+    "verbit": "動詞",
+    "adjektiivit": "形容詞",
+    "luonto": "自然",
+    "liikenne": "乗り物",
+    "tunteet": "感情",
+    "aika": "時間",
+    "kysymyssanat": "疑問詞",
+    "hedelmät ja vihannekset": "果物・野菜",
+    "juomat": "飲み物",
+    "koulu": "学校",
+    "urheilu": "スポーツ",
+    "teknologia": "テクノロジー",
+    "keittiövälineet": "台所用品",
+  };
+  function catLabel(cat){
+    return CAT_LABELS[cat] ? `${CAT_LABELS[cat]}（${cat}）` : cat;
+  }
+  const ROUND_SIZE = 15;
+
+  const els = {
+    startScreen: document.getElementById('startScreen'),
+    quizScreen: document.getElementById('quizScreen'),
+    resultScreen: document.getElementById('resultScreen'),
+    catGrid: document.getElementById('catGrid'),
+    startBtn: document.getElementById('startBtn'),
+    qIndex: document.getElementById('qIndex'),
+    streakCount: document.getElementById('streakCount'),
+    wordFi: document.getElementById('wordFi'),
+    wordCat: document.getElementById('wordCat'),
+    optionsGrid: document.getElementById('optionsGrid'),
+    scoreBig: document.getElementById('scoreBig'),
+    scoreLabel: document.getElementById('scoreLabel'),
+    missedWrap: document.getElementById('missedWrap'),
+    backBtn: document.getElementById('backBtn'),
+    retryBtn: document.getElementById('retryBtn'),
+    arcFill: document.getElementById('arcFill'),
+    sunDot: document.getElementById('sunDot'),
+    arcCaption: document.getElementById('arcCaption'),
+    historyToggleBtn: document.getElementById('historyToggleBtn'),
+    historyPanel: document.getElementById('historyPanel'),
+    speakBtn: document.getElementById('speakBtn'),
+    voiceNote: document.getElementById('voiceNote'),
+    voiceLabel: document.getElementById('voiceLabel'),
+    quitBtn: document.getElementById('quitBtn'),
+    startWarning: document.getElementById('startWarning'),
+    confirmOverlay: document.getElementById('confirmOverlay'),
+    confirmMessage: document.getElementById('confirmMessage'),
+    confirmCancelBtn: document.getElementById('confirmCancelBtn'),
+    confirmOkBtn: document.getElementById('confirmOkBtn'),
+  };
+
+  let selectedCats = new Set(CATS);
+  let deck = [];
+  let qi = 0;
+  let score = 0;
+  let streak = 0;
+  let bestStreak = 0;
+  let missed = [];
+  let arcLen = 0;
+  let locked = false;
+  let roundActive = false;
+
+  let finnishVoice = null;
+  let voiceAvailable = false;
+  function pickFinnishVoice(){
+    if(!('speechSynthesis' in window)) return;
+    const voices = window.speechSynthesis.getVoices();
+    if(!voices.length) return;
+    // Prefer an actual Finnish voice. Failing that, fall back to a Latin-alphabet
+    // language (Swedish, then English) rather than letting the browser silently
+    // default to a Japanese system voice, which mispronounces Finnish badly.
+    finnishVoice =
+      voices.find(v => v.lang && v.lang.toLowerCase().startsWith('fi')) ||
+      voices.find(v => v.lang && v.lang.toLowerCase().startsWith('sv')) ||
+      voices.find(v => v.lang && v.lang.toLowerCase().startsWith('en')) ||
+      null;
+    voiceAvailable = !!finnishVoice;
+    updateSpeakAvailability();
+  }
+  if('speechSynthesis' in window){
+    pickFinnishVoice();
+    window.speechSynthesis.onvoiceschanged = pickFinnishVoice;
+  } else {
+    updateSpeakAvailability();
+  }
+
+  function updateSpeakAvailability(){
+    if(!els.speakBtn) return;
+    if(voiceAvailable){
+      els.speakBtn.disabled = false;
+      els.speakBtn.title = '発音を再生';
+      els.voiceNote.classList.add('hidden');
+      const isReallyFinnish = finnishVoice.lang && finnishVoice.lang.toLowerCase().startsWith('fi');
+      els.voiceLabel.textContent = isReallyFinnish
+        ? `使用中の音声: ${finnishVoice.name}（${finnishVoice.lang}）`
+        : `フィンランド語の音声が見つからないため代替音声を使用中: ${finnishVoice.name}（${finnishVoice.lang}）`;
+    } else {
+      els.speakBtn.disabled = true;
+      els.speakBtn.title = 'この端末では発音の再生に対応していません';
+      els.voiceNote.classList.remove('hidden');
+      els.voiceLabel.textContent = '';
+    }
+  }
+
+  function speakWord(text){
+    if(!('speechSynthesis' in window) || !finnishVoice) return;
+    try{
+      window.speechSynthesis.cancel();
+      const utter = new SpeechSynthesisUtterance(text);
+      utter.voice = finnishVoice;
+      utter.lang = finnishVoice.lang;
+      utter.rate = 0.85;
+      els.speakBtn.classList.add('speaking');
+      utter.onend = () => els.speakBtn.classList.remove('speaking');
+      utter.onerror = () => els.speakBtn.classList.remove('speaking');
+      window.speechSynthesis.speak(utter);
+    }catch(err){
+      console.error('音声の再生に失敗しました', err);
+    }
+  }
+
+  function showConfirmModal(message, onConfirm){
+    els.confirmMessage.textContent = message;
+    els.confirmOverlay.classList.remove('hidden');
+
+    function cleanup(){
+      els.confirmOverlay.classList.add('hidden');
+      els.confirmOkBtn.removeEventListener('click', onOk);
+      els.confirmCancelBtn.removeEventListener('click', onCancel);
+    }
+    function onOk(){ cleanup(); onConfirm(); }
+    function onCancel(){ cleanup(); }
+
+    els.confirmOkBtn.addEventListener('click', onOk);
+    els.confirmCancelBtn.addEventListener('click', onCancel);
+  }
+
+  function shuffle(arr){
+    const a = arr.slice();
+    for(let i=a.length-1;i>0;i--){
+      const j = Math.floor(Math.random()*(i+1));
+      [a[i],a[j]] = [a[j],a[i]];
+    }
+    return a;
+  }
+
+  function buildCatGrid(){
+    els.catGrid.innerHTML = '';
+    CATS.forEach(cat=>{
+      const count = WORDS.filter(w=>w.cat===cat).length;
+      const label = document.createElement('label');
+      label.className = 'cat-chip active';
+      label.innerHTML = `
+        <input type="checkbox" checked data-cat="${cat}">
+        <span class="cat-chip-text">
+          <span class="cat-chip-ja">${CAT_LABELS[cat] || cat}</span>
+          <span class="cat-chip-fi">${cat}</span>
+        </span>
+        <span class="cat-count">${count}</span>
+      `;
+      const input = label.querySelector('input');
+      input.addEventListener('change', ()=>{
+        if(input.checked){ selectedCats.add(cat); label.classList.add('active'); }
+        else { selectedCats.delete(cat); label.classList.remove('active'); }
+      });
+      els.catGrid.appendChild(label);
+    });
+  }
+
+  function showScreen(name){
+    els.startScreen.classList.toggle('hidden', name!=='start');
+    els.quizScreen.classList.toggle('hidden', name!=='quiz');
+    els.resultScreen.classList.toggle('hidden', name!=='result');
+  }
+
+  function initArc(){
+    arcLen = els.arcFill.getTotalLength();
+    els.arcFill.style.strokeDasharray = arcLen;
+    els.arcFill.style.strokeDashoffset = arcLen;
+  }
+
+  function updateArc(progressFraction){
+    const offset = arcLen * (1 - progressFraction);
+    els.arcFill.style.strokeDashoffset = offset;
+    const point = els.arcFill.getPointAtLength(arcLen * progressFraction);
+    els.sunDot.setAttribute('cx', point.x);
+    els.sunDot.setAttribute('cy', point.y);
+  }
+
+  function startRound(){
+    const pool = WORDS.filter(w=>selectedCats.has(w.cat));
+    const size = Math.min(ROUND_SIZE, pool.length);
+    deck = shuffle(pool).slice(0, size);
+    qi = 0; score = 0; streak = 0; bestStreak = 0; missed = [];
+    roundActive = true;
+    showScreen('quiz');
+    initArc();
+    updateArc(0);
+    renderQuestion();
+  }
+
+  function renderQuestion(){
+    locked = false;
+    const item = deck[qi];
+    els.qIndex.textContent = `問題 ${qi+1} / ${deck.length}`;
+    els.streakCount.textContent = streak;
+    els.wordFi.textContent = item.fi;
+    els.wordCat.textContent = catLabel(item.cat);
+    speakWord(item.fi);
+
+    const wrongPool = WORDS.filter(w=>w.ja!==item.ja);
+    const wrongs = shuffle(wrongPool).slice(0,3);
+    const options = shuffle([item, ...wrongs]);
+
+    els.optionsGrid.innerHTML = '';
+    options.forEach(opt=>{
+      const btn = document.createElement('button');
+      btn.className = 'opt';
+      btn.textContent = opt.ja;
+      btn.addEventListener('click', ()=>handleAnswer(btn, opt, item));
+      els.optionsGrid.appendChild(btn);
+    });
+  }
+
+  function handleAnswer(btn, opt, item){
+    if(locked) return;
+    locked = true;
+    const correct = opt.ja === item.ja;
+    const allBtns = Array.from(els.optionsGrid.children);
+    allBtns.forEach(b=>b.disabled = true);
+
+    if(correct){
+      btn.classList.add('correct');
+      score++;
+      streak++;
+      bestStreak = Math.max(bestStreak, streak);
+    } else {
+      btn.classList.add('wrong');
+      streak = 0;
+      missed.push(item);
+      const correctBtn = allBtns.find(b=>b.textContent===item.ja);
+      if(correctBtn) correctBtn.classList.add('correct');
+    }
+    els.streakCount.textContent = streak;
+    updateArc((qi+1)/deck.length);
+
+    setTimeout(()=>{
+      if(!roundActive) return;
+      qi++;
+      if(qi < deck.length){
+        renderQuestion();
+      } else {
+        showResult();
+      }
+    }, correct ? 550 : 1000);
+  }
+
+  function showResult(){
+    showScreen('result');
+    els.scoreBig.textContent = `${score} / ${deck.length}`;
+    const pct = score/deck.length;
+    let label = '';
+    if(pct === 1) label = '満点！お見事です';
+    else if(pct >= 0.8) label = 'とても良い調子';
+    else if(pct >= 0.5) label = 'いい感じ、続けよう';
+    else label = 'もう一度挑戦してみよう';
+    els.scoreLabel.textContent = `${label}（最長連続正解 ${bestStreak}）`;
+
+    addHistoryEntry({
+      date: new Date().toISOString(),
+      score: score,
+      total: deck.length,
+      bestStreak: bestStreak,
+      categories: Array.from(selectedCats),
+      missedWords: missed.map(m => ({fi: m.fi, ja: m.ja})),
+    });
+
+    els.missedWrap.innerHTML = '';
+    if(missed.length){
+      const title = document.createElement('div');
+      title.className = 'missed-title';
+      title.textContent = `間違えた単語（${missed.length}）`;
+      els.missedWrap.appendChild(title);
+      missed.forEach(m=>{
+        const row = document.createElement('div');
+        row.className = 'missed-row';
+        row.innerHTML = `<span class="fi">${m.fi}</span><span class="ja">${m.ja}</span>`;
+        els.missedWrap.appendChild(row);
+      });
+    }
+  }
+
+  const HISTORY_KEY = 'quiz-history-log';
+  const MAX_HISTORY = 50;
+
+  async function getHistory(){
+    try{
+      const raw = localStorage.getItem(HISTORY_KEY);
+      if(!raw) return [];
+      const parsed = JSON.parse(raw);
+      return Array.isArray(parsed) ? parsed : [];
+    }catch(err){
+      return [];
+    }
+  }
+
+  async function addHistoryEntry(entry){
+    try{
+      const current = await getHistory();
+      const updated = [entry, ...current].slice(0, MAX_HISTORY);
+      localStorage.setItem(HISTORY_KEY, JSON.stringify(updated));
+    }catch(err){
+      // storage unavailable (e.g. private browsing) — the round still completes without saving
+      console.error('履歴の保存に失敗しました', err);
+    }
+  }
+
+  async function clearHistory(){
+    try{
+      localStorage.removeItem(HISTORY_KEY);
+    }catch(err){
+      console.error('履歴の削除に失敗しました', err);
+    }
+  }
+
+  function formatDate(iso){
+    const d = new Date(iso);
+    const mm = String(d.getMonth()+1).padStart(2,'0');
+    const dd = String(d.getDate()).padStart(2,'0');
+    const hh = String(d.getHours()).padStart(2,'0');
+    const mi = String(d.getMinutes()).padStart(2,'0');
+    return `${mm}/${dd} ${hh}:${mi}`;
+  }
+
+  function renderHistoryList(logs){
+    els.historyPanel.innerHTML = '';
+    if(!logs.length){
+      const empty = document.createElement('div');
+      empty.className = 'history-empty';
+      empty.textContent = 'まだ記録がありません。1回プレイすると、ここに履歴が残ります。';
+      els.historyPanel.appendChild(empty);
+      return;
+    }
+
+    // --- aggregate summary across all saved sessions ---
+    let totalScore = 0, totalQuestions = 0;
+    const missTally = {}; // "fi|ja" -> {fi, ja, count}
+    logs.forEach(entry=>{
+      totalScore += entry.score;
+      totalQuestions += entry.total;
+      (entry.missedWords || []).forEach(m=>{
+        const key = m.fi + '|' + m.ja;
+        if(!missTally[key]) missTally[key] = {fi: m.fi, ja: m.ja, count: 0};
+        missTally[key].count++;
+      });
+    });
+    const overallAccuracy = totalQuestions ? Math.round((totalScore/totalQuestions)*100) : 0;
+    const topMissed = Object.values(missTally).sort((a,b)=>b.count-a.count).slice(0,5);
+
+    const summary = document.createElement('div');
+    summary.className = 'history-summary';
+    summary.innerHTML = `
+      <div class="summary-stat">
+        <div class="summary-num">${logs.length}</div>
+        <div class="summary-label">プレイ回数</div>
+      </div>
+      <div class="summary-stat">
+        <div class="summary-num">${overallAccuracy}%</div>
+        <div class="summary-label">通算正答率</div>
+      </div>
+      <div class="summary-stat">
+        <div class="summary-num">${totalQuestions}</div>
+        <div class="summary-label">累計出題数</div>
+      </div>
+    `;
+    els.historyPanel.appendChild(summary);
+
+    if(topMissed.length){
+      const weakTitle = document.createElement('div');
+      weakTitle.className = 'missed-title';
+      weakTitle.textContent = '苦手な単語 トップ5';
+      els.historyPanel.appendChild(weakTitle);
+      topMissed.forEach(m=>{
+        const row = document.createElement('div');
+        row.className = 'missed-row';
+        row.innerHTML = `<span class="fi">${m.fi}</span><span class="ja">${m.ja}（${m.count}回間違い）</span>`;
+        els.historyPanel.appendChild(row);
+      });
+    }
+
+    const sessionsTitle = document.createElement('div');
+    sessionsTitle.className = 'missed-title';
+    sessionsTitle.textContent = 'プレイ履歴';
+    els.historyPanel.appendChild(sessionsTitle);
+
+    logs.forEach(entry=>{
+      const row = document.createElement('div');
+      row.className = 'history-row';
+      const pct = entry.total ? Math.round((entry.score/entry.total)*100) : 0;
+      row.innerHTML = `
+        <span class="history-date">${formatDate(entry.date)}</span>
+        <span class="history-cats">${entry.categories.map(catLabel).join(' / ')}</span>
+        <span class="history-score">${entry.score}/${entry.total}（${pct}%）</span>
+      `;
+      els.historyPanel.appendChild(row);
+    });
+
+    const clearBtn = document.createElement('button');
+    clearBtn.className = 'history-clear';
+    clearBtn.textContent = '記録を消去する';
+    clearBtn.addEventListener('click', async ()=>{
+      clearBtn.disabled = true;
+      await clearHistory();
+      renderHistoryList([]);
+    });
+    els.historyPanel.appendChild(clearBtn);
+  }
+
+  async function toggleHistoryPanel(){
+    const isHidden = els.historyPanel.classList.contains('hidden');
+    if(isHidden){
+      els.historyPanel.classList.remove('hidden');
+      els.historyPanel.innerHTML = '<div class="history-loading">読み込み中…</div>';
+      const logs = await getHistory();
+      renderHistoryList(logs);
+      els.historyToggleBtn.textContent = '記録を隠す';
+    } else {
+      els.historyPanel.classList.add('hidden');
+      els.historyToggleBtn.textContent = '記録を見る';
+    }
+  }
+
+
+  els.startBtn.addEventListener('click', ()=>{
+    if(selectedCats.size === 0){
+      els.startWarning.classList.remove('hidden');
+      return;
+    }
+    els.startWarning.classList.add('hidden');
+    startRound();
+  });
+  els.retryBtn.addEventListener('click', startRound);
+  els.backBtn.addEventListener('click', ()=>showScreen('start'));
+  els.historyToggleBtn.addEventListener('click', toggleHistoryPanel);
+  els.speakBtn.addEventListener('click', ()=>{
+    if(deck[qi]) speakWord(deck[qi].fi);
+  });
+  els.quitBtn.addEventListener('click', ()=>{
+    showConfirmModal('クイズを中断しますか？この回の記録は保存されません。', ()=>{
+      if('speechSynthesis' in window) window.speechSynthesis.cancel();
+      roundActive = false;
+      locked = true;
+      showScreen('start');
+    });
+  });
+
+  buildCatGrid();
+  showScreen('start');
+  window.addEventListener('resize', ()=>{ initArc(); });
+})();
+</script>
+</body>
+</html>

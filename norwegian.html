@@ -37,6 +37,44 @@
     width:100%;
     max-width:640px;
   }
+  .back-link{
+    display:inline-block;
+    font-size:12.5px;
+    color:var(--frost);
+    text-decoration:none;
+    margin-bottom:10px;
+    opacity:0.85;
+  }
+  .back-link:hover{ opacity:1; text-decoration:underline; }
+  .cat-select-row{
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    gap:8px;
+    margin:14px 0 8px;
+  }
+  .link-btn{
+    background:none;
+    border:none;
+    padding:0;
+    font-family:'Inter',sans-serif;
+    font-size:12.5px;
+    font-weight:600;
+    color:var(--moss);
+    cursor:pointer;
+    text-decoration:underline;
+  }
+  .link-btn:hover{ opacity:0.75; }
+  .cat-select-sep{ color:#b9b19a; font-size:12px; }
+  .cat-grid-scroll{
+    max-height:280px;
+    overflow-y:auto;
+    padding-right:4px;
+    margin-bottom:16px;
+    border:1px solid var(--birch-dim);
+    border-radius:12px;
+    padding:10px;
+  }
   .eyebrow{
     font-family:'JetBrains Mono',monospace;
     font-size:12px;
@@ -97,7 +135,7 @@
     display:grid;
     grid-template-columns:1fr 1fr;
     gap:10px;
-    margin:18px 0 22px;
+    margin:0;
   }
   .cat-chip{
     display:flex;
@@ -523,6 +561,7 @@
 </head>
 <body>
 <div class="app">
+  <a class="back-link" href="index.html">← ほかの言語を見る</a>
   <div class="eyebrow">Lær ord ved å spille</div>
   <h1>Norske Ord</h1>
   <div class="subtitle">ノルウェー語 基本単語クイズ — 挨拶・数字・色 など</div>
@@ -539,7 +578,14 @@
   <!-- START SCREEN -->
   <div class="card" id="startScreen">
     <div class="level-note">レベル：初心者（挨拶・数字などの基本単語）</div>
-    <div class="cat-grid" id="catGrid"></div>
+    <div class="cat-select-row">
+      <button type="button" class="link-btn" id="selectAllBtn">すべて選択</button>
+      <span class="cat-select-sep">・</span>
+      <button type="button" class="link-btn" id="deselectAllBtn">選択を解除</button>
+    </div>
+    <div class="cat-grid-scroll">
+      <div class="cat-grid" id="catGrid"></div>
+    </div>
     <button class="btn btn-primary" id="startBtn">はじめる</button>
     <div class="inline-warning hidden" id="startWarning">少なくとも1つカテゴリーを選んでください</div>
     <button class="btn btn-ghost" id="historyToggleBtn" style="margin-top:10px;">記録を見る</button>
@@ -1044,6 +1090,8 @@
     resultScreen: document.getElementById('resultScreen'),
     catGrid: document.getElementById('catGrid'),
     startBtn: document.getElementById('startBtn'),
+    selectAllBtn: document.getElementById('selectAllBtn'),
+    deselectAllBtn: document.getElementById('deselectAllBtn'),
     qIndex: document.getElementById('qIndex'),
     streakCount: document.getElementById('streakCount'),
     wordFi: document.getElementById('wordFi'),
@@ -1665,6 +1713,24 @@
       els.wordStatsToggleBtn.textContent = '単語ごとの学習記録を見る';
     }
   }
+
+  function setAllCategories(checked){
+    const inputs = els.catGrid.querySelectorAll('input[type="checkbox"]');
+    inputs.forEach(input => {
+      input.checked = checked;
+      const cat = input.dataset.cat;
+      const chip = input.closest('.cat-chip');
+      if(checked){
+        selectedCats.add(cat);
+        if(chip) chip.classList.add('active');
+      } else {
+        selectedCats.delete(cat);
+        if(chip) chip.classList.remove('active');
+      }
+    });
+  }
+  els.selectAllBtn.addEventListener('click', ()=> setAllCategories(true));
+  els.deselectAllBtn.addEventListener('click', ()=> setAllCategories(false));
 
   els.startBtn.addEventListener('click', ()=>{
     if(selectedCats.size === 0){

@@ -1146,19 +1146,39 @@
 
   loadWordStats();
 
+  // --- pre-recorded audio files (preferred) ---
+  const AUDIO_BASE = 'audio/no';
+  const NATIVE_LANG_PREFIXES = ["nb","no"];
+  let audioManifest = {};
+  let audioManifestLoaded = false;
+  let currentAudio = null;
+
+  fetch(`${AUDIO_BASE}/manifest.json`)
+    .then(res => { if(!res.ok) throw new Error('manifest not found'); return res.json(); })
+    .then(data => {
+      audioManifest = data || {};
+      audioManifestLoaded = Object.keys(audioManifest).length > 0;
+      updateSpeakAvailability();
+    })
+    .catch(() => {
+      // No pre-recorded audio uploaded yet (or running from a local file where
+      // fetch() can't load it) — the game just falls back to browser speech.
+      audioManifest = {};
+      audioManifestLoaded = false;
+    });
+
   let finnishVoice = null;
   let voiceAvailable = false;
   function pickFinnishVoice(){
     if(!('speechSynthesis' in window)) return;
     const voices = window.speechSynthesis.getVoices();
     if(!voices.length) return;
-    // Prefer an actual Finnish voice. Failing that, fall back to a Latin-alphabet
-    // language (Swedish, then English) rather than letting the browser silently
-    // default to a Japanese system voice, which mispronounces Finnish badly.
+    // Prefer an actual native voice. Failing that, fall back to English rather
+    // than letting the browser silently default to a Japanese system voice,
+    // which mispronounces the word badly.
     finnishVoice =
-      voices.find(v => v.lang && v.lang.toLowerCase().startsWith("nb")) ||
-      voices.find(v => v.lang && v.lang.toLowerCase().startsWith("no")) ||
-      voices.find(v => v.lang && v.lang.toLowerCase().startsWith("en")) ||
+      NATIVE_LANG_PREFIXES.map(p => voices.find(v => v.lang && v.lang.toLowerCase().startsWith(p))).find(Boolean) ||
+      voices.find(v => v.lang && v.lang.toLowerCase().startsWith('en')) ||
       null;
     voiceAvailable = !!finnishVoice;
     updateSpeakAvailability();
@@ -1172,14 +1192,23 @@
 
   function updateSpeakAvailability(){
     if(!els.speakBtn) return;
+    if(audioManifestLoaded){
+      // Pre-recorded audio is available for at least some words — always keep
+      // the button enabled; per-word fallback to synthesis (or silence) is
+      // handled inside speakWord() itself.
+      els.speakBtn.disabled = false;
+      els.speakBtn.title = '発音を再生';
+      els.voiceNote.classList.add('hidden');
+      return;
+    }
     if(voiceAvailable){
       els.speakBtn.disabled = false;
       els.speakBtn.title = '発音を再生';
       els.voiceNote.classList.add('hidden');
-      const isReallyFinnish = finnishVoice.lang && finnishVoice.lang.toLowerCase().startsWith('fi');
-      els.voiceLabel.textContent = isReallyFinnish
+      const isReallyNative = NATIVE_LANG_PREFIXES.some(p => finnishVoice.lang && finnishVoice.lang.toLowerCase().startsWith(p));
+      els.voiceLabel.textContent = isReallyNative
         ? `使用中の音声: ${finnishVoice.name}（${finnishVoice.lang}）`
-        : `フィンランド語の音声が見つからないため代替音声を使用中: ${finnishVoice.name}（${finnishVoice.lang}）`;
+        : `この言語の音声が見つからないため代替音声を使用中: ${finnishVoice.name}（${finnishVoice.lang}）`;
     } else {
       els.speakBtn.disabled = true;
       els.speakBtn.title = 'この端末では発音の再生に対応していません';
@@ -1189,7 +1218,8 @@
   }
 
   let speakToken = 0;
-  function speakWord(text){
+
+  function speakWithSynthesis(text){
     if(!('speechSynthesis' in window) || !finnishVoice) return;
     const myToken = ++speakToken;
     try{
@@ -1215,6 +1245,32 @@
     }catch(err){
       console.error('音声の再生に失敗しました', err);
     }
+  }
+
+  function speakWord(text){
+    const filename = audioManifest[text];
+    if(filename){
+      speakToken++; // supersede any pending synthesis fallback
+      try{
+        if(currentAudio){ currentAudio.pause(); }
+        currentAudio = new Audio(`${AUDIO_BASE}/${filename}`);
+        els.speakBtn.classList.add('speaking');
+        currentAudio.onended = () => els.speakBtn.classList.remove('speaking');
+        currentAudio.onerror = () => {
+          els.speakBtn.classList.remove('speaking');
+          speakWithSynthesis(text); // the file failed to load — fall back
+        };
+        const playPromise = currentAudio.play();
+        if(playPromise && playPromise.catch){
+          playPromise.catch(() => els.speakBtn.classList.remove('speaking'));
+        }
+      }catch(err){
+        console.error('音声ファイルの再生に失敗しました', err);
+        speakWithSynthesis(text);
+      }
+      return;
+    }
+    speakWithSynthesis(text);
   }
 
   function showConfirmModal(message, onConfirm){

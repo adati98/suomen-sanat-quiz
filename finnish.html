@@ -450,6 +450,75 @@
     color:#7a7461;
     margin-top:2px;
   }
+
+  .word-stats-search{
+    width:100%;
+    font-family:'Inter',sans-serif;
+    font-size:13px;
+    padding:9px 12px;
+    border-radius:10px;
+    border:1px solid var(--birch-dim);
+    background:#fff;
+    color:var(--ink);
+    margin-bottom:12px;
+  }
+  .word-stats-search:focus{ outline:2px solid var(--moss); }
+  .word-stat-row{
+    display:flex;
+    align-items:center;
+    gap:8px;
+    padding:9px 4px;
+    border-bottom:1px solid var(--birch-dim);
+    font-size:13px;
+  }
+  .word-stat-row:last-child{ border-bottom:none; }
+  .word-stat-fi{
+    font-weight:700;
+    flex:1 1 30%;
+    min-width:0;
+    overflow:hidden;
+    text-overflow:ellipsis;
+    white-space:nowrap;
+  }
+  .word-stat-ja{
+    color:#6b6656;
+    flex:1 1 28%;
+    min-width:0;
+    overflow:hidden;
+    text-overflow:ellipsis;
+    white-space:nowrap;
+  }
+  .word-stat-count{
+    font-family:'JetBrains Mono',monospace;
+    font-size:11.5px;
+    color:#5b5648;
+    flex:none;
+    width:64px;
+    text-align:right;
+  }
+  .box-dots{
+    display:flex;
+    gap:2px;
+    flex:none;
+  }
+  .box-dot{
+    width:7px;
+    height:7px;
+    border-radius:50%;
+    background:var(--birch-dim);
+  }
+  .box-dot.filled{ background:var(--moss); }
+  .word-stats-empty{
+    font-size:13px;
+    color:#7a7461;
+    text-align:center;
+    padding:10px 0;
+  }
+  .word-stats-count-label{
+    font-size:11.5px;
+    color:#7a7461;
+    margin-bottom:10px;
+  }
 </style>
 </head>
 <body>
@@ -475,6 +544,8 @@
     <div class="inline-warning hidden" id="startWarning">少なくとも1つカテゴリーを選んでください</div>
     <button class="btn btn-ghost" id="historyToggleBtn" style="margin-top:10px;">記録を見る</button>
     <div id="historyPanel" class="history-panel hidden"></div>
+    <button class="btn btn-ghost" id="wordStatsToggleBtn" style="margin-top:10px;">単語ごとの学習記録を見る</button>
+    <div id="wordStatsPanel" class="history-panel hidden"></div>
   </div>
 
   <!-- QUIZ SCREEN -->
@@ -1000,6 +1071,8 @@
     arcCaption: document.getElementById('arcCaption'),
     historyToggleBtn: document.getElementById('historyToggleBtn'),
     historyPanel: document.getElementById('historyPanel'),
+    wordStatsToggleBtn: document.getElementById('wordStatsToggleBtn'),
+    wordStatsPanel: document.getElementById('wordStatsPanel'),
     speakBtn: document.getElementById('speakBtn'),
     voiceNote: document.getElementById('voiceNote'),
     voiceLabel: document.getElementById('voiceLabel'),
@@ -1046,7 +1119,9 @@
   }
 
   function updateWordStat(word, correct){
-    const stat = wordStats[word.fi] || {box: 0};
+    const stat = wordStats[word.fi] || {box: 0, seenCount: 0, correctCount: 0};
+    stat.seenCount = (stat.seenCount || 0) + 1;
+    if(correct) stat.correctCount = (stat.correctCount || 0) + 1;
     stat.box = correct ? Math.min(stat.box + 1, BOX_INTERVAL_DAYS.length - 1) : 0;
     const dueDate = new Date(Date.now() + BOX_INTERVAL_DAYS[stat.box] * 86400000);
     stat.due = dueDate.toISOString();
@@ -1474,6 +1549,78 @@
   }
 
 
+  function renderWordStatsList(filterText){
+    els.wordStatsPanel.innerHTML = '';
+
+    const search = document.createElement('input');
+    search.type = 'text';
+    search.className = 'word-stats-search';
+    search.placeholder = '単語を検索（フィンランド語 または 日本語）';
+    search.value = filterText || '';
+    search.addEventListener('input', ()=> renderWordStatsList(search.value));
+    els.wordStatsPanel.appendChild(search);
+
+    const query = (filterText || '').trim().toLowerCase();
+    let rows = WORDS
+      .map(w => ({ word: w, stat: wordStats[w.fi] || null }))
+      .filter(r => r.stat && r.stat.seenCount > 0);
+
+    if(query){
+      rows = WORDS
+        .map(w => ({ word: w, stat: wordStats[w.fi] || null }))
+        .filter(r => r.word.fi.toLowerCase().includes(query) || r.word.ja.toLowerCase().includes(query));
+    }
+
+    rows.sort((a, b) => (b.stat ? b.stat.seenCount : 0) - (a.stat ? a.stat.seenCount : 0));
+
+    const countLabel = document.createElement('div');
+    countLabel.className = 'word-stats-count-label';
+    countLabel.textContent = query
+      ? `${rows.length}件ヒット`
+      : `これまでに学習した単語: ${rows.length} / ${WORDS.length}語`;
+    els.wordStatsPanel.appendChild(countLabel);
+
+    if(!rows.length){
+      const empty = document.createElement('div');
+      empty.className = 'word-stats-empty';
+      empty.textContent = query
+        ? '一致する単語が見つかりません。'
+        : 'まだ学習記録がありません。クイズをプレイすると、ここに単語ごとの記録が表示されます。';
+      els.wordStatsPanel.appendChild(empty);
+      return;
+    }
+
+    rows.forEach(({word, stat})=>{
+      const seenCount = stat ? stat.seenCount : 0;
+      const correctCount = stat ? (stat.correctCount || 0) : 0;
+      const box = stat ? stat.box : 0;
+      const row = document.createElement('div');
+      row.className = 'word-stat-row';
+      const dots = Array.from({length: BOX_INTERVAL_DAYS.length - 1}, (_, i) =>
+        `<span class="box-dot ${i < box ? 'filled' : ''}"></span>`
+      ).join('');
+      row.innerHTML = `
+        <span class="word-stat-fi">${word.fi}</span>
+        <span class="word-stat-ja">${word.ja}</span>
+        <span class="word-stat-count">${seenCount}回中${correctCount}正解</span>
+        <span class="box-dots" title="習熟度">${dots}</span>
+      `;
+      els.wordStatsPanel.appendChild(row);
+    });
+  }
+
+  function toggleWordStatsPanel(){
+    const isHidden = els.wordStatsPanel.classList.contains('hidden');
+    if(isHidden){
+      els.wordStatsPanel.classList.remove('hidden');
+      renderWordStatsList('');
+      els.wordStatsToggleBtn.textContent = '単語ごとの学習記録を隠す';
+    } else {
+      els.wordStatsPanel.classList.add('hidden');
+      els.wordStatsToggleBtn.textContent = '単語ごとの学習記録を見る';
+    }
+  }
+
   els.startBtn.addEventListener('click', ()=>{
     if(selectedCats.size === 0){
       els.startWarning.classList.remove('hidden');
@@ -1485,6 +1632,7 @@
   els.retryBtn.addEventListener('click', startRound);
   els.backBtn.addEventListener('click', ()=>showScreen('start'));
   els.historyToggleBtn.addEventListener('click', toggleHistoryPanel);
+  els.wordStatsToggleBtn.addEventListener('click', toggleWordStatsPanel);
   els.speakBtn.addEventListener('click', ()=>{
     if(deck[qi]) speakWord(deck[qi].fi);
   });

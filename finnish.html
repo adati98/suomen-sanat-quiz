@@ -1124,18 +1124,30 @@
     }
   }
 
+  let speakToken = 0;
   function speakWord(text){
     if(!('speechSynthesis' in window) || !finnishVoice) return;
+    const myToken = ++speakToken;
     try{
       window.speechSynthesis.cancel();
-      const utter = new SpeechSynthesisUtterance(text);
-      utter.voice = finnishVoice;
-      utter.lang = finnishVoice.lang;
-      utter.rate = 0.85;
-      els.speakBtn.classList.add('speaking');
-      utter.onend = () => els.speakBtn.classList.remove('speaking');
-      utter.onerror = () => els.speakBtn.classList.remove('speaking');
-      window.speechSynthesis.speak(utter);
+      // Calling speak() immediately after cancel() is unreliable in some
+      // browsers (Chrome especially) and tends to garble or cut off longer
+      // words. A short delay lets the cancel actually take effect first.
+      setTimeout(()=>{
+        if(myToken !== speakToken) return; // a newer speak request superseded this one
+        try{
+          const utter = new SpeechSynthesisUtterance(text);
+          utter.voice = finnishVoice;
+          utter.lang = finnishVoice.lang;
+          utter.rate = 0.85;
+          els.speakBtn.classList.add('speaking');
+          utter.onend = () => els.speakBtn.classList.remove('speaking');
+          utter.onerror = () => els.speakBtn.classList.remove('speaking');
+          window.speechSynthesis.speak(utter);
+        }catch(err){
+          console.error('音声の再生に失敗しました', err);
+        }
+      }, 80);
     }catch(err){
       console.error('音声の再生に失敗しました', err);
     }

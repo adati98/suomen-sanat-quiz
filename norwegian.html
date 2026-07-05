@@ -549,6 +549,12 @@
   }
   .backup-message.error{ color:var(--lingon); }
 
+  .history-cap-note{
+    font-size:11px;
+    color:#9a9480;
+    text-align:center;
+    margin:-6px 0 14px;
+  }
   .history-summary{
     display:grid;
     grid-template-columns:repeat(3, 1fr);
@@ -721,6 +727,7 @@
   <div class="changelog">
     <div class="changelog-title">📝 更新履歴</div>
     <ul class="changelog-list">
+      <li><span class="changelog-date">2026-07-06</span><span>プレイ回数などの累計記録が50回を超えても正しくカウントされるように修正</span></li>
       <li><span class="changelog-date">2026-07-05</span><span>単語数を541語に拡充。旅行・社会的な場面・国名などのカテゴリーを追加</span></li>
       <li><span class="changelog-date">2026-07-05</span><span>記録のバックアップ保存・復元機能を追加。言語ごとに記録を分離</span></li>
       <li><span class="changelog-date">2026-07-04</span><span>発音の音声ファイルを追加(収録済み音声で再生されるように改善)</span></li>
@@ -1794,6 +1801,7 @@
     else label = 'もう一度挑戦してみよう';
     els.scoreLabel.textContent = `${label}（最長連続正解 ${bestStreak}）`;
 
+    updateTotals(score, deck.length);
     addHistoryEntry({
       date: new Date().toISOString(),
       score: score,
@@ -1820,6 +1828,34 @@
 
   const HISTORY_KEY = 'quiz-history-log-no';
   const MAX_HISTORY = 50;
+  const TOTALS_KEY = 'quiz-totals-no';
+
+  function getTotals(){
+    try{
+      const raw = localStorage.getItem(TOTALS_KEY);
+      const parsed = raw ? JSON.parse(raw) : null;
+      if(parsed && typeof parsed === 'object'){
+        return {
+          plays: parsed.plays || 0,
+          questions: parsed.questions || 0,
+          correct: parsed.correct || 0,
+        };
+      }
+    }catch(err){ /* fall through to default */ }
+    return { plays: 0, questions: 0, correct: 0 };
+  }
+
+  function updateTotals(score, total){
+    try{
+      const totals = getTotals();
+      totals.plays += 1;
+      totals.questions += total;
+      totals.correct += score;
+      localStorage.setItem(TOTALS_KEY, JSON.stringify(totals));
+    }catch(err){
+      console.error('累計記録の保存に失敗しました', err);
+    }
+  }
 
   async function getHistory(){
     try{
@@ -1870,26 +1906,25 @@
       return;
     }
 
-    // --- aggregate summary across all saved sessions ---
-    let totalScore = 0, totalQuestions = 0;
+    // --- aggregate summary: use the uncapped lifetime totals, not just the
+    // (max 50) stored session log, so heavy players see accurate numbers ---
+    const totals = getTotals();
+    const overallAccuracy = totals.questions ? Math.round((totals.correct/totals.questions)*100) : 0;
     const missTally = {}; // "fi|ja" -> {fi, ja, count}
     logs.forEach(entry=>{
-      totalScore += entry.score;
-      totalQuestions += entry.total;
       (entry.missedWords || []).forEach(m=>{
         const key = m.fi + '|' + m.ja;
         if(!missTally[key]) missTally[key] = {fi: m.fi, ja: m.ja, count: 0};
         missTally[key].count++;
       });
     });
-    const overallAccuracy = totalQuestions ? Math.round((totalScore/totalQuestions)*100) : 0;
     const topMissed = Object.values(missTally).sort((a,b)=>b.count-a.count).slice(0,5);
 
     const summary = document.createElement('div');
     summary.className = 'history-summary';
     summary.innerHTML = `
       <div class="summary-stat">
-        <div class="summary-num">${logs.length}</div>
+        <div class="summary-num">${totals.plays}</div>
         <div class="summary-label">プレイ回数</div>
       </div>
       <div class="summary-stat">
@@ -1897,11 +1932,17 @@
         <div class="summary-label">通算正答率</div>
       </div>
       <div class="summary-stat">
-        <div class="summary-num">${totalQuestions}</div>
+        <div class="summary-num">${totals.questions}</div>
         <div class="summary-label">累計出題数</div>
       </div>
     `;
     els.historyPanel.appendChild(summary);
+    if(logs.length < totals.plays){
+      const note = document.createElement('div');
+      note.className = 'history-cap-note';
+      note.textContent = `※ プレイ履歴の一覧は直近${MAX_HISTORY}件までの表示です（集計は全期間分）`;
+      els.historyPanel.appendChild(note);
+    }
 
     if(topMissed.length){
       const weakTitle = document.createElement('div');
@@ -2071,8 +2112,10 @@
     try{
       const historyRaw = localStorage.getItem(HISTORY_KEY);
       const statsRaw = localStorage.getItem(WORD_STATS_KEY);
+      const totalsRaw = localStorage.getItem(TOTALS_KEY);
       const payload = {
         app: 'sanapelit',
+        totals: totalsRaw ? JSON.parse(totalsRaw) : null,
         language: 'no',
         exportedAt: new Date().toISOString(),
         history: historyRaw ? JSON.parse(historyRaw) : [],
@@ -2106,6 +2149,7 @@
         showConfirmModal('バックアップを復元しますか？現在この端末に保存されている記録は上書きされます。', () => {
           localStorage.setItem(HISTORY_KEY, JSON.stringify(data.history || []));
           localStorage.setItem(WORD_STATS_KEY, JSON.stringify(data.wordStats || {}));
+          if(data.totals){ localStorage.setItem(TOTALS_KEY, JSON.stringify(data.totals)); }
           wordStats = data.wordStats || {};
           showBackupMessage('バックアップから復元しました。');
           if(!els.historyPanel.classList.contains('hidden')){

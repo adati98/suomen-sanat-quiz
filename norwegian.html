@@ -504,6 +504,41 @@
     text-align:center;
     padding:10px 0;
   }
+  .backup-section{
+    margin-top:18px;
+    padding-top:16px;
+    border-top:1px solid var(--birch-dim);
+  }
+  .backup-title{
+    font-size:13px;
+    font-weight:700;
+    color:#5b5648;
+    margin-bottom:6px;
+  }
+  .backup-desc{
+    font-size:12px;
+    color:#7a7461;
+    line-height:1.6;
+    margin:0 0 10px;
+  }
+  .backup-btns{
+    display:flex;
+    gap:8px;
+  }
+  .backup-btns .btn{
+    flex:1;
+    font-size:12.5px;
+    padding:10px 12px;
+  }
+  .backup-message{
+    font-size:12px;
+    color:var(--moss);
+    margin-top:8px;
+    min-height:14px;
+    font-weight:600;
+  }
+  .backup-message.error{ color:var(--lingon); }
+
   .history-summary{
     display:grid;
     grid-template-columns:repeat(3, 1fr);
@@ -631,6 +666,17 @@
     <div id="historyPanel" class="history-panel hidden"></div>
     <button class="btn btn-ghost" id="wordStatsToggleBtn" style="margin-top:10px;">単語ごとの学習記録を見る</button>
     <div id="wordStatsPanel" class="history-panel hidden"></div>
+
+    <div class="backup-section">
+      <div class="backup-title">💾 データのバックアップ</div>
+      <p class="backup-desc">記録はこのブラウザの中にだけ保存されています。ブラウザのデータを消したり、他の端末に変えたりすると記録が失われるので、時々バックアップファイルを保存しておくと安心です。</p>
+      <div class="backup-btns">
+        <button class="btn btn-ghost" id="exportBtn" type="button">バックアップを保存</button>
+        <button class="btn btn-ghost" id="importBtn" type="button">バックアップから復元</button>
+      </div>
+      <input type="file" id="importFileInput" accept="application/json" class="hidden">
+      <div class="backup-message" id="backupMessage"></div>
+    </div>
   </div>
 
   <!-- QUIZ SCREEN -->
@@ -665,6 +711,7 @@
   <div class="changelog">
     <div class="changelog-title">📝 更新履歴</div>
     <ul class="changelog-list">
+      <li><span class="changelog-date">2026-07-05</span><span>記録のバックアップ保存・復元機能を追加。言語ごとに記録を分離</span></li>
       <li><span class="changelog-date">2026-07-04</span><span>発音の音声ファイルを追加(収録済み音声で再生されるように改善)</span></li>
       <li><span class="changelog-date">2026-07-04</span><span>ノルウェー語版を公開(356語)</span></li>
     </ul>
@@ -1157,6 +1204,10 @@
     historyPanel: document.getElementById('historyPanel'),
     wordStatsToggleBtn: document.getElementById('wordStatsToggleBtn'),
     wordStatsPanel: document.getElementById('wordStatsPanel'),
+    exportBtn: document.getElementById('exportBtn'),
+    importBtn: document.getElementById('importBtn'),
+    importFileInput: document.getElementById('importFileInput'),
+    backupMessage: document.getElementById('backupMessage'),
     speakBtn: document.getElementById('speakBtn'),
     voiceNote: document.getElementById('voiceNote'),
     voiceLabel: document.getElementById('voiceLabel'),
@@ -1180,7 +1231,7 @@
   let roundActive = false;
 
   // --- spaced repetition (Leitner-style) ---
-  const WORD_STATS_KEY = 'quiz-word-stats';
+  const WORD_STATS_KEY = 'quiz-word-stats-no';
   const BOX_INTERVAL_DAYS = [0, 1, 3, 7, 14, 30]; // box 0 (new/wrong) .. box 5 (mastered)
   let wordStats = {};
 
@@ -1548,7 +1599,7 @@
     }
   }
 
-  const HISTORY_KEY = 'quiz-history-log';
+  const HISTORY_KEY = 'quiz-history-log-no';
   const MAX_HISTORY = 50;
 
   async function getHistory(){
@@ -1791,6 +1842,75 @@
   els.backBtn.addEventListener('click', ()=>showScreen('start'));
   els.historyToggleBtn.addEventListener('click', toggleHistoryPanel);
   els.wordStatsToggleBtn.addEventListener('click', toggleWordStatsPanel);
+
+  function showBackupMessage(text, isError){
+    els.backupMessage.textContent = text;
+    els.backupMessage.classList.toggle('error', !!isError);
+  }
+
+  function exportBackupData(){
+    try{
+      const historyRaw = localStorage.getItem(HISTORY_KEY);
+      const statsRaw = localStorage.getItem(WORD_STATS_KEY);
+      const payload = {
+        app: 'sanapelit',
+        language: 'no',
+        exportedAt: new Date().toISOString(),
+        history: historyRaw ? JSON.parse(historyRaw) : [],
+        wordStats: statsRaw ? JSON.parse(statsRaw) : {},
+      };
+      const blob = new Blob([JSON.stringify(payload, null, 2)], {type: 'application/json'});
+      const url = URL.createObjectURL(blob);
+      const dateStr = new Date().toISOString().slice(0,10);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `sanapelit-no-backup-${dateStr}.json`;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      URL.revokeObjectURL(url);
+      showBackupMessage('バックアップファイルを保存しました。');
+    }catch(err){
+      console.error('バックアップの保存に失敗しました', err);
+      showBackupMessage('バックアップの保存に失敗しました。', true);
+    }
+  }
+
+  function restoreBackupData(file){
+    const reader = new FileReader();
+    reader.onload = () => {
+      try{
+        const data = JSON.parse(reader.result);
+        if(!data || (!Array.isArray(data.history) && typeof data.wordStats !== 'object')){
+          throw new Error('invalid backup file');
+        }
+        showConfirmModal('バックアップを復元しますか？現在この端末に保存されている記録は上書きされます。', () => {
+          localStorage.setItem(HISTORY_KEY, JSON.stringify(data.history || []));
+          localStorage.setItem(WORD_STATS_KEY, JSON.stringify(data.wordStats || {}));
+          wordStats = data.wordStats || {};
+          showBackupMessage('バックアップから復元しました。');
+          if(!els.historyPanel.classList.contains('hidden')){
+            getHistory().then(renderHistoryList);
+          }
+          if(!els.wordStatsPanel.classList.contains('hidden')){
+            renderWordStatsList('');
+          }
+        });
+      }catch(err){
+        console.error('バックアップの読み込みに失敗しました', err);
+        showBackupMessage('このファイルは復元できませんでした。バックアップファイルを選び直してください。', true);
+      }
+    };
+    reader.readAsText(file);
+  }
+
+  els.exportBtn.addEventListener('click', exportBackupData);
+  els.importBtn.addEventListener('click', () => els.importFileInput.click());
+  els.importFileInput.addEventListener('change', (e) => {
+    const file = e.target.files && e.target.files[0];
+    if(file) restoreBackupData(file);
+    e.target.value = '';
+  });
   els.speakBtn.addEventListener('click', ()=>{
     if(deck[qi]) speakWord(deck[qi].fi);
   });

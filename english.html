@@ -1,0 +1,2091 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>英検1級 英単語クイズ — Sanapelit</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@500;700;900&family=Fraunces:ital,opsz,wght@0,9..144,500;0,9..144,600;0,9..144,700;1,9..144,600;1,9..144,700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ink:#122036;
+    --ink-2:#1a3050;
+    --birch:#F6F1E7;
+    --birch-dim:#E7DFCF;
+    --lingon:#C23B32;
+    --moss:#5F8A5A;
+    --ember:#E2A63B;
+    --frost:#9FBAD1;
+    --radius:18px;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    background:var(--ink);
+    background-image:
+      radial-gradient(ellipse at 50% -10%, rgba(226,166,59,0.10), transparent 55%),
+      radial-gradient(ellipse at 50% 120%, rgba(95,138,90,0.10), transparent 50%);
+    color:var(--birch);
+    font-family:'Inter',sans-serif;
+    min-height:100vh;
+    display:flex;
+    align-items:flex-start;
+    justify-content:center;
+    padding:28px 16px 60px;
+  }
+  .app{
+    width:100%;
+    max-width:640px;
+  }
+  .back-link{
+    display:inline-block;
+    font-size:12.5px;
+    color:var(--frost);
+    text-decoration:none;
+    margin-bottom:10px;
+    opacity:0.85;
+  }
+  .back-link:hover{ opacity:1; text-decoration:underline; }
+  .cat-select-row{
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    gap:8px;
+    margin:14px 0 8px;
+  }
+  .link-btn{
+    background:none;
+    border:none;
+    padding:0;
+    font-family:'Inter',sans-serif;
+    font-size:12.5px;
+    font-weight:600;
+    color:var(--moss);
+    cursor:pointer;
+    text-decoration:underline;
+  }
+  .link-btn:hover{ opacity:0.75; }
+  .cat-select-sep{ color:#b9b19a; font-size:12px; }
+  .cat-grid-scroll{
+    max-height:280px;
+    overflow-y:auto;
+    padding-right:4px;
+    margin-bottom:16px;
+    border:1px solid var(--birch-dim);
+    border-radius:12px;
+    padding:10px;
+  }
+  .eyebrow{
+    font-family:'JetBrains Mono',monospace;
+    font-size:12px;
+    letter-spacing:0.14em;
+    text-transform:uppercase;
+    color:var(--frost);
+    text-align:center;
+    margin-bottom:4px;
+  }
+  h1{
+    font-family:'Fraunces',serif;
+    font-optical-sizing:auto;
+    font-weight:700;
+    font-style:italic;
+    font-size:clamp(28px,7vw,42px);
+    text-align:center;
+    margin:0 0 4px;
+    letter-spacing:-0.01em;
+  }
+  .subtitle{
+    text-align:center;
+    color:var(--frost);
+    font-size:14px;
+    margin-bottom:22px;
+  }
+
+  /* ---- Arc progress (midnight sun) ---- */
+  .arc-wrap{
+    position:relative;
+    width:100%;
+    max-width:420px;
+    margin:4px auto 8px;
+  }
+  .arc-svg{ width:100%; height:auto; display:block; }
+  .arc-track{ fill:none; stroke:rgba(159,186,209,0.22); stroke-width:3; stroke-linecap:round; }
+  .arc-fill{ fill:none; stroke:var(--ember); stroke-width:3; stroke-linecap:round; }
+  .sun{ transition: cx 0.5s ease, cy 0.5s ease; }
+  .arc-caption{
+    font-family:'JetBrains Mono',monospace;
+    font-size:12px;
+    color:var(--frost);
+    text-align:center;
+    margin-top:-6px;
+  }
+
+  /* ---- Cards ---- */
+  .card{
+    background:var(--birch);
+    color:var(--ink);
+    border-radius:var(--radius);
+    padding:28px 24px;
+    margin-top:18px;
+  }
+  .hidden{ display:none !important; }
+
+  /* Start screen */
+  .cat-grid{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:10px;
+    margin:0;
+  }
+  .cat-chip{
+    display:flex;
+    align-items:center;
+    gap:9px;
+    background:var(--birch-dim);
+    border:2px solid transparent;
+    border-radius:12px;
+    padding:11px 12px;
+    cursor:pointer;
+    font-weight:600;
+    font-size:14px;
+    transition:border-color .15s ease, background .15s ease;
+    user-select:none;
+  }
+  .cat-chip input{ accent-color:var(--moss); width:16px; height:16px; flex:none; }
+  .cat-chip.active{ border-color:var(--moss); background:#EAF2E6; }
+  .cat-chip-text{
+    display:flex;
+    flex-direction:column;
+    line-height:1.25;
+  }
+  .cat-chip-ja{ font-weight:700; }
+  .cat-chip-fi{
+    font-family:'JetBrains Mono',monospace;
+    font-weight:500;
+    font-size:11px;
+    color:#8a8471;
+  }
+  .cat-count{
+    font-family:'JetBrains Mono',monospace;
+    font-size:11px;
+    color:#6b6656;
+    margin-left:auto;
+  }
+  .level-note{
+    font-size:13px;
+    color:#5b5648;
+    background:var(--birch-dim);
+    border-radius:10px;
+    padding:10px 14px;
+    margin-bottom:6px;
+  }
+  .btn{
+    font-family:'Unbounded',sans-serif;
+    font-weight:700;
+    font-size:15px;
+    border:none;
+    border-radius:12px;
+    padding:14px 22px;
+    cursor:pointer;
+    width:100%;
+    transition:transform .08s ease, filter .15s ease;
+  }
+  .btn:active{ transform:scale(0.98); }
+  .btn:focus-visible{ outline:3px solid var(--ember); outline-offset:2px; }
+  .btn-primary{ background:var(--ink); color:var(--birch); }
+  .btn-primary:hover{ filter:brightness(1.2); }
+  .btn-ghost{
+    background:transparent;
+    color:var(--frost);
+    border:1px solid rgba(159,186,209,0.4);
+    font-family:'Inter',sans-serif;
+    font-weight:600;
+    font-size:13px;
+    padding:10px 16px;
+  }
+  .btn-ghost:hover{ background:rgba(159,186,209,0.1); }
+
+  /* Quiz screen */
+  .quiz-meta{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    font-family:'JetBrains Mono',monospace;
+    font-size:12px;
+    color:var(--frost);
+    padding:0 2px;
+    margin-bottom:6px;
+    gap:8px;
+  }
+  .quit-btn{
+    font-family:'Inter',sans-serif;
+    font-size:11.5px;
+    font-weight:600;
+    color:#a5443c;
+    background:none;
+    border:1px solid rgba(194,59,50,0.35);
+    border-radius:8px;
+    padding:5px 9px;
+    cursor:pointer;
+    flex:none;
+  }
+  .quit-btn:hover{ background:rgba(194,59,50,0.08); }
+  .quit-btn:focus-visible{ outline:3px solid var(--ink); outline-offset:2px; }
+  .streak{ color:var(--ember); font-weight:700; }
+  .word-fi{
+    font-family:'Fraunces',serif;
+    font-optical-sizing:auto;
+    font-weight:600;
+    font-size:clamp(32px,8.5vw,48px);
+    text-align:center;
+    margin:6px 0 4px;
+    line-height:1.15;
+    letter-spacing:-0.01em;
+    word-break:break-word;
+  }
+  .word-fi-row{
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    gap:12px;
+  }
+  .speak-btn{
+    flex:none;
+    width:44px;
+    height:44px;
+    border-radius:50%;
+    border:2px solid var(--birch-dim);
+    background:var(--birch-dim);
+    font-size:19px;
+    cursor:pointer;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    transition:transform .1s ease, background .15s ease;
+  }
+  .speak-btn:hover{ background:#EDE6D6; }
+  .speak-btn:active{ transform:scale(0.92); }
+  .speak-btn:focus-visible{ outline:3px solid var(--ink); outline-offset:2px; }
+  .speak-btn.speaking{ background:var(--ember); border-color:var(--ember); }
+  .speak-btn:disabled{ opacity:0.4; cursor:not-allowed; }
+  .speak-btn:disabled:hover{ background:var(--birch-dim); }
+  .voice-note{
+    text-align:center;
+    font-size:11.5px;
+    color:#a08a3a;
+    background:#FBF3DD;
+    border-radius:8px;
+    padding:6px 10px;
+    margin:-14px 0 16px;
+  }
+  .voice-label{
+    text-align:center;
+    font-family:'JetBrains Mono',monospace;
+    font-size:10.5px;
+    color:#8a8471;
+    margin:-14px 0 16px;
+  }
+
+  .inline-warning{
+    text-align:center;
+    font-size:12.5px;
+    color:var(--lingon);
+    margin-top:8px;
+    font-weight:600;
+  }
+
+  .modal-overlay{
+    position:fixed;
+    inset:0;
+    background:rgba(10,16,28,0.6);
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    padding:20px;
+    z-index:1000;
+  }
+  .modal-box{
+    background:var(--birch);
+    color:var(--ink);
+    border-radius:16px;
+    padding:24px 22px;
+    width:100%;
+    max-width:340px;
+  }
+  .modal-message{
+    font-size:15px;
+    font-weight:600;
+    text-align:center;
+    margin-bottom:18px;
+    line-height:1.5;
+  }
+  .modal-btns{
+    display:flex;
+    gap:10px;
+  }
+  .modal-btns .btn{ flex:1; }
+
+  .changelog{
+    margin-top:18px;
+    padding:18px 20px;
+    background:rgba(246,241,231,0.06);
+    border:1px solid rgba(159,186,209,0.18);
+    border-radius:14px;
+  }
+  .changelog-title{
+    font-family:'JetBrains Mono',monospace;
+    font-size:12px;
+    letter-spacing:0.08em;
+    text-transform:uppercase;
+    color:var(--frost);
+    margin-bottom:10px;
+  }
+  .changelog-list{
+    list-style:none;
+    margin:0;
+    padding:0;
+  }
+  .changelog-list li{
+    display:flex;
+    gap:10px;
+    font-size:12.5px;
+    color:var(--birch);
+    opacity:0.85;
+    padding:5px 0;
+    border-bottom:1px solid rgba(159,186,209,0.12);
+    line-height:1.5;
+  }
+  .changelog-list li:last-child{ border-bottom:none; }
+  .feedback-link-row{
+    text-align:center;
+    font-size:12.5px;
+    color:var(--frost);
+    margin-top:14px;
+  }
+  .feedback-link-row a{
+    color:var(--ember);
+    text-decoration:underline;
+  }
+  .changelog-date{
+    font-family:'JetBrains Mono',monospace;
+    font-size:11.5px;
+    color:var(--ember);
+    flex:none;
+    white-space:nowrap;
+  }
+  .word-cat{
+    text-align:center;
+    font-size:12px;
+    color:#7a7461;
+    font-family:'JetBrains Mono',monospace;
+    letter-spacing:0.06em;
+    text-transform:uppercase;
+    margin-bottom:6px;
+  }
+  .word-tag{
+    text-align:center;
+    font-size:11.5px;
+    font-weight:600;
+    color:#7a9e6f;
+    margin-bottom:16px;
+    min-height:14px;
+  }
+  .options{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:10px;
+  }
+  @media (max-width:420px){
+    .options{ grid-template-columns:1fr; }
+    .cat-grid{ grid-template-columns:1fr; }
+  }
+  .opt{
+    background:var(--birch-dim);
+    border:2px solid transparent;
+    border-radius:12px;
+    padding:15px 12px;
+    font-size:16px;
+    font-weight:600;
+    cursor:pointer;
+    text-align:center;
+    color:var(--ink);
+    transition:transform .08s ease, background .15s ease, border-color .15s ease;
+  }
+  .opt:hover{ transform:translateY(-1px); background:#EDE6D6; }
+  .opt:focus-visible{ outline:3px solid var(--ink); outline-offset:2px; }
+  .opt.correct{ background:var(--moss); color:#fff; border-color:var(--moss); }
+  .opt.wrong{ background:var(--lingon); color:#fff; border-color:var(--lingon); }
+  .opt[disabled]{ cursor:default; }
+  .opt[disabled]:hover{ transform:none; }
+
+  /* Result screen */
+  .score-big{
+    font-family:'Unbounded',sans-serif;
+    font-weight:900;
+    font-size:52px;
+    text-align:center;
+    margin:2px 0 2px;
+  }
+  .score-label{
+    text-align:center;
+    color:#6b6656;
+    font-size:13px;
+    font-family:'JetBrains Mono',monospace;
+    letter-spacing:0.08em;
+    text-transform:uppercase;
+    margin-bottom:20px;
+  }
+  .missed-title{
+    font-size:13px;
+    font-weight:700;
+    color:#5b5648;
+    margin:18px 0 8px;
+  }
+  .missed-row{
+    display:flex;
+    justify-content:space-between;
+    padding:9px 4px;
+    border-bottom:1px solid var(--birch-dim);
+    font-size:14px;
+  }
+  .missed-row .fi{ font-weight:700; }
+  .missed-row .ja{ color:#6b6656; }
+  .result-btns{ display:flex; gap:10px; margin-top:20px; }
+  .result-btns .btn{ flex:1; }
+  @media (prefers-reduced-motion: reduce){
+    *{ transition:none !important; }
+  }
+
+  /* History */
+  .history-panel{
+    margin-top:14px;
+    border-top:1px solid var(--birch-dim);
+    padding-top:14px;
+  }
+  .history-empty{
+    font-size:13px;
+    color:#7a7461;
+    text-align:center;
+    padding:10px 0;
+  }
+  .history-row{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:10px;
+    padding:10px 4px;
+    border-bottom:1px solid var(--birch-dim);
+    font-size:13px;
+  }
+  .history-row:last-child{ border-bottom:none; }
+  .history-date{
+    font-family:'JetBrains Mono',monospace;
+    font-size:11.5px;
+    color:#7a7461;
+    flex:none;
+    width:120px;
+  }
+  .history-cats{
+    flex:1;
+    color:#5b5648;
+    overflow:hidden;
+    text-overflow:ellipsis;
+    white-space:nowrap;
+  }
+  .history-score{
+    font-family:'JetBrains Mono',monospace;
+    font-weight:700;
+    flex:none;
+  }
+  .history-clear{
+    display:block;
+    margin:12px auto 0;
+    background:none;
+    border:none;
+    color:var(--lingon);
+    font-size:12px;
+    font-family:'Inter',sans-serif;
+    cursor:pointer;
+    text-decoration:underline;
+  }
+  .history-loading{
+    font-size:13px;
+    color:#7a7461;
+    text-align:center;
+    padding:10px 0;
+  }
+  .backup-section{
+    margin-top:18px;
+    padding-top:16px;
+    border-top:1px solid var(--birch-dim);
+  }
+  .backup-title{
+    font-size:13px;
+    font-weight:700;
+    color:#5b5648;
+    margin-bottom:6px;
+  }
+  .backup-desc{
+    font-size:12px;
+    color:#7a7461;
+    line-height:1.6;
+    margin:0 0 10px;
+  }
+  .backup-btns{
+    display:flex;
+    gap:8px;
+  }
+  .backup-btns .btn{
+    flex:1;
+    font-size:12.5px;
+    padding:10px 12px;
+  }
+  .backup-message{
+    font-size:12px;
+    color:var(--moss);
+    margin-top:8px;
+    min-height:14px;
+    font-weight:600;
+  }
+  .backup-message.error{ color:var(--lingon); }
+
+  .history-cap-note{
+    font-size:11px;
+    color:#9a9480;
+    text-align:center;
+    margin:-6px 0 14px;
+  }
+  .history-summary{
+    display:grid;
+    grid-template-columns:repeat(3, 1fr);
+    gap:8px;
+    margin-bottom:16px;
+  }
+  .summary-stat{
+    background:var(--birch-dim);
+    border-radius:10px;
+    padding:12px 6px;
+    text-align:center;
+  }
+  .summary-num{
+    font-family:'Unbounded',sans-serif;
+    font-weight:700;
+    font-size:20px;
+    color:var(--ink);
+  }
+  .summary-label{
+    font-size:10.5px;
+    color:#7a7461;
+    margin-top:2px;
+  }
+
+  .word-stats-search{
+    width:100%;
+    font-family:'Inter',sans-serif;
+    font-size:13px;
+    padding:9px 12px;
+    border-radius:10px;
+    border:1px solid var(--birch-dim);
+    background:#fff;
+    color:var(--ink);
+    margin-bottom:12px;
+  }
+  .word-stats-search:focus{ outline:2px solid var(--moss); }
+  .word-stat-row{
+    display:flex;
+    align-items:center;
+    gap:8px;
+    padding:9px 4px;
+    border-bottom:1px solid var(--birch-dim);
+    font-size:13px;
+  }
+  .word-stat-row:last-child{ border-bottom:none; }
+  .word-stat-fi{
+    font-weight:700;
+    flex:1 1 30%;
+    min-width:0;
+    overflow:hidden;
+    text-overflow:ellipsis;
+    white-space:nowrap;
+  }
+  .word-stat-ja{
+    color:#6b6656;
+    flex:1 1 28%;
+    min-width:0;
+    overflow:hidden;
+    text-overflow:ellipsis;
+    white-space:nowrap;
+  }
+  .word-stat-count{
+    font-family:'JetBrains Mono',monospace;
+    font-size:11.5px;
+    color:#5b5648;
+    flex:none;
+    width:64px;
+    text-align:right;
+  }
+  .box-dots{
+    display:flex;
+    gap:2px;
+    flex:none;
+  }
+  .box-dot{
+    width:7px;
+    height:7px;
+    border-radius:50%;
+    background:var(--birch-dim);
+  }
+  .box-dot.filled{ background:var(--moss); }
+  .word-stats-empty{
+    font-size:13px;
+    color:#7a7461;
+    text-align:center;
+    padding:10px 0;
+  }
+  .word-stats-count-label{
+    font-size:11.5px;
+    color:#7a7461;
+    margin-bottom:10px;
+  }
+</style>
+</head>
+<body>
+<div class="app">
+  <a class="back-link" href="index.html">← ほかの言語を見る</a>
+  <div class="eyebrow">Learn words by playing</div>
+  <h1>English Words</h1>
+  <div class="subtitle">英検準1級〜1級レベルの語彙 500語 — 4択クイズで覚える</div>
+
+  <div class="arc-wrap">
+    <svg class="arc-svg" viewBox="0 0 400 130">
+      <path id="arcTrack" class="arc-track" d="M 20 120 A 180 92 0 0 1 380 120"></path>
+      <path id="arcFill" class="arc-fill" d="M 20 120 A 180 92 0 0 1 380 120" stroke-dasharray="0 1000"></path>
+      <circle id="sunDot" class="sun" cx="20" cy="120" r="9" fill="#E2A63B"></circle>
+    </svg>
+    <div class="arc-caption" id="arcCaption">昇る太陽と一緒に進もう</div>
+  </div>
+
+  <!-- START SCREEN -->
+  <div class="card" id="startScreen">
+    <div class="level-note">レベル：上級（英検準1級〜1級目安の語彙）</div>
+    <div class="cat-select-row">
+      <button type="button" class="link-btn" id="selectAllBtn">すべて選択</button>
+      <span class="cat-select-sep">・</span>
+      <button type="button" class="link-btn" id="deselectAllBtn">選択を解除</button>
+    </div>
+    <div class="cat-grid-scroll">
+      <div class="cat-grid" id="catGrid"></div>
+    </div>
+    <button class="btn btn-primary" id="startBtn">はじめる</button>
+    <div class="inline-warning hidden" id="startWarning">少なくとも1つカテゴリーを選んでください</div>
+    <button class="btn btn-ghost" id="historyToggleBtn" style="margin-top:10px;">記録を見る</button>
+    <div id="historyPanel" class="history-panel hidden"></div>
+    <button class="btn btn-ghost" id="wordStatsToggleBtn" style="margin-top:10px;">単語ごとの学習記録を見る</button>
+    <div id="wordStatsPanel" class="history-panel hidden"></div>
+
+    <div class="backup-section">
+      <div class="backup-title">💾 データのバックアップ</div>
+      <p class="backup-desc">記録はこのブラウザの中にだけ保存されています。ブラウザのデータを消したり、他の端末に変えたりすると記録が失われるので、時々バックアップファイルを保存しておくと安心です。</p>
+      <div class="backup-btns">
+        <button class="btn btn-ghost" id="exportBtn" type="button">バックアップを保存</button>
+        <button class="btn btn-ghost" id="importBtn" type="button">バックアップから復元</button>
+      </div>
+      <input type="file" id="importFileInput" accept="application/json" class="hidden">
+      <div class="backup-message" id="backupMessage"></div>
+    </div>
+  </div>
+
+  <!-- QUIZ SCREEN -->
+  <div class="card hidden" id="quizScreen">
+    <div class="quiz-meta">
+      <span id="qIndex">問題 1 / 15</span>
+      <span>連続正解 <span class="streak" id="streakCount">0</span></span>
+      <button class="quit-btn" id="quitBtn" type="button">✕ やめる</button>
+    </div>
+    <div class="word-fi-row">
+      <div class="word-fi" id="wordFi">kiitos</div>
+      <button class="speak-btn" id="speakBtn" type="button" aria-label="発音を再生">🔊</button>
+    </div>
+    <div class="word-cat" id="wordCat">tervehdykset</div>
+    <div class="word-tag" id="wordTag"></div>
+    <div class="voice-note hidden" id="voiceNote">この端末にはフィンランド語の音声が見つからないため、発音の再生をスキップしています</div>
+    <div class="voice-label" id="voiceLabel"></div>
+    <div class="options" id="optionsGrid"></div>
+  </div>
+
+  <!-- RESULT SCREEN -->
+  <div class="card hidden" id="resultScreen">
+    <div class="score-big" id="scoreBig">12 / 15</div>
+    <div class="score-label" id="scoreLabel">お見事！</div>
+    <div id="missedWrap"></div>
+    <div class="result-btns">
+      <button class="btn btn-ghost" id="backBtn">カテゴリーを選び直す</button>
+      <button class="btn btn-primary" id="retryBtn">もう一度</button>
+    </div>
+  </div>
+
+  <div class="changelog">
+    <div class="changelog-title">📝 更新履歴</div>
+    <ul class="changelog-list">
+      <li><span class="changelog-date">2026-07-06</span><span>英検準1級〜1級レベルの英単語版を公開（500語）</span></li>
+      <li><span class="changelog-date">2026-07-05</span><span>単語数を541語に拡充。旅行・社会的な場面・国名などのカテゴリーを追加</span></li>
+      <li><span class="changelog-date">2026-07-05</span><span>記録のバックアップ保存・復元機能を追加。言語ごとに記録を分離</span></li>
+      <li><span class="changelog-date">2026-07-04</span><span>発音の音声ファイルを追加(収録済み音声で再生されるように改善)</span></li>
+      <li><span class="changelog-date">2026-07-04</span><span>単語ごとの学習記録・忘却曲線を考慮した出題ロジックを追加</span></li>
+      <li><span class="changelog-date">2026-07-04</span><span>単語数を359語に拡充(カテゴリーを大幅に追加)</span></li>
+      <li><span class="changelog-date">2026-07-03</span><span>公開</span></li>
+    </ul>
+  </div>
+
+  <div class="feedback-link-row">
+    感想・要望は<a href="feedback.html">こちら</a>から気軽にどうぞ
+  </div>
+</div>
+
+<div class="modal-overlay hidden" id="confirmOverlay">
+  <div class="modal-box">
+    <div class="modal-message" id="confirmMessage">クイズを中断しますか？</div>
+    <div class="modal-btns">
+      <button class="btn btn-ghost" id="confirmCancelBtn">キャンセル</button>
+      <button class="btn btn-primary" id="confirmOkBtn">中断する</button>
+    </div>
+  </div>
+</div>
+
+<script>
+(function(){
+  const WORDS = [
+    // academic — 学術・抽象概念
+    {fi:"ubiquitous", ja:"至る所にある", cat:"academic"},
+    {fi:"paradigm", ja:"範型、パラダイム", cat:"academic"},
+    {fi:"empirical", ja:"経験的な", cat:"academic"},
+    {fi:"hypothesis", ja:"仮説", cat:"academic"},
+    {fi:"inference", ja:"推論", cat:"academic"},
+    {fi:"paradox", ja:"逆説、矛盾", cat:"academic"},
+    {fi:"ambiguous", ja:"曖昧な", cat:"academic"},
+    {fi:"coherent", ja:"一貫した", cat:"academic"},
+    {fi:"discrepancy", ja:"食い違い、矛盾", cat:"academic"},
+    {fi:"subsequent", ja:"その後の", cat:"academic"},
+    {fi:"inherent", ja:"本来備わっている", cat:"academic"},
+    {fi:"inevitable", ja:"避けられない", cat:"academic"},
+    {fi:"plausible", ja:"もっともらしい", cat:"academic"},
+    {fi:"notion", ja:"概念、考え", cat:"academic"},
+    {fi:"premise", ja:"前提", cat:"academic"},
+    {fi:"rationale", ja:"論拠、理由", cat:"academic"},
+    {fi:"substantiate", ja:"実証する", cat:"academic"},
+    {fi:"tangible", ja:"実体のある、明白な", cat:"academic"},
+    {fi:"theoretical", ja:"理論的な", cat:"academic"},
+    {fi:"underlying", ja:"根底にある", cat:"academic"},
+    {fi:"conceptual", ja:"概念上の", cat:"academic"},
+    {fi:"correlation", ja:"相関関係", cat:"academic"},
+    {fi:"deduce", ja:"推論する", cat:"academic"},
+    {fi:"derive", ja:"由来する、導き出す", cat:"academic"},
+    {fi:"dichotomy", ja:"二分法", cat:"academic"},
+    {fi:"elucidate", ja:"解明する", cat:"academic"},
+    {fi:"extrapolate", ja:"推定する", cat:"academic"},
+    {fi:"finite", ja:"有限の", cat:"academic"},
+    {fi:"holistic", ja:"全体論的な", cat:"academic"},
+    {fi:"implicit", ja:"暗黙の", cat:"academic"},
+    {fi:"indispensable", ja:"不可欠な", cat:"academic"},
+    {fi:"intrinsic", ja:"本質的な", cat:"academic"},
+    {fi:"methodology", ja:"方法論", cat:"academic"},
+    {fi:"objective", ja:"客観的な", cat:"academic"},
+    {fi:"perpetual", ja:"永続的な", cat:"academic"},
+    {fi:"phenomenon", ja:"現象", cat:"academic"},
+    {fi:"plausibility", ja:"もっともらしさ", cat:"academic"},
+    {fi:"postulate", ja:"仮定する", cat:"academic"},
+    {fi:"pragmatic", ja:"実用的な", cat:"academic"},
+    // business — ビジネス・経済
+    {fi:"subsidy", ja:"補助金", cat:"business"},
+    {fi:"tariff", ja:"関税", cat:"business"},
+    {fi:"revenue", ja:"歳入、収益", cat:"business"},
+    {fi:"deficit", ja:"赤字", cat:"business"},
+    {fi:"surplus", ja:"黒字、余剰", cat:"business"},
+    {fi:"inflation", ja:"インフレ", cat:"business"},
+    {fi:"recession", ja:"不況", cat:"business"},
+    {fi:"monopoly", ja:"独占", cat:"business"},
+    {fi:"commodity", ja:"商品、日用品", cat:"business"},
+    {fi:"stakeholder", ja:"利害関係者", cat:"business"},
+    {fi:"merger", ja:"合併", cat:"business"},
+    {fi:"acquisition", ja:"買収", cat:"business"},
+    {fi:"liability", ja:"負債、責任", cat:"business"},
+    {fi:"asset", ja:"資産", cat:"business"},
+    {fi:"equity", ja:"株式、公平", cat:"business"},
+    {fi:"dividend", ja:"配当", cat:"business"},
+    {fi:"venture", ja:"事業、ベンチャー", cat:"business"},
+    {fi:"entrepreneur", ja:"起業家", cat:"business"},
+    {fi:"outsource", ja:"外部委託する", cat:"business"},
+    {fi:"diversify", ja:"多様化する", cat:"business"},
+    {fi:"fluctuate", ja:"変動する", cat:"business"},
+    {fi:"leverage", ja:"活用する、てこの作用", cat:"business"},
+    {fi:"negotiate", ja:"交渉する", cat:"business"},
+    {fi:"procurement", ja:"調達", cat:"business"},
+    {fi:"sustainable", ja:"持続可能な", cat:"business"},
+    {fi:"transaction", ja:"取引", cat:"business"},
+    {fi:"audit", ja:"監査", cat:"business"},
+    {fi:"bankruptcy", ja:"破産", cat:"business"},
+    {fi:"consolidate", ja:"統合する", cat:"business"},
+    {fi:"lucrative", ja:"儲かる", cat:"business"},
+    {fi:"overhead", ja:"諸経費", cat:"business"},
+    {fi:"proprietary", ja:"専有の、独自の", cat:"business"},
+    {fi:"quota", ja:"割当量", cat:"business"},
+    {fi:"regulatory", ja:"規制の", cat:"business"},
+    {fi:"retail", ja:"小売の", cat:"business"},
+    {fi:"solvent", ja:"支払い能力のある", cat:"business"},
+    {fi:"volatile", ja:"不安定な", cat:"business"},
+    {fi:"wholesale", ja:"卸売の", cat:"business"},
+    {fi:"commence", ja:"開始する", cat:"business"},
+    {fi:"terminate", ja:"終了させる", cat:"business"},
+    // politics — 政治・社会
+    {fi:"legislation", ja:"法律、立法", cat:"politics"},
+    {fi:"constituency", ja:"選挙区", cat:"politics"},
+    {fi:"referendum", ja:"国民投票", cat:"politics"},
+    {fi:"sovereignty", ja:"主権", cat:"politics"},
+    {fi:"diplomacy", ja:"外交", cat:"politics"},
+    {fi:"coalition", ja:"連立", cat:"politics"},
+    {fi:"partisan", ja:"党派的な", cat:"politics"},
+    {fi:"bureaucracy", ja:"官僚制", cat:"politics"},
+    {fi:"autonomy", ja:"自治", cat:"politics"},
+    {fi:"egalitarian", ja:"平等主義の", cat:"politics"},
+    {fi:"authoritarian", ja:"独裁的な", cat:"politics"},
+    {fi:"totalitarian", ja:"全体主義の", cat:"politics"},
+    {fi:"dissent", ja:"異議、反対意見", cat:"politics"},
+    {fi:"advocate", ja:"主張する、擁護者", cat:"politics"},
+    {fi:"mandate", ja:"権限、命令", cat:"politics"},
+    {fi:"jurisdiction", ja:"管轄権", cat:"politics"},
+    {fi:"electorate", ja:"有権者", cat:"politics"},
+    {fi:"lobbying", ja:"ロビー活動", cat:"politics"},
+    {fi:"propaganda", ja:"プロパガンダ", cat:"politics"},
+    {fi:"grassroots", ja:"草の根の", cat:"politics"},
+    {fi:"demographic", ja:"人口統計の", cat:"politics"},
+    {fi:"marginalized", ja:"疎外された", cat:"politics"},
+    {fi:"disenfranchise", ja:"参政権を奪う", cat:"politics"},
+    {fi:"polarize", ja:"二極化させる", cat:"politics"},
+    {fi:"consensus", ja:"合意", cat:"politics"},
+    {fi:"controversy", ja:"論争", cat:"politics"},
+    {fi:"scrutiny", ja:"精査", cat:"politics"},
+    {fi:"transparency", ja:"透明性", cat:"politics"},
+    {fi:"accountability", ja:"説明責任", cat:"politics"},
+    {fi:"segregation", ja:"隔離、分離", cat:"politics"},
+    {fi:"integration", ja:"統合", cat:"politics"},
+    {fi:"xenophobia", ja:"外国人嫌悪", cat:"politics"},
+    {fi:"discrimination", ja:"差別", cat:"politics"},
+    {fi:"stereotype", ja:"固定観念", cat:"politics"},
+    {fi:"utopia", ja:"理想郷", cat:"politics"},
+    // science — 科学・技術
+    {fi:"algorithm", ja:"アルゴリズム", cat:"science"},
+    {fi:"synthesis", ja:"合成", cat:"science"},
+    {fi:"catalyst", ja:"触媒、きっかけ", cat:"science"},
+    {fi:"molecule", ja:"分子", cat:"science"},
+    {fi:"genome", ja:"ゲノム", cat:"science"},
+    {fi:"mutation", ja:"突然変異", cat:"science"},
+    {fi:"organism", ja:"生物", cat:"science"},
+    {fi:"ecosystem", ja:"生態系", cat:"science"},
+    {fi:"biodiversity", ja:"生物多様性", cat:"science"},
+    {fi:"renewable", ja:"再生可能な", cat:"science"},
+    {fi:"extinction", ja:"絶滅", cat:"science"},
+    {fi:"habitat", ja:"生息地", cat:"science"},
+    {fi:"pathogen", ja:"病原体", cat:"science"},
+    {fi:"antibody", ja:"抗体", cat:"science"},
+    {fi:"vaccine", ja:"ワクチン", cat:"science"},
+    {fi:"immune", ja:"免疫の", cat:"science"},
+    {fi:"radiation", ja:"放射線", cat:"science"},
+    {fi:"nuclear", ja:"核の", cat:"science"},
+    {fi:"velocity", ja:"速度", cat:"science"},
+    {fi:"gravity", ja:"重力", cat:"science"},
+    {fi:"momentum", ja:"運動量、勢い", cat:"science"},
+    {fi:"quantum", ja:"量子の", cat:"science"},
+    {fi:"simulate", ja:"シミュレートする", cat:"science"},
+    {fi:"prototype", ja:"試作品", cat:"science"},
+    {fi:"innovate", ja:"革新する", cat:"science"},
+    {fi:"obsolete", ja:"時代遅れの", cat:"science"},
+    {fi:"proliferate", ja:"急増する", cat:"science"},
+    {fi:"automation", ja:"自動化", cat:"science"},
+    {fi:"encryption", ja:"暗号化", cat:"science"},
+    {fi:"bandwidth", ja:"帯域幅", cat:"science"},
+    {fi:"infrastructure", ja:"インフラ", cat:"science"},
+    {fi:"nanotechnology", ja:"ナノテクノロジー", cat:"science"},
+    // environment — 環境・自然
+    {fi:"deforestation", ja:"森林伐採", cat:"environment"},
+    {fi:"drought", ja:"干ばつ", cat:"environment"},
+    {fi:"erosion", ja:"浸食", cat:"environment"},
+    {fi:"emission", ja:"排出", cat:"environment"},
+    {fi:"pollutant", ja:"汚染物質", cat:"environment"},
+    {fi:"conservation", ja:"保全", cat:"environment"},
+    {fi:"depletion", ja:"枯渇", cat:"environment"},
+    {fi:"sanctuary", ja:"保護区", cat:"environment"},
+    {fi:"sediment", ja:"堆積物", cat:"environment"},
+    {fi:"terrain", ja:"地形", cat:"environment"},
+    {fi:"drainage", ja:"排水", cat:"environment"},
+    {fi:"irrigation", ja:"灌漑", cat:"environment"},
+    {fi:"arable", ja:"耕作に適した", cat:"environment"},
+    {fi:"mitigate", ja:"緩和する", cat:"environment"},
+    {fi:"degradation", ja:"劣化、悪化", cat:"environment"},
+    {fi:"resilience", ja:"回復力", cat:"environment"},
+    {fi:"biodegradable", ja:"生分解性の", cat:"environment"},
+    {fi:"contamination", ja:"汚染", cat:"environment"},
+    {fi:"ecological", ja:"生態学的な", cat:"environment"},
+    {fi:"wetland", ja:"湿地", cat:"environment"},
+    {fi:"tributary", ja:"支流", cat:"environment"},
+    // medicine — 医学・健康
+    {fi:"diagnosis", ja:"診断", cat:"medicine"},
+    {fi:"prognosis", ja:"予後", cat:"medicine"},
+    {fi:"symptom", ja:"症状", cat:"medicine"},
+    {fi:"chronic", ja:"慢性の", cat:"medicine"},
+    {fi:"acute", ja:"急性の", cat:"medicine"},
+    {fi:"epidemic", ja:"流行病", cat:"medicine"},
+    {fi:"pandemic", ja:"パンデミック", cat:"medicine"},
+    {fi:"outbreak", ja:"発生、大流行", cat:"medicine"},
+    {fi:"remedy", ja:"治療法", cat:"medicine"},
+    {fi:"therapeutic", ja:"治療の", cat:"medicine"},
+    {fi:"malignant", ja:"悪性の", cat:"medicine"},
+    {fi:"benign", ja:"良性の", cat:"medicine"},
+    {fi:"prescribe", ja:"処方する", cat:"medicine"},
+    {fi:"dosage", ja:"用量", cat:"medicine"},
+    {fi:"sedative", ja:"鎮静剤", cat:"medicine"},
+    {fi:"anesthesia", ja:"麻酔", cat:"medicine"},
+    {fi:"rehabilitation", ja:"リハビリ", cat:"medicine"},
+    {fi:"nutrient", ja:"栄養素", cat:"medicine"},
+    {fi:"deficiency", ja:"欠乏", cat:"medicine"},
+    {fi:"obesity", ja:"肥満", cat:"medicine"},
+    {fi:"insomnia", ja:"不眠症", cat:"medicine"},
+    {fi:"allergy", ja:"アレルギー", cat:"medicine"},
+    {fi:"metabolism", ja:"代謝", cat:"medicine"},
+    // law — 法律・犯罪
+    {fi:"litigation", ja:"訴訟", cat:"law"},
+    {fi:"prosecute", ja:"起訴する", cat:"law"},
+    {fi:"defendant", ja:"被告", cat:"law"},
+    {fi:"plaintiff", ja:"原告", cat:"law"},
+    {fi:"verdict", ja:"評決", cat:"law"},
+    {fi:"testimony", ja:"証言", cat:"law"},
+    {fi:"allegation", ja:"申し立て", cat:"law"},
+    {fi:"indictment", ja:"起訴", cat:"law"},
+    {fi:"felony", ja:"重罪", cat:"law"},
+    {fi:"misdemeanor", ja:"軽罪", cat:"law"},
+    {fi:"fraud", ja:"詐欺", cat:"law"},
+    {fi:"embezzlement", ja:"横領", cat:"law"},
+    {fi:"bribery", ja:"贈収賄", cat:"law"},
+    {fi:"extortion", ja:"恐喝", cat:"law"},
+    {fi:"larceny", ja:"窃盗", cat:"law"},
+    {fi:"perjury", ja:"偽証", cat:"law"},
+    {fi:"acquit", ja:"無罪にする", cat:"law"},
+    {fi:"convict", ja:"有罪にする", cat:"law"},
+    {fi:"custody", ja:"拘留、保護", cat:"law"},
+    {fi:"warrant", ja:"令状", cat:"law"},
+    {fi:"subpoena", ja:"召喚状", cat:"law"},
+    {fi:"statute", ja:"法令", cat:"law"},
+    {fi:"clause", ja:"条項", cat:"law"},
+    {fi:"negligence", ja:"過失", cat:"law"},
+    // psychology — 心理・性格
+    {fi:"introvert", ja:"内向的な人", cat:"psychology"},
+    {fi:"extrovert", ja:"外向的な人", cat:"psychology"},
+    {fi:"resilient", ja:"回復力のある", cat:"psychology"},
+    {fi:"empathy", ja:"共感", cat:"psychology"},
+    {fi:"apathy", ja:"無関心", cat:"psychology"},
+    {fi:"compassion", ja:"思いやり", cat:"psychology"},
+    {fi:"arrogant", ja:"傲慢な", cat:"psychology"},
+    {fi:"humble", ja:"謙虚な", cat:"psychology"},
+    {fi:"meticulous", ja:"几帳面な", cat:"psychology"},
+    {fi:"impulsive", ja:"衝動的な", cat:"psychology"},
+    {fi:"stubborn", ja:"頑固な", cat:"psychology"},
+    {fi:"naive", ja:"世間知らずな", cat:"psychology"},
+    {fi:"skeptical", ja:"懐疑的な", cat:"psychology"},
+    {fi:"gullible", ja:"だまされやすい", cat:"psychology"},
+    {fi:"tenacious", ja:"粘り強い", cat:"psychology"},
+    {fi:"audacious", ja:"大胆な", cat:"psychology"},
+    {fi:"timid", ja:"臆病な", cat:"psychology"},
+    {fi:"introspective", ja:"内省的な", cat:"psychology"},
+    {fi:"egocentric", ja:"自己中心的な", cat:"psychology"},
+    {fi:"altruistic", ja:"利他的な", cat:"psychology"},
+    {fi:"temperament", ja:"気質", cat:"psychology"},
+    {fi:"disposition", ja:"性質、気質", cat:"psychology"},
+    {fi:"cognitive", ja:"認知の", cat:"psychology"},
+    {fi:"subconscious", ja:"潜在意識の", cat:"psychology"},
+    {fi:"perception", ja:"知覚", cat:"psychology"},
+    {fi:"motivation", ja:"動機", cat:"psychology"},
+    {fi:"inhibition", ja:"抑制", cat:"psychology"},
+    {fi:"trauma", ja:"心的外傷", cat:"psychology"},
+    {fi:"neurotic", ja:"神経質な", cat:"psychology"},
+    {fi:"eccentric", ja:"風変わりな", cat:"psychology"},
+    // emotions — 感情・態度
+    {fi:"euphoria", ja:"高揚感", cat:"emotions"},
+    {fi:"melancholy", ja:"憂鬱", cat:"emotions"},
+    {fi:"nostalgia", ja:"郷愁", cat:"emotions"},
+    {fi:"resentment", ja:"憤り", cat:"emotions"},
+    {fi:"indignation", ja:"憤慨", cat:"emotions"},
+    {fi:"remorse", ja:"後悔", cat:"emotions"},
+    {fi:"apprehension", ja:"不安、懸念", cat:"emotions"},
+    {fi:"anguish", ja:"苦悩", cat:"emotions"},
+    {fi:"elation", ja:"大喜び", cat:"emotions"},
+    {fi:"despair", ja:"絶望", cat:"emotions"},
+    {fi:"contempt", ja:"軽蔑", cat:"emotions"},
+    {fi:"disdain", ja:"軽蔑", cat:"emotions"},
+    {fi:"envy", ja:"嫉妬", cat:"emotions"},
+    {fi:"gratitude", ja:"感謝", cat:"emotions"},
+    {fi:"indifference", ja:"無関心", cat:"emotions"},
+    {fi:"irritation", ja:"いらだち", cat:"emotions"},
+    {fi:"serenity", ja:"平穏", cat:"emotions"},
+    {fi:"solace", ja:"慰め", cat:"emotions"},
+    {fi:"turmoil", ja:"混乱", cat:"emotions"},
+    {fi:"weary", ja:"疲れ果てた", cat:"emotions"},
+    {fi:"ecstatic", ja:"有頂天の", cat:"emotions"},
+    {fi:"disheartened", ja:"落胆した", cat:"emotions"},
+    {fi:"infuriated", ja:"激怒した", cat:"emotions"},
+    {fi:"overwhelmed", ja:"圧倒された", cat:"emotions"},
+    {fi:"apathetic", ja:"無関心な", cat:"emotions"},
+    // communication — コミュニケーション・議論
+    {fi:"articulate", ja:"はっきり述べる、雄弁な", cat:"communication"},
+    {fi:"eloquent", ja:"雄弁な", cat:"communication"},
+    {fi:"rhetoric", ja:"修辞、レトリック", cat:"communication"},
+    {fi:"persuasive", ja:"説得力のある", cat:"communication"},
+    {fi:"assertive", ja:"自己主張の強い", cat:"communication"},
+    {fi:"candid", ja:"率直な", cat:"communication"},
+    {fi:"blunt", ja:"無愛想な、率直な", cat:"communication"},
+    {fi:"tactful", ja:"如才ない", cat:"communication"},
+    {fi:"ambiguity", ja:"曖昧さ", cat:"communication"},
+    {fi:"connotation", ja:"含意", cat:"communication"},
+    {fi:"denotation", ja:"明示的意味", cat:"communication"},
+    {fi:"implication", ja:"含意、影響", cat:"communication"},
+    {fi:"paraphrase", ja:"言い換える", cat:"communication"},
+    {fi:"elaborate", ja:"詳しく述べる", cat:"communication"},
+    {fi:"digress", ja:"脱線する", cat:"communication"},
+    {fi:"refute", ja:"反論する", cat:"communication"},
+    {fi:"concede", ja:"認める", cat:"communication"},
+    {fi:"contend", ja:"主張する", cat:"communication"},
+    {fi:"assert", ja:"主張する", cat:"communication"},
+    {fi:"undermine", ja:"損なう", cat:"communication"},
+    {fi:"vindicate", ja:"正当性を証明する", cat:"communication"},
+    {fi:"reiterate", ja:"繰り返し述べる", cat:"communication"},
+    {fi:"conciliate", ja:"なだめる", cat:"communication"},
+    {fi:"mediate", ja:"仲裁する", cat:"communication"},
+    // adjectives — 形容詞(性質)
+    {fi:"meticulous", ja:"細心の", cat:"adjectives"},
+    {fi:"diligent", ja:"勤勉な", cat:"adjectives"},
+    {fi:"versatile", ja:"多才な", cat:"adjectives"},
+    {fi:"resourceful", ja:"機知に富む", cat:"adjectives"},
+    {fi:"prudent", ja:"賢明な", cat:"adjectives"},
+    {fi:"frugal", ja:"倹約な", cat:"adjectives"},
+    {fi:"lavish", ja:"贅沢な", cat:"adjectives"},
+    {fi:"austere", ja:"質素な、厳格な", cat:"adjectives"},
+    {fi:"ostentatious", ja:"見せびらかす", cat:"adjectives"},
+    {fi:"pretentious", ja:"気取った", cat:"adjectives"},
+    {fi:"mundane", ja:"平凡な", cat:"adjectives"},
+    {fi:"tedious", ja:"退屈な", cat:"adjectives"},
+    {fi:"monotonous", ja:"単調な", cat:"adjectives"},
+    {fi:"exhilarating", ja:"爽快な", cat:"adjectives"},
+    {fi:"daunting", ja:"気後れさせる", cat:"adjectives"},
+    {fi:"formidable", ja:"恐るべき、手強い", cat:"adjectives"},
+    {fi:"intimidating", ja:"威圧的な", cat:"adjectives"},
+    {fi:"relentless", ja:"執拗な", cat:"adjectives"},
+    {fi:"archaic", ja:"古風な", cat:"adjectives"},
+    {fi:"contemporary", ja:"現代の", cat:"adjectives"},
+    {fi:"eminent", ja:"著名な", cat:"adjectives"},
+    {fi:"prominent", ja:"突出した", cat:"adjectives"},
+    {fi:"notorious", ja:"悪名高い", cat:"adjectives"},
+    {fi:"renowned", ja:"名高い", cat:"adjectives"},
+    {fi:"prevalent", ja:"普及した", cat:"adjectives"},
+    {fi:"scarce", ja:"乏しい", cat:"adjectives"},
+    {fi:"abundant", ja:"豊富な", cat:"adjectives"},
+    {fi:"meager", ja:"乏しい", cat:"adjectives"},
+    {fi:"sparse", ja:"まばらな", cat:"adjectives"},
+    {fi:"dense", ja:"密集した", cat:"adjectives"},
+    {fi:"compact", ja:"コンパクトな", cat:"adjectives"},
+    {fi:"robust", ja:"頑丈な", cat:"adjectives"},
+    {fi:"fragile", ja:"もろい", cat:"adjectives"},
+    {fi:"erratic", ja:"不規則な", cat:"adjectives"},
+    {fi:"sporadic", ja:"散発的な", cat:"adjectives"},
+    {fi:"sluggish", ja:"動きの鈍い", cat:"adjectives"},
+    {fi:"brisk", ja:"きびきびした", cat:"adjectives"},
+    {fi:"versed", ja:"精通した", cat:"adjectives"},
+    {fi:"adept", ja:"熟練した", cat:"adjectives"},
+    {fi:"proficient", ja:"熟達した", cat:"adjectives"},
+    // verbs — 動詞(フォーマル)
+    {fi:"alleviate", ja:"緩和する", cat:"verbs"},
+    {fi:"exacerbate", ja:"悪化させる", cat:"verbs"},
+    {fi:"mitigate", ja:"軽減する", cat:"verbs"},
+    {fi:"facilitate", ja:"促進する", cat:"verbs"},
+    {fi:"hinder", ja:"妨げる", cat:"verbs"},
+    {fi:"impede", ja:"妨げる", cat:"verbs"},
+    {fi:"expedite", ja:"早める", cat:"verbs"},
+    {fi:"accelerate", ja:"加速する", cat:"verbs"},
+    {fi:"curtail", ja:"削減する", cat:"verbs"},
+    {fi:"diminish", ja:"減少させる", cat:"verbs"},
+    {fi:"augment", ja:"増加させる", cat:"verbs"},
+    {fi:"enhance", ja:"強化する", cat:"verbs"},
+    {fi:"enrich", ja:"豊かにする", cat:"verbs"},
+    {fi:"undermine", ja:"弱体化させる", cat:"verbs"},
+    {fi:"jeopardize", ja:"危険にさらす", cat:"verbs"},
+    {fi:"compensate", ja:"補う", cat:"verbs"},
+    {fi:"reconcile", ja:"和解させる", cat:"verbs"},
+    {fi:"eradicate", ja:"根絶する", cat:"verbs"},
+    {fi:"eliminate", ja:"排除する", cat:"verbs"},
+    {fi:"perpetuate", ja:"永続させる", cat:"verbs"},
+    {fi:"propagate", ja:"広める", cat:"verbs"},
+    {fi:"disseminate", ja:"広める", cat:"verbs"},
+    {fi:"circulate", ja:"循環させる", cat:"verbs"},
+    {fi:"allocate", ja:"割り当てる", cat:"verbs"},
+    {fi:"designate", ja:"指定する", cat:"verbs"},
+    {fi:"delegate", ja:"委任する", cat:"verbs"},
+    {fi:"entrust", ja:"委託する", cat:"verbs"},
+    {fi:"scrutinize", ja:"精査する", cat:"verbs"},
+    {fi:"evaluate", ja:"評価する", cat:"verbs"},
+    {fi:"appraise", ja:"査定する", cat:"verbs"},
+    {fi:"implement", ja:"実行する", cat:"verbs"},
+    {fi:"execute", ja:"実行する", cat:"verbs"},
+    {fi:"comply", ja:"従う", cat:"verbs"},
+    {fi:"adhere", ja:"順守する", cat:"verbs"},
+    {fi:"violate", ja:"違反する", cat:"verbs"},
+    {fi:"infringe", ja:"侵害する", cat:"verbs"},
+    {fi:"breach", ja:"違反する", cat:"verbs"},
+    {fi:"transgress", ja:"逸脱する", cat:"verbs"},
+    {fi:"instigate", ja:"扇動する", cat:"verbs"},
+    {fi:"provoke", ja:"誘発する", cat:"verbs"},
+    // adverbs — 副詞・接続表現
+    {fi:"consequently", ja:"その結果", cat:"adverbs"},
+    {fi:"nevertheless", ja:"それにもかかわらず", cat:"adverbs"},
+    {fi:"furthermore", ja:"さらに", cat:"adverbs"},
+    {fi:"notwithstanding", ja:"にもかかわらず", cat:"adverbs"},
+    {fi:"albeit", ja:"〜だけれども", cat:"adverbs"},
+    {fi:"henceforth", ja:"今後は", cat:"adverbs"},
+    {fi:"thereby", ja:"それによって", cat:"adverbs"},
+    {fi:"whereby", ja:"それによって", cat:"adverbs"},
+    {fi:"conversely", ja:"逆に", cat:"adverbs"},
+    {fi:"likewise", ja:"同様に", cat:"adverbs"},
+    {fi:"arguably", ja:"間違いなく、おそらく", cat:"adverbs"},
+    {fi:"ostensibly", ja:"表向きは", cat:"adverbs"},
+    {fi:"presumably", ja:"おそらく", cat:"adverbs"},
+    {fi:"inevitably", ja:"必然的に", cat:"adverbs"},
+    {fi:"invariably", ja:"常に", cat:"adverbs"},
+    {fi:"predominantly", ja:"主として", cat:"adverbs"},
+    {fi:"subsequently", ja:"その後", cat:"adverbs"},
+    {fi:"meticulously", ja:"細心の注意を払って", cat:"adverbs"},
+    {fi:"inadvertently", ja:"うっかり", cat:"adverbs"},
+    {fi:"unequivocally", ja:"明確に", cat:"adverbs"},
+    // nouns — 名詞(抽象)
+    {fi:"integrity", ja:"誠実さ、完全性", cat:"nouns"},
+    {fi:"credibility", ja:"信頼性", cat:"nouns"},
+    {fi:"legitimacy", ja:"正当性", cat:"nouns"},
+    {fi:"vulnerability", ja:"脆弱性", cat:"nouns"},
+    {fi:"scarcity", ja:"不足", cat:"nouns"},
+    {fi:"abundance", ja:"豊富さ", cat:"nouns"},
+    {fi:"disparity", ja:"格差", cat:"nouns"},
+    {fi:"inequality", ja:"不平等", cat:"nouns"},
+    {fi:"equilibrium", ja:"均衡", cat:"nouns"},
+    {fi:"inertia", ja:"慣性、惰性", cat:"nouns"},
+    {fi:"dilemma", ja:"ジレンマ", cat:"nouns"},
+    {fi:"predicament", ja:"苦境", cat:"nouns"},
+    {fi:"adversity", ja:"逆境", cat:"nouns"},
+    {fi:"solidarity", ja:"連帯", cat:"nouns"},
+    {fi:"cohesion", ja:"結束", cat:"nouns"},
+    {fi:"fragmentation", ja:"断片化", cat:"nouns"},
+    {fi:"polarization", ja:"二極化", cat:"nouns"},
+    {fi:"convergence", ja:"収束", cat:"nouns"},
+    {fi:"divergence", ja:"分岐", cat:"nouns"},
+    {fi:"proximity", ja:"近接", cat:"nouns"},
+    {fi:"magnitude", ja:"大きさ、規模", cat:"nouns"},
+    {fi:"trajectory", ja:"軌道", cat:"nouns"},
+    {fi:"threshold", ja:"閾値", cat:"nouns"},
+    {fi:"milestone", ja:"節目", cat:"nouns"},
+    {fi:"repercussion", ja:"影響、余波", cat:"nouns"},
+    {fi:"attrition", ja:"消耗", cat:"nouns"},
+    {fi:"stigma", ja:"汚名", cat:"nouns"},
+    {fi:"legacy", ja:"遺産、名残", cat:"nouns"},
+    {fi:"connoisseur", ja:"目利き", cat:"nouns"},
+    {fi:"hindsight", ja:"後知恵", cat:"nouns"},
+    // idioms — イディオム・句動詞
+    {fi:"account for", ja:"説明する、占める", cat:"idioms"},
+    {fi:"bring about", ja:"引き起こす", cat:"idioms"},
+    {fi:"carry out", ja:"実行する", cat:"idioms"},
+    {fi:"come up with", ja:"思いつく", cat:"idioms"},
+    {fi:"cut back on", ja:"削減する", cat:"idioms"},
+    {fi:"deal with", ja:"対処する", cat:"idioms"},
+    {fi:"figure out", ja:"理解する", cat:"idioms"},
+    {fi:"get around", ja:"回避する", cat:"idioms"},
+    {fi:"give rise to", ja:"引き起こす", cat:"idioms"},
+    {fi:"hold back", ja:"抑える", cat:"idioms"},
+    {fi:"keep up with", ja:"遅れずについていく", cat:"idioms"},
+    {fi:"look into", ja:"調査する", cat:"idioms"},
+    {fi:"make up for", ja:"埋め合わせる", cat:"idioms"},
+    {fi:"put off", ja:"延期する", cat:"idioms"},
+    {fi:"rule out", ja:"除外する", cat:"idioms"},
+    {fi:"set forth", ja:"提示する", cat:"idioms"},
+    {fi:"stem from", ja:"起因する", cat:"idioms"},
+    {fi:"take into account", ja:"考慮する", cat:"idioms"},
+    {fi:"turn out", ja:"判明する", cat:"idioms"},
+    {fi:"wear off", ja:"徐々に消える", cat:"idioms"},
+    {fi:"work out", ja:"うまくいく", cat:"idioms"},
+    {fi:"break down", ja:"分解する、故障する", cat:"idioms"},
+    {fi:"level off", ja:"横ばいになる", cat:"idioms"},
+    {fi:"come across", ja:"偶然出会う", cat:"idioms"},
+    {fi:"live up to", ja:"期待に応える", cat:"idioms"},
+    // history — 歴史・文化
+    {fi:"heritage", ja:"遺産", cat:"history"},
+    {fi:"artifact", ja:"工芸品、遺物", cat:"history"},
+    {fi:"civilization", ja:"文明", cat:"history"},
+    {fi:"colonization", ja:"植民地化", cat:"history"},
+    {fi:"imperialism", ja:"帝国主義", cat:"history"},
+    {fi:"revolution", ja:"革命", cat:"history"},
+    {fi:"renaissance", ja:"ルネサンス、復興", cat:"history"},
+    {fi:"feudal", ja:"封建的な", cat:"history"},
+    {fi:"dynasty", ja:"王朝", cat:"history"},
+    {fi:"monarchy", ja:"君主制", cat:"history"},
+    {fi:"republic", ja:"共和国", cat:"history"},
+    {fi:"custom", ja:"慣習", cat:"history"},
+    {fi:"ritual", ja:"儀式", cat:"history"},
+    {fi:"folklore", ja:"民間伝承", cat:"history"},
+    {fi:"myth", ja:"神話", cat:"history"},
+    {fi:"antiquity", ja:"古代", cat:"history"},
+    {fi:"archaeology", ja:"考古学", cat:"history"},
+    {fi:"excavate", ja:"発掘する", cat:"history"},
+    // art — 芸術・文学
+    {fi:"aesthetic", ja:"美的な", cat:"art"},
+    {fi:"narrative", ja:"物語", cat:"art"},
+    {fi:"protagonist", ja:"主人公", cat:"art"},
+    {fi:"antagonist", ja:"敵役", cat:"art"},
+    {fi:"metaphor", ja:"隠喩", cat:"art"},
+    {fi:"allegory", ja:"寓話", cat:"art"},
+    {fi:"irony", ja:"皮肉", cat:"art"},
+    {fi:"satire", ja:"風刺", cat:"art"},
+    {fi:"genre", ja:"ジャンル", cat:"art"},
+    {fi:"motif", ja:"モチーフ", cat:"art"},
+    {fi:"symbolism", ja:"象徴主義", cat:"art"},
+    {fi:"adaptation", ja:"脚色、翻案", cat:"art"},
+    {fi:"critique", ja:"批評", cat:"art"},
+    {fi:"masterpiece", ja:"傑作", cat:"art"},
+    {fi:"improvisation", ja:"即興", cat:"art"},
+    {fi:"choreography", ja:"振付", cat:"art"},
+    {fi:"composition", ja:"構成、作曲", cat:"art"},
+    {fi:"plagiarism", ja:"盗作", cat:"art"},
+    {fi:"authenticity", ja:"真正性", cat:"art"},
+    // misc — その他の重要語
+    {fi:"meticulousness", ja:"几帳面さ", cat:"misc"},
+    {fi:"pinnacle", ja:"頂点", cat:"misc"},
+    {fi:"zenith", ja:"絶頂", cat:"misc"},
+    {fi:"nadir", ja:"どん底", cat:"misc"},
+    {fi:"catalyze", ja:"促進する", cat:"misc"},
+    {fi:"epitome", ja:"典型、縮図", cat:"misc"},
+    {fi:"quintessential", ja:"典型的な", cat:"misc"},
+    {fi:"unprecedented", ja:"前例のない", cat:"misc"},
+    {fi:"unparalleled", ja:"比類のない", cat:"misc"},
+    {fi:"unequivocal", ja:"明確な", cat:"misc"},
+    {fi:"unanimous", ja:"満場一致の", cat:"misc"},
+    {fi:"unassuming", ja:"控えめな", cat:"misc"},
+    {fi:"unwavering", ja:"揺るぎない", cat:"misc"},
+    {fi:"unfathomable", ja:"計り知れない", cat:"misc"},
+    {fi:"unattainable", ja:"達成不可能な", cat:"misc"},
+  ];
+
+  const CATS = [...new Set(WORDS.map(w=>w.cat))];
+  const CAT_LABELS = {
+    "academic": "学術・抽象概念",
+    "business": "ビジネス・経済",
+    "politics": "政治・社会",
+    "science": "科学・技術",
+    "environment": "環境・自然",
+    "medicine": "医学・健康",
+    "law": "法律・犯罪",
+    "psychology": "心理・性格",
+    "emotions": "感情・態度",
+    "communication": "コミュニケーション・議論",
+    "adjectives": "形容詞(性質)",
+    "verbs": "動詞(フォーマル)",
+    "adverbs": "副詞・接続表現",
+    "nouns": "名詞(抽象)",
+    "idioms": "イディオム・句動詞",
+    "history": "歴史・文化",
+    "art": "芸術・文学",
+    "misc": "その他の重要語",
+  };
+  function catLabel(cat){
+    return CAT_LABELS[cat] ? `${CAT_LABELS[cat]}（${cat}）` : cat;
+  }
+  const ROUND_SIZE = 15;
+
+  const els = {
+    startScreen: document.getElementById('startScreen'),
+    quizScreen: document.getElementById('quizScreen'),
+    resultScreen: document.getElementById('resultScreen'),
+    catGrid: document.getElementById('catGrid'),
+    startBtn: document.getElementById('startBtn'),
+    selectAllBtn: document.getElementById('selectAllBtn'),
+    deselectAllBtn: document.getElementById('deselectAllBtn'),
+    qIndex: document.getElementById('qIndex'),
+    streakCount: document.getElementById('streakCount'),
+    wordFi: document.getElementById('wordFi'),
+    wordCat: document.getElementById('wordCat'),
+    wordTag: document.getElementById('wordTag'),
+    optionsGrid: document.getElementById('optionsGrid'),
+    scoreBig: document.getElementById('scoreBig'),
+    scoreLabel: document.getElementById('scoreLabel'),
+    missedWrap: document.getElementById('missedWrap'),
+    backBtn: document.getElementById('backBtn'),
+    retryBtn: document.getElementById('retryBtn'),
+    arcFill: document.getElementById('arcFill'),
+    sunDot: document.getElementById('sunDot'),
+    arcCaption: document.getElementById('arcCaption'),
+    historyToggleBtn: document.getElementById('historyToggleBtn'),
+    historyPanel: document.getElementById('historyPanel'),
+    wordStatsToggleBtn: document.getElementById('wordStatsToggleBtn'),
+    wordStatsPanel: document.getElementById('wordStatsPanel'),
+    exportBtn: document.getElementById('exportBtn'),
+    importBtn: document.getElementById('importBtn'),
+    importFileInput: document.getElementById('importFileInput'),
+    backupMessage: document.getElementById('backupMessage'),
+    speakBtn: document.getElementById('speakBtn'),
+    voiceNote: document.getElementById('voiceNote'),
+    voiceLabel: document.getElementById('voiceLabel'),
+    quitBtn: document.getElementById('quitBtn'),
+    startWarning: document.getElementById('startWarning'),
+    confirmOverlay: document.getElementById('confirmOverlay'),
+    confirmMessage: document.getElementById('confirmMessage'),
+    confirmCancelBtn: document.getElementById('confirmCancelBtn'),
+    confirmOkBtn: document.getElementById('confirmOkBtn'),
+  };
+
+  let selectedCats = new Set(CATS);
+  let deck = [];
+  let qi = 0;
+  let score = 0;
+  let streak = 0;
+  let bestStreak = 0;
+  let missed = [];
+  let arcLen = 0;
+  let locked = false;
+  let roundActive = false;
+
+  // --- spaced repetition (Leitner-style) ---
+  const WORD_STATS_KEY = 'quiz-word-stats-en';
+  const BOX_INTERVAL_DAYS = [0, 1, 3, 7, 14, 30]; // box 0 (new/wrong) .. box 5 (mastered)
+  let wordStats = {};
+
+  function loadWordStats(){
+    try{
+      const raw = localStorage.getItem(WORD_STATS_KEY);
+      wordStats = raw ? JSON.parse(raw) : {};
+      if(!wordStats || typeof wordStats !== 'object') wordStats = {};
+    }catch(err){
+      wordStats = {};
+    }
+  }
+
+  function persistWordStats(){
+    try{
+      localStorage.setItem(WORD_STATS_KEY, JSON.stringify(wordStats));
+    }catch(err){
+      console.error('学習状況の保存に失敗しました', err);
+    }
+  }
+
+  function updateWordStat(word, correct){
+    const stat = wordStats[word.fi] || {box: 0, seenCount: 0, correctCount: 0};
+    stat.seenCount = (stat.seenCount || 0) + 1;
+    if(correct) stat.correctCount = (stat.correctCount || 0) + 1;
+    stat.box = correct ? Math.min(stat.box + 1, BOX_INTERVAL_DAYS.length - 1) : 0;
+    const dueDate = new Date(Date.now() + BOX_INTERVAL_DAYS[stat.box] * 86400000);
+    stat.due = dueDate.toISOString();
+    wordStats[word.fi] = stat;
+    persistWordStats();
+  }
+
+  // Weight: never-seen words get a strong boost (so new words keep appearing),
+  // overdue review words get boosted the longer they've been overdue, and
+  // words that were just reviewed and aren't due yet get a small weight so
+  // they can still occasionally show up for extra reinforcement.
+  function getWordWeight(word){
+    const stat = wordStats[word.fi];
+    if(!stat) return 5;
+    const dueTime = new Date(stat.due).getTime();
+    const now = Date.now();
+    if(now >= dueTime){
+      const overdueDays = (now - dueTime) / 86400000;
+      return 3 + Math.min(overdueDays, 10) * 0.3;
+    }
+    return 0.15;
+  }
+
+  // Efraimidis–Spirakis weighted sampling without replacement.
+  function weightedSample(pool, k){
+    const keyed = pool.map(item => ({
+      item,
+      key: Math.pow(Math.random(), 1 / Math.max(getWordWeight(item), 0.01)),
+    }));
+    keyed.sort((a, b) => b.key - a.key);
+    return keyed.slice(0, k).map(x => x.item);
+  }
+
+  loadWordStats();
+
+  // --- pre-recorded audio files (preferred) ---
+  const AUDIO_BASE = 'audio/en';
+  const NATIVE_LANG_PREFIXES = ["en"];
+  let audioManifest = {};
+  let audioManifestLoaded = false;
+  let currentAudio = null;
+
+  fetch(`${AUDIO_BASE}/manifest.json`)
+    .then(res => { if(!res.ok) throw new Error('manifest not found'); return res.json(); })
+    .then(data => {
+      audioManifest = data || {};
+      audioManifestLoaded = Object.keys(audioManifest).length > 0;
+      updateSpeakAvailability();
+    })
+    .catch(() => {
+      // No pre-recorded audio uploaded yet (or running from a local file where
+      // fetch() can't load it) — the game just falls back to browser speech.
+      audioManifest = {};
+      audioManifestLoaded = false;
+    });
+
+  let finnishVoice = null;
+  let voiceAvailable = false;
+  function pickFinnishVoice(){
+    if(!('speechSynthesis' in window)) return;
+    const voices = window.speechSynthesis.getVoices();
+    if(!voices.length) return;
+    // Prefer an actual native voice. Failing that, fall back to English rather
+    // than letting the browser silently default to a Japanese system voice,
+    // which mispronounces the word badly.
+    finnishVoice =
+      NATIVE_LANG_PREFIXES.map(p => voices.find(v => v.lang && v.lang.toLowerCase().startsWith(p))).find(Boolean) ||
+      null;
+    voiceAvailable = !!finnishVoice;
+    updateSpeakAvailability();
+  }
+  if('speechSynthesis' in window){
+    pickFinnishVoice();
+    window.speechSynthesis.onvoiceschanged = pickFinnishVoice;
+  } else {
+    updateSpeakAvailability();
+  }
+
+  function updateSpeakAvailability(){
+    if(!els.speakBtn) return;
+    if(audioManifestLoaded){
+      // Pre-recorded audio is available for at least some words — always keep
+      // the button enabled; per-word fallback to synthesis (or silence) is
+      // handled inside speakWord() itself.
+      els.speakBtn.disabled = false;
+      els.speakBtn.title = '発音を再生';
+      els.voiceNote.classList.add('hidden');
+      return;
+    }
+    if(voiceAvailable){
+      els.speakBtn.disabled = false;
+      els.speakBtn.title = '発音を再生';
+      els.voiceNote.classList.add('hidden');
+      const isReallyNative = NATIVE_LANG_PREFIXES.some(p => finnishVoice.lang && finnishVoice.lang.toLowerCase().startsWith(p));
+      els.voiceLabel.textContent = isReallyNative
+        ? `使用中の音声: ${finnishVoice.name}（${finnishVoice.lang}）`
+        : `この言語の音声が見つからないため代替音声を使用中: ${finnishVoice.name}（${finnishVoice.lang}）`;
+    } else {
+      els.speakBtn.disabled = true;
+      els.speakBtn.title = 'この端末では発音の再生に対応していません';
+      els.voiceNote.classList.remove('hidden');
+      els.voiceLabel.textContent = '';
+    }
+  }
+
+  let speakToken = 0;
+
+  function speakWithSynthesis(text){
+    if(!('speechSynthesis' in window) || !finnishVoice) return;
+    const myToken = ++speakToken;
+    try{
+      window.speechSynthesis.cancel();
+      // Calling speak() immediately after cancel() is unreliable in some
+      // browsers (Chrome especially) and tends to garble or cut off longer
+      // words. A short delay lets the cancel actually take effect first.
+      setTimeout(()=>{
+        if(myToken !== speakToken) return; // a newer speak request superseded this one
+        try{
+          const utter = new SpeechSynthesisUtterance(text);
+          utter.voice = finnishVoice;
+          utter.lang = finnishVoice.lang;
+          utter.rate = 0.85;
+          els.speakBtn.classList.add('speaking');
+          utter.onend = () => els.speakBtn.classList.remove('speaking');
+          utter.onerror = () => els.speakBtn.classList.remove('speaking');
+          window.speechSynthesis.speak(utter);
+        }catch(err){
+          console.error('音声の再生に失敗しました', err);
+        }
+      }, 80);
+    }catch(err){
+      console.error('音声の再生に失敗しました', err);
+    }
+  }
+
+  function speakWord(text){
+    const filename = audioManifest[text];
+    if(filename){
+      speakToken++; // supersede any pending synthesis fallback
+      try{
+        if(currentAudio){ currentAudio.pause(); }
+        currentAudio = new Audio(`${AUDIO_BASE}/${filename}`);
+        els.speakBtn.classList.add('speaking');
+        currentAudio.onended = () => els.speakBtn.classList.remove('speaking');
+        currentAudio.onerror = () => {
+          els.speakBtn.classList.remove('speaking');
+          speakWithSynthesis(text); // the file failed to load — fall back
+        };
+        const playPromise = currentAudio.play();
+        if(playPromise && playPromise.catch){
+          playPromise.catch(() => els.speakBtn.classList.remove('speaking'));
+        }
+      }catch(err){
+        console.error('音声ファイルの再生に失敗しました', err);
+        speakWithSynthesis(text);
+      }
+      return;
+    }
+    speakWithSynthesis(text);
+  }
+
+  function showConfirmModal(message, onConfirm){
+    els.confirmMessage.textContent = message;
+    els.confirmOverlay.classList.remove('hidden');
+
+    function cleanup(){
+      els.confirmOverlay.classList.add('hidden');
+      els.confirmOkBtn.removeEventListener('click', onOk);
+      els.confirmCancelBtn.removeEventListener('click', onCancel);
+    }
+    function onOk(){ cleanup(); onConfirm(); }
+    function onCancel(){ cleanup(); }
+
+    els.confirmOkBtn.addEventListener('click', onOk);
+    els.confirmCancelBtn.addEventListener('click', onCancel);
+  }
+
+  function shuffle(arr){
+    const a = arr.slice();
+    for(let i=a.length-1;i>0;i--){
+      const j = Math.floor(Math.random()*(i+1));
+      [a[i],a[j]] = [a[j],a[i]];
+    }
+    return a;
+  }
+
+  function buildCatGrid(){
+    els.catGrid.innerHTML = '';
+    CATS.forEach(cat=>{
+      const count = WORDS.filter(w=>w.cat===cat).length;
+      const label = document.createElement('label');
+      label.className = 'cat-chip active';
+      label.innerHTML = `
+        <input type="checkbox" checked data-cat="${cat}">
+        <span class="cat-chip-text">
+          <span class="cat-chip-ja">${CAT_LABELS[cat] || cat}</span>
+          <span class="cat-chip-fi">${cat}</span>
+        </span>
+        <span class="cat-count">${count}</span>
+      `;
+      const input = label.querySelector('input');
+      input.addEventListener('change', ()=>{
+        if(input.checked){ selectedCats.add(cat); label.classList.add('active'); }
+        else { selectedCats.delete(cat); label.classList.remove('active'); }
+      });
+      els.catGrid.appendChild(label);
+    });
+  }
+
+  function showScreen(name){
+    els.startScreen.classList.toggle('hidden', name!=='start');
+    els.quizScreen.classList.toggle('hidden', name!=='quiz');
+    els.resultScreen.classList.toggle('hidden', name!=='result');
+  }
+
+  function initArc(){
+    arcLen = els.arcFill.getTotalLength();
+    els.arcFill.style.strokeDasharray = arcLen;
+    els.arcFill.style.strokeDashoffset = arcLen;
+  }
+
+  function updateArc(progressFraction){
+    const offset = arcLen * (1 - progressFraction);
+    els.arcFill.style.strokeDashoffset = offset;
+    const point = els.arcFill.getPointAtLength(arcLen * progressFraction);
+    els.sunDot.setAttribute('cx', point.x);
+    els.sunDot.setAttribute('cy', point.y);
+  }
+
+  function startRound(){
+    const pool = WORDS.filter(w=>selectedCats.has(w.cat));
+    const size = Math.min(ROUND_SIZE, pool.length);
+    deck = shuffle(weightedSample(pool, size));
+    qi = 0; score = 0; streak = 0; bestStreak = 0; missed = [];
+    roundActive = true;
+    showScreen('quiz');
+    initArc();
+    updateArc(0);
+    renderQuestion();
+  }
+
+  function renderQuestion(){
+    locked = false;
+    const item = deck[qi];
+    els.qIndex.textContent = `問題 ${qi+1} / ${deck.length}`;
+    els.streakCount.textContent = streak;
+    els.wordFi.textContent = item.fi;
+    els.wordCat.textContent = catLabel(item.cat);
+    const stat = wordStats[item.fi];
+    if(!stat){
+      els.wordTag.textContent = '🆕 新出単語';
+    } else if(Date.now() >= new Date(stat.due).getTime()){
+      els.wordTag.textContent = '🔁 復習のタイミング';
+    } else {
+      els.wordTag.textContent = '';
+    }
+    speakWord(item.fi);
+
+    const wrongPool = WORDS.filter(w=>w.ja!==item.ja);
+    const wrongs = shuffle(wrongPool).slice(0,3);
+    const options = shuffle([item, ...wrongs]);
+
+    els.optionsGrid.innerHTML = '';
+    options.forEach(opt=>{
+      const btn = document.createElement('button');
+      btn.className = 'opt';
+      btn.textContent = opt.ja;
+      btn.addEventListener('click', ()=>handleAnswer(btn, opt, item));
+      els.optionsGrid.appendChild(btn);
+    });
+  }
+
+  function handleAnswer(btn, opt, item){
+    if(locked) return;
+    locked = true;
+    const correct = opt.ja === item.ja;
+    const allBtns = Array.from(els.optionsGrid.children);
+    allBtns.forEach(b=>b.disabled = true);
+    updateWordStat(item, correct);
+
+    if(correct){
+      btn.classList.add('correct');
+      score++;
+      streak++;
+      bestStreak = Math.max(bestStreak, streak);
+    } else {
+      btn.classList.add('wrong');
+      streak = 0;
+      missed.push(item);
+      const correctBtn = allBtns.find(b=>b.textContent===item.ja);
+      if(correctBtn) correctBtn.classList.add('correct');
+    }
+    els.streakCount.textContent = streak;
+    updateArc((qi+1)/deck.length);
+
+    setTimeout(()=>{
+      if(!roundActive) return;
+      qi++;
+      if(qi < deck.length){
+        renderQuestion();
+      } else {
+        showResult();
+      }
+    }, correct ? 550 : 1000);
+  }
+
+  function showResult(){
+    showScreen('result');
+    els.scoreBig.textContent = `${score} / ${deck.length}`;
+    const pct = score/deck.length;
+    let label = '';
+    if(pct === 1) label = '満点！お見事です';
+    else if(pct >= 0.8) label = 'とても良い調子';
+    else if(pct >= 0.5) label = 'いい感じ、続けよう';
+    else label = 'もう一度挑戦してみよう';
+    els.scoreLabel.textContent = `${label}（最長連続正解 ${bestStreak}）`;
+
+    updateTotals(score, deck.length);
+    addHistoryEntry({
+      date: new Date().toISOString(),
+      score: score,
+      total: deck.length,
+      bestStreak: bestStreak,
+      categories: Array.from(selectedCats),
+      missedWords: missed.map(m => ({fi: m.fi, ja: m.ja})),
+    });
+
+    els.missedWrap.innerHTML = '';
+    if(missed.length){
+      const title = document.createElement('div');
+      title.className = 'missed-title';
+      title.textContent = `間違えた単語（${missed.length}）`;
+      els.missedWrap.appendChild(title);
+      missed.forEach(m=>{
+        const row = document.createElement('div');
+        row.className = 'missed-row';
+        row.innerHTML = `<span class="fi">${m.fi}</span><span class="ja">${m.ja}</span>`;
+        els.missedWrap.appendChild(row);
+      });
+    }
+  }
+
+  const HISTORY_KEY = 'quiz-history-log-en';
+  const MAX_HISTORY = 50;
+  const TOTALS_KEY = 'quiz-totals-en';
+
+  function getTotals(){
+    try{
+      const raw = localStorage.getItem(TOTALS_KEY);
+      const parsed = raw ? JSON.parse(raw) : null;
+      if(parsed && typeof parsed === 'object'){
+        return {
+          plays: parsed.plays || 0,
+          questions: parsed.questions || 0,
+          correct: parsed.correct || 0,
+        };
+      }
+    }catch(err){ /* fall through to default */ }
+    return { plays: 0, questions: 0, correct: 0 };
+  }
+
+  function updateTotals(score, total){
+    try{
+      const totals = getTotals();
+      totals.plays += 1;
+      totals.questions += total;
+      totals.correct += score;
+      localStorage.setItem(TOTALS_KEY, JSON.stringify(totals));
+    }catch(err){
+      console.error('累計記録の保存に失敗しました', err);
+    }
+  }
+
+  async function getHistory(){
+    try{
+      const raw = localStorage.getItem(HISTORY_KEY);
+      if(!raw) return [];
+      const parsed = JSON.parse(raw);
+      return Array.isArray(parsed) ? parsed : [];
+    }catch(err){
+      return [];
+    }
+  }
+
+  async function addHistoryEntry(entry){
+    try{
+      const current = await getHistory();
+      const updated = [entry, ...current].slice(0, MAX_HISTORY);
+      localStorage.setItem(HISTORY_KEY, JSON.stringify(updated));
+    }catch(err){
+      // storage unavailable (e.g. private browsing) — the round still completes without saving
+      console.error('履歴の保存に失敗しました', err);
+    }
+  }
+
+  async function clearHistory(){
+    try{
+      localStorage.removeItem(HISTORY_KEY);
+    }catch(err){
+      console.error('履歴の削除に失敗しました', err);
+    }
+  }
+
+  function formatDate(iso){
+    const d = new Date(iso);
+    const mm = String(d.getMonth()+1).padStart(2,'0');
+    const dd = String(d.getDate()).padStart(2,'0');
+    const hh = String(d.getHours()).padStart(2,'0');
+    const mi = String(d.getMinutes()).padStart(2,'0');
+    return `${mm}/${dd} ${hh}:${mi}`;
+  }
+
+  function renderHistoryList(logs){
+    els.historyPanel.innerHTML = '';
+    if(!logs.length){
+      const empty = document.createElement('div');
+      empty.className = 'history-empty';
+      empty.textContent = 'まだ記録がありません。1回プレイすると、ここに履歴が残ります。';
+      els.historyPanel.appendChild(empty);
+      return;
+    }
+
+    // --- aggregate summary: use the uncapped lifetime totals, not just the
+    // (max 50) stored session log, so heavy players see accurate numbers ---
+    const totals = getTotals();
+    const overallAccuracy = totals.questions ? Math.round((totals.correct/totals.questions)*100) : 0;
+    const missTally = {}; // "fi|ja" -> {fi, ja, count}
+    logs.forEach(entry=>{
+      (entry.missedWords || []).forEach(m=>{
+        const key = m.fi + '|' + m.ja;
+        if(!missTally[key]) missTally[key] = {fi: m.fi, ja: m.ja, count: 0};
+        missTally[key].count++;
+      });
+    });
+    const topMissed = Object.values(missTally).sort((a,b)=>b.count-a.count).slice(0,5);
+
+    const summary = document.createElement('div');
+    summary.className = 'history-summary';
+    summary.innerHTML = `
+      <div class="summary-stat">
+        <div class="summary-num">${totals.plays}</div>
+        <div class="summary-label">プレイ回数</div>
+      </div>
+      <div class="summary-stat">
+        <div class="summary-num">${overallAccuracy}%</div>
+        <div class="summary-label">通算正答率</div>
+      </div>
+      <div class="summary-stat">
+        <div class="summary-num">${totals.questions}</div>
+        <div class="summary-label">累計出題数</div>
+      </div>
+    `;
+    els.historyPanel.appendChild(summary);
+    if(logs.length < totals.plays){
+      const note = document.createElement('div');
+      note.className = 'history-cap-note';
+      note.textContent = `※ プレイ履歴の一覧は直近${MAX_HISTORY}件までの表示です（集計は全期間分）`;
+      els.historyPanel.appendChild(note);
+    }
+
+    if(topMissed.length){
+      const weakTitle = document.createElement('div');
+      weakTitle.className = 'missed-title';
+      weakTitle.textContent = '苦手な単語 トップ5';
+      els.historyPanel.appendChild(weakTitle);
+      topMissed.forEach(m=>{
+        const row = document.createElement('div');
+        row.className = 'missed-row';
+        row.innerHTML = `<span class="fi">${m.fi}</span><span class="ja">${m.ja}（${m.count}回間違い）</span>`;
+        els.historyPanel.appendChild(row);
+      });
+    }
+
+    const sessionsTitle = document.createElement('div');
+    sessionsTitle.className = 'missed-title';
+    sessionsTitle.textContent = 'プレイ履歴';
+    els.historyPanel.appendChild(sessionsTitle);
+
+    logs.forEach(entry=>{
+      const row = document.createElement('div');
+      row.className = 'history-row';
+      const pct = entry.total ? Math.round((entry.score/entry.total)*100) : 0;
+      row.innerHTML = `
+        <span class="history-date">${formatDate(entry.date)}</span>
+        <span class="history-cats">${entry.categories.map(catLabel).join(' / ')}</span>
+        <span class="history-score">${entry.score}/${entry.total}（${pct}%）</span>
+      `;
+      els.historyPanel.appendChild(row);
+    });
+
+    const clearBtn = document.createElement('button');
+    clearBtn.className = 'history-clear';
+    clearBtn.textContent = '記録を消去する';
+    clearBtn.addEventListener('click', async ()=>{
+      clearBtn.disabled = true;
+      await clearHistory();
+      renderHistoryList([]);
+    });
+    els.historyPanel.appendChild(clearBtn);
+  }
+
+  async function toggleHistoryPanel(){
+    const isHidden = els.historyPanel.classList.contains('hidden');
+    if(isHidden){
+      els.historyPanel.classList.remove('hidden');
+      els.historyPanel.innerHTML = '<div class="history-loading">読み込み中…</div>';
+      const logs = await getHistory();
+      renderHistoryList(logs);
+      els.historyToggleBtn.textContent = '記録を隠す';
+    } else {
+      els.historyPanel.classList.add('hidden');
+      els.historyToggleBtn.textContent = '記録を見る';
+    }
+  }
+
+
+  function renderWordStatsList(filterText){
+    els.wordStatsPanel.innerHTML = '';
+
+    const search = document.createElement('input');
+    search.type = 'text';
+    search.className = 'word-stats-search';
+    search.placeholder = '単語を検索（フィンランド語 または 日本語）';
+    search.value = filterText || '';
+    search.addEventListener('input', ()=> renderWordStatsList(search.value));
+    els.wordStatsPanel.appendChild(search);
+
+    const query = (filterText || '').trim().toLowerCase();
+    let rows = WORDS
+      .map(w => ({ word: w, stat: wordStats[w.fi] || null }))
+      .filter(r => r.stat && r.stat.seenCount > 0);
+
+    if(query){
+      rows = WORDS
+        .map(w => ({ word: w, stat: wordStats[w.fi] || null }))
+        .filter(r => r.word.fi.toLowerCase().includes(query) || r.word.ja.toLowerCase().includes(query));
+    }
+
+    rows.sort((a, b) => (b.stat ? b.stat.seenCount : 0) - (a.stat ? a.stat.seenCount : 0));
+
+    const countLabel = document.createElement('div');
+    countLabel.className = 'word-stats-count-label';
+    countLabel.textContent = query
+      ? `${rows.length}件ヒット`
+      : `これまでに学習した単語: ${rows.length} / ${WORDS.length}語`;
+    els.wordStatsPanel.appendChild(countLabel);
+
+    if(!rows.length){
+      const empty = document.createElement('div');
+      empty.className = 'word-stats-empty';
+      empty.textContent = query
+        ? '一致する単語が見つかりません。'
+        : 'まだ学習記録がありません。クイズをプレイすると、ここに単語ごとの記録が表示されます。';
+      els.wordStatsPanel.appendChild(empty);
+      return;
+    }
+
+    rows.forEach(({word, stat})=>{
+      const seenCount = stat ? stat.seenCount : 0;
+      const correctCount = stat ? (stat.correctCount || 0) : 0;
+      const box = stat ? stat.box : 0;
+      const row = document.createElement('div');
+      row.className = 'word-stat-row';
+      const dots = Array.from({length: BOX_INTERVAL_DAYS.length - 1}, (_, i) =>
+        `<span class="box-dot ${i < box ? 'filled' : ''}"></span>`
+      ).join('');
+      row.innerHTML = `
+        <span class="word-stat-fi">${word.fi}</span>
+        <span class="word-stat-ja">${word.ja}</span>
+        <span class="word-stat-count">${seenCount}回中${correctCount}正解</span>
+        <span class="box-dots" title="習熟度">${dots}</span>
+      `;
+      els.wordStatsPanel.appendChild(row);
+    });
+  }
+
+  function toggleWordStatsPanel(){
+    const isHidden = els.wordStatsPanel.classList.contains('hidden');
+    if(isHidden){
+      els.wordStatsPanel.classList.remove('hidden');
+      renderWordStatsList('');
+      els.wordStatsToggleBtn.textContent = '単語ごとの学習記録を隠す';
+    } else {
+      els.wordStatsPanel.classList.add('hidden');
+      els.wordStatsToggleBtn.textContent = '単語ごとの学習記録を見る';
+    }
+  }
+
+  function setAllCategories(checked){
+    const inputs = els.catGrid.querySelectorAll('input[type="checkbox"]');
+    inputs.forEach(input => {
+      input.checked = checked;
+      const cat = input.dataset.cat;
+      const chip = input.closest('.cat-chip');
+      if(checked){
+        selectedCats.add(cat);
+        if(chip) chip.classList.add('active');
+      } else {
+        selectedCats.delete(cat);
+        if(chip) chip.classList.remove('active');
+      }
+    });
+  }
+  els.selectAllBtn.addEventListener('click', ()=> setAllCategories(true));
+  els.deselectAllBtn.addEventListener('click', ()=> setAllCategories(false));
+
+  els.startBtn.addEventListener('click', ()=>{
+    if(selectedCats.size === 0){
+      els.startWarning.classList.remove('hidden');
+      return;
+    }
+    els.startWarning.classList.add('hidden');
+    startRound();
+  });
+  els.retryBtn.addEventListener('click', startRound);
+  els.backBtn.addEventListener('click', ()=>showScreen('start'));
+  els.historyToggleBtn.addEventListener('click', toggleHistoryPanel);
+  els.wordStatsToggleBtn.addEventListener('click', toggleWordStatsPanel);
+
+  function showBackupMessage(text, isError){
+    els.backupMessage.textContent = text;
+    els.backupMessage.classList.toggle('error', !!isError);
+  }
+
+  function exportBackupData(){
+    try{
+      const historyRaw = localStorage.getItem(HISTORY_KEY);
+      const statsRaw = localStorage.getItem(WORD_STATS_KEY);
+      const totalsRaw = localStorage.getItem(TOTALS_KEY);
+      const payload = {
+        app: 'sanapelit',
+        totals: totalsRaw ? JSON.parse(totalsRaw) : null,
+        language: 'fi',
+        exportedAt: new Date().toISOString(),
+        history: historyRaw ? JSON.parse(historyRaw) : [],
+        wordStats: statsRaw ? JSON.parse(statsRaw) : {},
+      };
+      const blob = new Blob([JSON.stringify(payload, null, 2)], {type: 'application/json'});
+      const url = URL.createObjectURL(blob);
+      const dateStr = new Date().toISOString().slice(0,10);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `sanapelit-fi-backup-${dateStr}.json`;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      URL.revokeObjectURL(url);
+      showBackupMessage('バックアップファイルを保存しました。');
+    }catch(err){
+      console.error('バックアップの保存に失敗しました', err);
+      showBackupMessage('バックアップの保存に失敗しました。', true);
+    }
+  }
+
+  function restoreBackupData(file){
+    const reader = new FileReader();
+    reader.onload = () => {
+      try{
+        const data = JSON.parse(reader.result);
+        if(!data || (!Array.isArray(data.history) && typeof data.wordStats !== 'object')){
+          throw new Error('invalid backup file');
+        }
+        showConfirmModal('バックアップを復元しますか？現在この端末に保存されている記録は上書きされます。', () => {
+          localStorage.setItem(HISTORY_KEY, JSON.stringify(data.history || []));
+          localStorage.setItem(WORD_STATS_KEY, JSON.stringify(data.wordStats || {}));
+          if(data.totals){ localStorage.setItem(TOTALS_KEY, JSON.stringify(data.totals)); }
+          wordStats = data.wordStats || {};
+          showBackupMessage('バックアップから復元しました。');
+          if(!els.historyPanel.classList.contains('hidden')){
+            getHistory().then(renderHistoryList);
+          }
+          if(!els.wordStatsPanel.classList.contains('hidden')){
+            renderWordStatsList('');
+          }
+        });
+      }catch(err){
+        console.error('バックアップの読み込みに失敗しました', err);
+        showBackupMessage('このファイルは復元できませんでした。バックアップファイルを選び直してください。', true);
+      }
+    };
+    reader.readAsText(file);
+  }
+
+  els.exportBtn.addEventListener('click', exportBackupData);
+  els.importBtn.addEventListener('click', () => els.importFileInput.click());
+  els.importFileInput.addEventListener('change', (e) => {
+    const file = e.target.files && e.target.files[0];
+    if(file) restoreBackupData(file);
+    e.target.value = '';
+  });
+  els.speakBtn.addEventListener('click', ()=>{
+    if(deck[qi]) speakWord(deck[qi].fi);
+  });
+  els.quitBtn.addEventListener('click', ()=>{
+    showConfirmModal('クイズを中断しますか？この回の記録は保存されません。', ()=>{
+      if('speechSynthesis' in window) window.speechSynthesis.cancel();
+      roundActive = false;
+      locked = true;
+      showScreen('start');
+    });
+  });
+
+  buildCatGrid();
+  showScreen('start');
+  window.addEventListener('resize', ()=>{ initArc(); });
+})();
+</script>
+</body>
+</html>

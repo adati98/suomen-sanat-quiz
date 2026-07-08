@@ -192,6 +192,58 @@
     line-height:1.5;
   }
   .changelog-list li:last-child{ border-bottom:none; }
+  .video-section{
+    margin-top:28px;
+    padding:20px 22px;
+    background:rgba(246,241,231,0.06);
+    border:1px solid rgba(159,186,209,0.18);
+    border-radius:14px;
+  }
+  .video-title{
+    font-family:'Fraunces',serif;
+    font-weight:700;
+    font-size:18px;
+    margin-bottom:8px;
+  }
+  .video-desc{
+    font-size:13px;
+    color:var(--frost);
+    line-height:1.7;
+    margin:0 0 16px;
+  }
+  .video-embed{
+    position:relative;
+    width:100%;
+    padding-top:56.25%; /* 16:9 */
+    border-radius:10px;
+    overflow:hidden;
+    background:#000;
+  }
+  .video-embed iframe{
+    position:absolute;
+    top:0; left:0;
+    width:100%;
+    height:100%;
+    border:none;
+  }
+  .video-list{
+    display:flex;
+    flex-wrap:wrap;
+    gap:8px;
+    margin-top:14px;
+  }
+  .video-list a{
+    font-family:'JetBrains Mono',monospace;
+    font-size:12px;
+    font-weight:700;
+    color:var(--ink);
+    background:var(--birch-dim);
+    padding:6px 12px;
+    border-radius:8px;
+    text-decoration:none;
+  }
+  .video-list a:hover{ background:#EDE6D6; }
+
   .changelog-date{
     font-family:'JetBrains Mono',monospace;
     font-size:11.5px;
@@ -254,6 +306,17 @@
       </div>
     </a>
 
+    <a class="card" href="chinese.html">
+      <div class="flag"><img src="https://flagcdn.com/w80/cn.png" alt="中国国旗"></div>
+      <div class="lang-name-ja">中国語（中級〜上級）</div>
+      <div class="lang-name-native">中文</div>
+      <div class="card-desc">成語・ビジネス・旅行・ネット流行語・紛らわしい漢字など、中級〜上級向けの語彙408語。基礎は含みません。</div>
+      <div class="card-footer">
+        <span class="word-count">408語</span>
+        <span class="status-badge status-ready">プレイ可能</span>
+      </div>
+    </a>
+
     <div class="card disabled">
       <div class="flag"><img src="https://flagcdn.com/w80/dk.png" alt="デンマーク国旗"></div>
       <div class="lang-name-ja">デンマーク語</div>
@@ -273,9 +336,32 @@
     感想・要望は<a href="feedback.html" style="color:var(--ember);">こちら</a>から気軽にどうぞ
   </footer>
 
+  <div class="video-section">
+    <div class="video-title">🎥 動画で単語を覚える</div>
+    <p class="video-desc">音声つきの単語暗記動画をYouTubeで公開しています。単語が表示→発音→意味が表示→意味の読み上げ→発音の反復、という流れで覚えられます。</p>
+    <div class="video-embed">
+      <iframe src="https://www.youtube-nocookie.com/embed/j3OM2zgW0zI" title="Sanapelit 単語暗記動画 #1" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+    </div>
+    <div class="video-list">
+      <a href="https://youtu.be/j3OM2zgW0zI" target="_blank" rel="noopener">#1</a>
+      <a href="https://youtu.be/a7hkq4TC1uA" target="_blank" rel="noopener">#2</a>
+      <a href="https://youtu.be/SfuhPBfsw3I" target="_blank" rel="noopener">#3</a>
+      <a href="https://youtu.be/vHicmr6aJa8" target="_blank" rel="noopener">#4</a>
+      <a href="https://youtu.be/eNgsTmevI3o" target="_blank" rel="noopener">#5</a>
+      <a href="https://youtu.be/fAFbfXvB0dw" target="_blank" rel="noopener">#6</a>
+      <a href="https://youtu.be/PBwjGLGNU28" target="_blank" rel="noopener">#7</a>
+      <a href="https://youtu.be/iM_DEYVw_pI" target="_blank" rel="noopener">#8</a>
+      <a href="https://youtu.be/ax5B0iU8YzI" target="_blank" rel="noopener">#9</a>
+      <a href="https://youtu.be/8oxxDDKzDpQ" target="_blank" rel="noopener">#10</a>
+      <a href="https://youtu.be/Zyp8kvzrwCA" target="_blank" rel="noopener">#11</a>
+    </div>
+  </div>
+
   <div class="changelog">
     <div class="changelog-title">📝 更新履歴</div>
     <ul class="changelog-list">
+      <li><span class="changelog-date">2026-07-07</span><span>中国語の単語数を408語に拡充</span></li>
+      <li><span class="changelog-date">2026-07-07</span><span>中国語（中級〜上級レベル・226語）版を追加</span></li>
       <li><span class="changelog-date">2026-07-06</span><span>英語（英検1級レベル・500語）版を追加</span></li>
       <li><span class="changelog-date">2026-07-05</span><span>単語数を約540語に拡充(全言語共通)</span></li>
       <li><span class="changelog-date">2026-07-05</span><span>各ゲームに記録のバックアップ保存・復元機能を追加</span></li>

@@ -230,17 +230,27 @@
     gap:8px;
     margin-top:14px;
   }
-  .video-list a{
+  .video-btn{
     font-family:'JetBrains Mono',monospace;
     font-size:12px;
     font-weight:700;
     color:var(--ink);
     background:var(--birch-dim);
     padding:6px 12px;
+    border:2px solid transparent;
     border-radius:8px;
+    cursor:pointer;
+  }
+  .video-btn:hover{ background:#EDE6D6; }
+  .video-btn.active{ border-color:var(--ember); background:#F6E6C8; }
+  .video-youtube-link{
+    display:inline-block;
+    margin-top:10px;
+    font-size:12px;
+    color:var(--frost);
     text-decoration:none;
   }
-  .video-list a:hover{ background:#EDE6D6; }
+  .video-youtube-link:hover{ text-decoration:underline; }
 
   .changelog-date{
     font-family:'JetBrains Mono',monospace;
@@ -339,32 +349,45 @@
 
   </div>
 
-  <footer>
-    Sanapelit — 個人制作の学習ゲーム集<br>
-    作者:<a href="https://note.com/halfpolyglot" target="_blank" rel="noopener">中途半端な多言語学習者(note)</a><br>
-    感想・要望は<a href="feedback.html" style="color:var(--ember);">こちら</a>から気軽にどうぞ
-  </footer>
-
   <div class="video-section">
     <div class="video-title">🎥 動画で単語を覚える</div>
     <p class="video-desc">音声つきの単語暗記動画をYouTubeで公開しています。単語が表示→発音→意味が表示→意味の読み上げ→発音の反復、という流れで覚えられます。</p>
     <div class="video-embed">
-      <iframe src="https://www.youtube-nocookie.com/embed/j3OM2zgW0zI" title="Sanapelit 単語暗記動画 #1" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+      <iframe id="mainVideoFrame" src="https://www.youtube-nocookie.com/embed/j3OM2zgW0zI" title="Sanapelit 単語暗記動画 #1" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
     </div>
-    <div class="video-list">
-      <a href="https://youtu.be/j3OM2zgW0zI" target="_blank" rel="noopener">#1</a>
-      <a href="https://youtu.be/a7hkq4TC1uA" target="_blank" rel="noopener">#2</a>
-      <a href="https://youtu.be/SfuhPBfsw3I" target="_blank" rel="noopener">#3</a>
-      <a href="https://youtu.be/vHicmr6aJa8" target="_blank" rel="noopener">#4</a>
-      <a href="https://youtu.be/eNgsTmevI3o" target="_blank" rel="noopener">#5</a>
-      <a href="https://youtu.be/fAFbfXvB0dw" target="_blank" rel="noopener">#6</a>
-      <a href="https://youtu.be/PBwjGLGNU28" target="_blank" rel="noopener">#7</a>
-      <a href="https://youtu.be/iM_DEYVw_pI" target="_blank" rel="noopener">#8</a>
-      <a href="https://youtu.be/ax5B0iU8YzI" target="_blank" rel="noopener">#9</a>
-      <a href="https://youtu.be/8oxxDDKzDpQ" target="_blank" rel="noopener">#10</a>
-      <a href="https://youtu.be/Zyp8kvzrwCA" target="_blank" rel="noopener">#11</a>
+    <div class="video-list" id="videoList">
+      <button type="button" class="video-btn active" data-id="j3OM2zgW0zI">#1</button>
+      <button type="button" class="video-btn" data-id="a7hkq4TC1uA">#2</button>
+      <button type="button" class="video-btn" data-id="SfuhPBfsw3I">#3</button>
+      <button type="button" class="video-btn" data-id="vHicmr6aJa8">#4</button>
+      <button type="button" class="video-btn" data-id="eNgsTmevI3o">#5</button>
+      <button type="button" class="video-btn" data-id="fAFbfXvB0dw">#6</button>
+      <button type="button" class="video-btn" data-id="PBwjGLGNU28">#7</button>
+      <button type="button" class="video-btn" data-id="iM_DEYVw_pI">#8</button>
+      <button type="button" class="video-btn" data-id="ax5B0iU8YzI">#9</button>
+      <button type="button" class="video-btn" data-id="8oxxDDKzDpQ">#10</button>
+      <button type="button" class="video-btn" data-id="Zyp8kvzrwCA">#11</button>
     </div>
+    <a class="video-youtube-link" href="https://youtu.be/j3OM2zgW0zI" id="openInYoutube" target="_blank" rel="noopener">YouTubeで開く ↗</a>
   </div>
+
+  <script>
+    (function(){
+      const frame = document.getElementById('mainVideoFrame');
+      const list = document.getElementById('videoList');
+      const openLink = document.getElementById('openInYoutube');
+      if(!list) return;
+      list.querySelectorAll('.video-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+          const id = btn.dataset.id;
+          frame.src = `https://www.youtube-nocookie.com/embed/${id}`;
+          openLink.href = `https://youtu.be/${id}`;
+          list.querySelectorAll('.video-btn').forEach(b => b.classList.remove('active'));
+          btn.classList.add('active');
+        });
+      });
+    })();
+  </script>
 
   <div class="changelog">
     <div class="changelog-title">📝 更新履歴</div>
@@ -380,6 +403,12 @@
       <li><span class="changelog-date">2026-07-03</span><span>フィンランド語版を公開</span></li>
     </ul>
   </div>
+
+  <footer>
+    Sanapelit — 個人制作の学習ゲーム集<br>
+    作者:<a href="https://note.com/halfpolyglot" target="_blank" rel="noopener">中途半端な多言語学習者(note)</a><br>
+    感想・要望は<a href="feedback.html" style="color:var(--ember);">こちら</a>から気軽にどうぞ
+  </footer>
 </div>
 </body>
 </html>

@@ -1,0 +1,911 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>韓国語 文型ドリル — Sanapelit</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@500;700;900&family=Bricolage+Grotesque:wght@700&family=Noto+Sans+KR:wght@500;700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ink:#122036;
+    --birch:#F6F1E7;
+    --birch-dim:#E7DFCF;
+    --lingon:#C23B32;
+    --moss:#5F8A5A;
+    --ember:#E2A63B;
+    --frost:#9FBAD1;
+    --radius:18px;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    background:var(--ink);
+    background-image:
+      radial-gradient(ellipse at 50% -10%, rgba(226,166,59,0.10), transparent 55%),
+      radial-gradient(ellipse at 50% 120%, rgba(95,138,90,0.10), transparent 50%);
+    color:var(--birch);
+    font-family:'Inter',sans-serif;
+    min-height:100vh;
+    display:flex;
+    justify-content:center;
+    padding:28px 16px 60px;
+  }
+  .app{ width:100%; max-width:640px; }
+  .back-link{
+    display:inline-block;
+    font-size:12.5px;
+    color:var(--frost);
+    text-decoration:none;
+    margin-bottom:14px;
+    opacity:0.85;
+  }
+  .back-link:hover{ opacity:1; text-decoration:underline; }
+  .eyebrow{
+    font-family:'JetBrains Mono',monospace;
+    font-size:12px;
+    letter-spacing:0.14em;
+    text-transform:uppercase;
+    color:var(--frost);
+    text-align:center;
+    margin-bottom:4px;
+  }
+  h1{
+    font-family:'Bricolage Grotesque',sans-serif;
+    font-weight:700;
+    font-size:clamp(28px,7vw,42px);
+    text-align:center;
+    margin:0 0 6px;
+    letter-spacing:-0.01em;
+  }
+  .subtitle{
+    text-align:center;
+    color:var(--frost);
+    font-size:14px;
+    margin-bottom:8px;
+    line-height:1.6;
+  }
+  .name-note{
+    text-align:center;
+    font-size:12px;
+    color:#7a92a8;
+    margin-bottom:24px;
+    line-height:1.6;
+  }
+  .card{
+    background:var(--birch);
+    color:var(--ink);
+    border-radius:var(--radius);
+    padding:28px 24px;
+    margin-top:18px;
+  }
+  .hidden{ display:none !important; }
+
+  .level-note{
+    font-size:13px;
+    color:#5b5648;
+    background:var(--birch-dim);
+    border-radius:10px;
+    padding:10px 14px;
+    margin-bottom:14px;
+  }
+  .cat-select-row{
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    gap:8px;
+    margin:6px 0 8px;
+  }
+  .link-btn{
+    background:none;
+    border:none;
+    padding:0;
+    font-family:'Inter',sans-serif;
+    font-size:12.5px;
+    font-weight:600;
+    color:var(--moss);
+    cursor:pointer;
+    text-decoration:underline;
+  }
+  .link-btn:hover{ opacity:0.75; }
+  .cat-select-sep{ color:#b9b19a; font-size:12px; }
+  .cat-grid-scroll{
+    max-height:260px;
+    overflow-y:auto;
+    padding:10px;
+    margin-bottom:16px;
+    border:1px solid var(--birch-dim);
+    border-radius:12px;
+  }
+  .cat-grid{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:10px;
+  }
+  @media (max-width:420px){ .cat-grid{ grid-template-columns:1fr; } }
+  .cat-chip{
+    display:flex;
+    align-items:center;
+    gap:9px;
+    background:var(--birch-dim);
+    border:2px solid transparent;
+    border-radius:12px;
+    padding:11px 12px;
+    cursor:pointer;
+    font-weight:600;
+    font-size:13.5px;
+    user-select:none;
+  }
+  .cat-chip input{ accent-color:var(--moss); width:16px; height:16px; flex:none; }
+  .cat-chip.active{ border-color:var(--moss); background:#EAF2E6; }
+  .cat-count{ font-family:'JetBrains Mono',monospace; font-size:11px; color:#6b6656; margin-left:auto; }
+
+  .btn{
+    font-family:'Unbounded',sans-serif;
+    font-weight:700;
+    font-size:15px;
+    border:none;
+    border-radius:12px;
+    padding:14px 22px;
+    cursor:pointer;
+    width:100%;
+    transition:transform .08s ease, filter .15s ease;
+  }
+  .btn:active{ transform:scale(0.98); }
+  .btn-primary{ background:var(--ink); color:var(--birch); }
+  .btn-primary:hover{ filter:brightness(1.2); }
+  .btn-ghost{
+    background:transparent;
+    color:var(--frost);
+    border:1px solid rgba(159,186,209,0.4);
+    font-family:'Inter',sans-serif;
+    font-weight:600;
+    font-size:13px;
+    padding:10px 16px;
+  }
+  .btn-ghost:hover{ background:rgba(159,186,209,0.1); }
+  .inline-warning{ text-align:center; font-size:12.5px; color:var(--lingon); margin-top:8px; font-weight:600; }
+
+  /* quiz screen */
+  .quiz-meta{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    font-family:'JetBrains Mono',monospace;
+    font-size:12px;
+    color:var(--frost);
+    padding:0 2px;
+    margin-bottom:6px;
+    gap:8px;
+  }
+  .streak{ color:var(--ember); font-weight:700; }
+  .quit-btn{
+    font-family:'Inter',sans-serif;
+    font-size:11.5px;
+    font-weight:600;
+    color:#a5443c;
+    background:none;
+    border:1px solid rgba(194,59,50,0.35);
+    border-radius:8px;
+    padding:5px 9px;
+    cursor:pointer;
+    flex:none;
+  }
+  .quit-btn:hover{ background:rgba(194,59,50,0.08); }
+
+  .ja-sentence{
+    font-family:'Noto Sans KR',sans-serif;
+    font-size:22px;
+    font-weight:700;
+    text-align:center;
+    line-height:1.6;
+    margin:10px 0 22px;
+    color:var(--ink);
+  }
+  .answer-row{
+    display:flex;
+    flex-wrap:wrap;
+    gap:8px;
+    justify-content:center;
+    min-height:52px;
+    padding:10px;
+    border:2px dashed var(--birch-dim);
+    border-radius:12px;
+    margin-bottom:18px;
+  }
+  .answer-row.correct{ border-color:var(--moss); background:#EAF2E6; }
+  .answer-row.wrong{ border-color:var(--lingon); background:#FBEAE8; }
+  .chip{
+    font-family:'Noto Sans KR',sans-serif;
+    font-weight:700;
+    font-size:16px;
+    padding:10px 16px;
+    border-radius:10px;
+    cursor:pointer;
+    transition:transform .08s ease;
+    user-select:none;
+  }
+  .chip:hover{ transform:translateY(-1px); }
+  .chip-placed{ background:var(--ink); color:var(--birch); }
+  .chip-available{ background:var(--birch-dim); color:var(--ink); }
+  .chip-available:hover{ background:#EDE6D6; }
+  .available-row{
+    display:flex;
+    flex-wrap:wrap;
+    gap:8px;
+    justify-content:center;
+    margin-bottom:20px;
+  }
+  .reveal-box{
+    margin-top:6px;
+    padding:14px 16px;
+    background:var(--birch-dim);
+    border-radius:12px;
+  }
+  .reveal-row{
+    display:flex;
+    justify-content:space-between;
+    gap:12px;
+    padding:6px 0;
+    border-bottom:1px solid rgba(0,0,0,0.06);
+    font-size:14px;
+  }
+  .reveal-row:last-child{ border-bottom:none; }
+  .reveal-ja{ color:#5b5648; }
+  .reveal-ko{ font-family:'Noto Sans KR',sans-serif; font-weight:700; color:var(--ink); }
+  .next-btn{ margin-top:16px; }
+
+  /* result screen */
+  .score-big{
+    font-family:'Unbounded',sans-serif;
+    font-weight:900;
+    font-size:52px;
+    text-align:center;
+    margin:2px 0 2px;
+  }
+  .score-label{
+    text-align:center;
+    color:#6b6656;
+    font-size:13px;
+    font-family:'JetBrains Mono',monospace;
+    letter-spacing:0.08em;
+    text-transform:uppercase;
+    margin-bottom:20px;
+  }
+  .result-btns{ display:flex; gap:10px; margin-top:20px; }
+  .result-btns .btn{ flex:1; }
+
+  /* history */
+  .history-panel{ margin-top:14px; border-top:1px solid var(--birch-dim); padding-top:14px; }
+  .history-empty{ font-size:13px; color:#7a7461; text-align:center; padding:10px 0; }
+  .history-summary{ display:grid; grid-template-columns:repeat(3,1fr); gap:8px; margin-bottom:16px; }
+  .summary-stat{ background:var(--birch-dim); border-radius:10px; padding:12px 6px; text-align:center; }
+  .summary-num{ font-family:'Unbounded',sans-serif; font-weight:700; font-size:20px; color:var(--ink); }
+  .summary-label{ font-size:10.5px; color:#7a7461; margin-top:2px; }
+  .history-row{ display:flex; align-items:center; justify-content:space-between; gap:10px; padding:10px 4px; border-bottom:1px solid var(--birch-dim); font-size:13px; }
+  .history-row:last-child{ border-bottom:none; }
+  .history-date{ font-family:'JetBrains Mono',monospace; font-size:11.5px; color:#7a7461; flex:none; width:110px; }
+  .history-score{ font-family:'JetBrains Mono',monospace; font-weight:700; flex:none; }
+  .history-clear{ display:block; margin:12px auto 0; background:none; border:none; color:var(--lingon); font-size:12px; cursor:pointer; text-decoration:underline; }
+
+  .modal-overlay{
+    position:fixed; inset:0; background:rgba(10,16,28,0.6);
+    display:flex; align-items:center; justify-content:center; padding:20px; z-index:1000;
+  }
+  .modal-box{ background:var(--birch); color:var(--ink); border-radius:16px; padding:24px 22px; width:100%; max-width:340px; }
+  .modal-message{ font-size:15px; font-weight:600; text-align:center; margin-bottom:18px; line-height:1.5; }
+  .modal-btns{ display:flex; gap:10px; }
+  .modal-btns .btn{ flex:1; }
+
+  .changelog{
+    margin-top:18px; padding:18px 20px;
+    background:rgba(246,241,231,0.06);
+    border:1px solid rgba(159,186,209,0.18);
+    border-radius:14px;
+  }
+  .changelog-title{ font-family:'JetBrains Mono',monospace; font-size:12px; letter-spacing:0.08em; text-transform:uppercase; color:var(--frost); margin-bottom:10px; }
+  .changelog-list{ list-style:none; margin:0; padding:0; }
+  .changelog-list li{ display:flex; gap:10px; font-size:12.5px; color:var(--birch); opacity:0.85; padding:5px 0; border-bottom:1px solid rgba(159,186,209,0.12); line-height:1.5; }
+  .changelog-list li:last-child{ border-bottom:none; }
+  .changelog-date{ font-family:'JetBrains Mono',monospace; font-size:11.5px; color:var(--ember); flex:none; white-space:nowrap; }
+  .feedback-link-row{ text-align:center; font-size:12.5px; color:var(--frost); margin-top:14px; }
+  .feedback-link-row a{ color:var(--ember); text-decoration:underline; }
+</style>
+</head>
+<body>
+<div class="app">
+  <a class="back-link" href="index.html">← ほかの言語を見る</a>
+  <div class="eyebrow">문형을 몸으로 익히기</div>
+  <h1>韓国語 文型ドリル</h1>
+  <div class="subtitle">日本語の文と韓国語はほぼ同じ語順。<br>単語を並べ替えて、そのままの順番で組み立てましょう。</div>
+  <div class="name-note">単語を丸暗記するのではなく、「語順がそのまま対応する」感覚を身につけるための練習です。</div>
+
+  <!-- START SCREEN -->
+  <div class="card" id="startScreen">
+    <div class="level-note">対象:文法パターンごとの文型ドリル（単語の意味は既知として、語順の感覚を練習します）</div>
+    <div class="cat-select-row">
+      <button type="button" class="link-btn" id="selectAllBtn">すべて選択</button>
+      <span class="cat-select-sep">・</span>
+      <button type="button" class="link-btn" id="deselectAllBtn">選択を解除</button>
+    </div>
+    <div class="cat-grid-scroll"><div class="cat-grid" id="catGrid"></div></div>
+    <button class="btn btn-primary" id="startBtn">はじめる</button>
+    <div class="inline-warning hidden" id="startWarning">少なくとも1つカテゴリーを選んでください</div>
+    <button class="btn btn-ghost" id="historyToggleBtn" style="margin-top:10px;">記録を見る</button>
+    <div id="historyPanel" class="history-panel hidden"></div>
+  </div>
+
+  <!-- QUIZ SCREEN -->
+  <div class="card hidden" id="quizScreen">
+    <div class="quiz-meta">
+      <span id="qIndex">問題 1 / 30</span>
+      <span>連続正解 <span class="streak" id="streakCount">0</span></span>
+      <button class="quit-btn" id="quitBtn" type="button">✕ やめる</button>
+    </div>
+    <div class="ja-sentence" id="jaSentence">私は学校に行きます。</div>
+    <div class="answer-row" id="answerRow"></div>
+    <div class="available-row" id="availableRow"></div>
+    <div id="revealBox"></div>
+  </div>
+
+  <!-- RESULT SCREEN -->
+  <div class="card hidden" id="resultScreen">
+    <div class="score-big" id="scoreBig">12 / 15</div>
+    <div class="score-label" id="scoreLabel">お見事！</div>
+    <div class="result-btns">
+      <button class="btn btn-ghost" id="backBtn">カテゴリーを選び直す</button>
+      <button class="btn btn-primary" id="retryBtn">もう一度</button>
+    </div>
+  </div>
+
+  <div class="changelog">
+    <div class="changelog-title">📝 更新履歴</div>
+    <ul class="changelog-list">
+      <li><span class="changelog-date">2026-07-09</span><span>発音を収録済み音声ファイル優先に変更（音質改善）</span></li>
+      <li><span class="changelog-date">2026-07-08</span><span>タップした韓国語を読み上げる発音機能を追加</span></li>
+      <li><span class="changelog-date">2026-07-08</span><span>チャンク分割を細かく調整、1回10文に変更、タップ音を追加</span></li>
+      <li><span class="changelog-date">2026-07-08</span><span>文型ドリルを60文（12パターン）に拡充</span></li>
+      <li><span class="changelog-date">2026-07-08</span><span>韓国語 文型ドリルを公開（30文・6パターン）</span></li>
+    </ul>
+  </div>
+
+  <div class="feedback-link-row">
+    感想・要望は<a href="feedback.html">こちら</a>から気軽にどうぞ
+  </div>
+</div>
+
+<div class="modal-overlay hidden" id="confirmOverlay">
+  <div class="modal-box">
+    <div class="modal-message" id="confirmMessage">やめますか？</div>
+    <div class="modal-btns">
+      <button class="btn btn-ghost" id="confirmCancelBtn">キャンセル</button>
+      <button class="btn btn-primary" id="confirmOkBtn">中断する</button>
+    </div>
+  </div>
+</div>
+
+<script>
+(function(){
+  const CATEGORIES = [
+["basic","基本文（現在形）",[
+{chunks:[["私は","저는"],["学校に","학교에"],["行きます。","갑니다."]]},
+{chunks:[["彼は","그는"],["本を","책을"],["読みます。","읽습니다."]]},
+{chunks:[["私たちは","우리는"],["韓国語を","한국어를"],["勉強します。","공부합니다."]]},
+{chunks:[["彼女は","그녀는"],["音楽を","음악을"],["聞きます。","듣습니다."]]},
+{chunks:[["私は","저는"],["毎日","매일"],["運動します。","운동합니다."]]},
+]],
+["negative","否定文",[
+{chunks:[["私は","저는"],["お酒を","술을"],["飲みません。","마시지 않습니다."]]},
+{chunks:[["今日は","오늘은"],["忙しくありません。","바쁘지 않습니다."]]},
+{chunks:[["彼は","그는"],["学生では","학생이"],["ありません。","아닙니다."]]},
+{chunks:[["これは","이것은"],["私のものでは","제 것이"],["ありません。","아닙니다."]]},
+{chunks:[["明日は","내일은"],["行きません。","가지 않습니다."]]},
+]],
+["question","疑問文",[
+{chunks:[["これは","이것은"],["何ですか？","무엇입니까?"]]},
+{chunks:[["あなたは","당신은"],["学生ですか？","학생입니까?"]]},
+{chunks:[["どこに","어디에"],["行きますか？","갑니까?"]]},
+{chunks:[["いつ","언제"],["来ますか？","옵니까?"]]},
+{chunks:[["なぜ","왜"],["遅れましたか？","늦었습니까?"]]},
+]],
+["past","過去形",[
+{chunks:[["私は","저는"],["昨日","어제"],["映画を","영화를"],["見ました。","봤습니다."]]},
+{chunks:[["彼は","그는"],["先週","지난주"],["日本に","일본에"],["来ました。","왔습니다."]]},
+{chunks:[["私たちは","우리는"],["去年","작년에"],["結婚しました。","결혼했습니다."]]},
+{chunks:[["彼女は","그녀는"],["ケーキを","케이크를"],["作りました。","만들었습니다."]]},
+{chunks:[["私は","저는"],["宿題を","숙제를"],["終えました。","끝냈습니다."]]},
+]],
+["existence","存在文（있다・없다）",[
+{chunks:[["教室に","교실에"],["学生が","학생이"],["います。","있습니다."]]},
+{chunks:[["机の上に","책상 위에"],["本が","책이"],["あります。","있습니다."]]},
+{chunks:[["時間が","시간이"],["ありません。","없습니다."]]},
+{chunks:[["公園に","공원에"],["猫が","고양이가"],["います。","있습니다."]]},
+{chunks:[["お金が","돈이"],["ありません。","없습니다."]]},
+]],
+["adjective","形容詞文",[
+{chunks:[["この料理は","이 요리는"],["おいしいです。","맛있습니다."]]},
+{chunks:[["今日は","오늘은"],["天気が","날씨가"],["いいです。","좋습니다."]]},
+{chunks:[["彼女は","그녀는"],["とても","매우"],["親切です。","친절합니다."]]},
+{chunks:[["この本は","이 책은"],["面白いです。","재미있습니다."]]},
+{chunks:[["彼は","그는"],["背が","키가"],["高いです。","큽니다."]]},
+]],
+["request","依頼・勧誘",[
+{chunks:[["ドアを","문을"],["開けて","열어"],["ください。","주세요."]]},
+{chunks:[["一緒に","같이"],["行きましょう。","갑시다."]]},
+{chunks:[["少し","잠깐"],["待って","기다려"],["ください。","주세요."]]},
+{chunks:[["窓を","창문을"],["閉めて","닫아"],["もらえますか？","주시겠어요?"]]},
+{chunks:[["一緒に","같이"],["食べましょうか？","먹을까요?"]]},
+]],
+["desire","願望・意志",[
+{chunks:[["私は","저는"],["韓国に","한국에"],["行き","가고"],["たいです。","싶습니다."]]},
+{chunks:[["彼は","그는"],["コーヒーを","커피를"],["飲み","마시고"],["たがっています。","싶어합니다."]]},
+{chunks:[["私は","저는"],["医者に","의사가"],["なり","되고"],["たいです。","싶습니다."]]},
+{chunks:[["今日は","오늘은"],["早く","일찍"],["帰り","돌아가고"],["たいです。","싶습니다."]]},
+{chunks:[["私は","저는"],["必ず","반드시"],["成功する","성공할"],["つもりです。","것입니다."]]},
+]],
+["ability","可能・不可能",[
+{chunks:[["私は","저는"],["韓国語を","한국어를"],["話す","할"],["ことができます。","수 있습니다."]]},
+{chunks:[["彼は","그는"],["ピアノを","피아노를"],["弾く","칠"],["ことができません。","수 없습니다."]]},
+{chunks:[["私は","저는"],["運転する","운전할"],["ことができます。","수 있습니다."]]},
+{chunks:[["今日は","오늘은"],["行く","갈"],["ことができません。","수 없습니다."]]},
+{chunks:[["彼女は","그녀는"],["英語を","영어를"],["書く","쓸"],["ことができます。","수 있습니다."]]},
+]],
+["frequency","時間・頻度表現",[
+{chunks:[["私は","저는"],["毎朝","매일 아침"],["7時に","7시에"],["起きます。","일어납니다."]]},
+{chunks:[["彼は","그는"],["たまに","가끔"],["映画を","영화를"],["見ます。","봅니다."]]},
+{chunks:[["私は","저는"],["いつも","항상"],["遅く","늦게"],["寝ます。","잡니다."]]},
+{chunks:[["週末には","주말에는"],["よく","자주"],["運動します。","운동합니다."]]},
+{chunks:[["彼女は","그녀는"],["めったに","거의"],["遅刻しません。","지각하지 않습니다."]]},
+]],
+["comparison","比較",[
+{chunks:[["私は","저는"],["彼より","그보다"],["背が","키가"],["高いです。","큽니다."]]},
+{chunks:[["このりんごは","이 사과는"],["あれより","저것보다"],["甘いです。","답니다."]]},
+{chunks:[["今日は","오늘은"],["昨日より","어제보다"],["寒いです。","춥습니다."]]},
+{chunks:[["彼女は","그녀는"],["私より","저보다"],["上手です。","잘합니다."]]},
+{chunks:[["これが","이것이"],["いちばん","가장"],["高いです。","비쌉니다."]]},
+]],
+["reason","理由・原因",[
+{chunks:[["雨が降っているので、","비가 오기 때문에"],["行きません。","가지 않습니다."]]},
+{chunks:[["時間がなくて、","시간이 없어서"],["行けませんでした。","갈 수 없었습니다."]]},
+{chunks:[["忙しいので、","바빠서"],["休みます。","쉽니다."]]},
+{chunks:[["おいしいので、","맛있어서"],["たくさん食べました。","많이 먹었습니다."]]},
+{chunks:[["寒いので、","추워서"],["コートを","코트를"],["着ます。","입습니다."]]},
+]],
+  ];
+  const CAT_LABELS = {};
+  CATEGORIES.forEach(c => CAT_LABELS[c[0]] = c[1]);
+
+  const els = {
+    startScreen: document.getElementById('startScreen'),
+    quizScreen: document.getElementById('quizScreen'),
+    resultScreen: document.getElementById('resultScreen'),
+    catGrid: document.getElementById('catGrid'),
+    startBtn: document.getElementById('startBtn'),
+    startWarning: document.getElementById('startWarning'),
+    selectAllBtn: document.getElementById('selectAllBtn'),
+    deselectAllBtn: document.getElementById('deselectAllBtn'),
+    qIndex: document.getElementById('qIndex'),
+    streakCount: document.getElementById('streakCount'),
+    quitBtn: document.getElementById('quitBtn'),
+    jaSentence: document.getElementById('jaSentence'),
+    answerRow: document.getElementById('answerRow'),
+    availableRow: document.getElementById('availableRow'),
+    revealBox: document.getElementById('revealBox'),
+    scoreBig: document.getElementById('scoreBig'),
+    scoreLabel: document.getElementById('scoreLabel'),
+    backBtn: document.getElementById('backBtn'),
+    retryBtn: document.getElementById('retryBtn'),
+    historyToggleBtn: document.getElementById('historyToggleBtn'),
+    historyPanel: document.getElementById('historyPanel'),
+    confirmOverlay: document.getElementById('confirmOverlay'),
+    confirmMessage: document.getElementById('confirmMessage'),
+    confirmCancelBtn: document.getElementById('confirmCancelBtn'),
+    confirmOkBtn: document.getElementById('confirmOkBtn'),
+  };
+
+  let selectedCats = new Set(CATEGORIES.map(c => c[0]));
+  const ROUND_SIZE = 10;
+  let deck = [];
+  let qi = 0;
+  let score = 0;
+  let streak = 0;
+  let bestStreak = 0;
+  let roundActive = false;
+  let locked = false;
+
+  let answerChunks = [];   // ko chunks placed so far, in order
+  let availableChunks = []; // remaining {ko, origIndex}
+  let currentSentence = null;
+
+  const HISTORY_KEY = 'quiz-history-log-ko-pattern';
+  const TOTALS_KEY = 'quiz-totals-ko-pattern';
+  const MAX_HISTORY = 50;
+
+  function getTotals(){
+    try{
+      const raw = localStorage.getItem(TOTALS_KEY);
+      const parsed = raw ? JSON.parse(raw) : null;
+      if(parsed) return { plays: parsed.plays||0, questions: parsed.questions||0, correct: parsed.correct||0 };
+    }catch(e){}
+    return { plays:0, questions:0, correct:0 };
+  }
+  function updateTotals(scoreVal, totalVal){
+    try{
+      const t = getTotals();
+      t.plays += 1; t.questions += totalVal; t.correct += scoreVal;
+      localStorage.setItem(TOTALS_KEY, JSON.stringify(t));
+    }catch(e){ console.error('累計記録の保存に失敗しました', e); }
+  }
+  async function getHistory(){
+    try{
+      const raw = localStorage.getItem(HISTORY_KEY);
+      const parsed = raw ? JSON.parse(raw) : [];
+      return Array.isArray(parsed) ? parsed : [];
+    }catch(e){ return []; }
+  }
+  async function addHistoryEntry(entry){
+    try{
+      const current = await getHistory();
+      const updated = [entry, ...current].slice(0, MAX_HISTORY);
+      localStorage.setItem(HISTORY_KEY, JSON.stringify(updated));
+    }catch(e){ console.error('履歴の保存に失敗しました', e); }
+  }
+  async function clearHistory(){
+    try{ localStorage.removeItem(HISTORY_KEY); localStorage.removeItem(TOTALS_KEY); }catch(e){}
+  }
+  function formatDate(iso){
+    const d = new Date(iso);
+    return `${String(d.getMonth()+1).padStart(2,'0')}/${String(d.getDate()).padStart(2,'0')} ${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}`;
+  }
+
+  let audioCtx = null;
+  const AUDIO_BASE = 'audio/ko';
+  let audioManifest = {};
+  let audioManifestLoaded = false;
+  let currentAudio = null;
+
+  fetch(`${AUDIO_BASE}/manifest.json`)
+    .then(res => { if(!res.ok) throw new Error('manifest not found'); return res.json(); })
+    .then(data => {
+      audioManifest = data || {};
+      audioManifestLoaded = Object.keys(audioManifest).length > 0;
+    })
+    .catch(() => {
+      audioManifest = {};
+      audioManifestLoaded = false;
+    });
+
+  let koreanVoice = null;
+  let koreanVoiceReady = false;
+  function pickKoreanVoice(){
+    if(!('speechSynthesis' in window)) return;
+    const voices = window.speechSynthesis.getVoices();
+    if(!voices.length) return;
+    koreanVoice =
+      voices.find(v => v.lang && v.lang.toLowerCase().startsWith('ko')) ||
+      voices.find(v => v.lang && v.lang.toLowerCase().startsWith('en')) ||
+      null;
+    koreanVoiceReady = true;
+  }
+  if('speechSynthesis' in window){
+    pickKoreanVoice();
+    window.speechSynthesis.onvoiceschanged = pickKoreanVoice;
+  }
+  let speakToken = 0;
+  function speakWithSynthesis(text){
+    if(!('speechSynthesis' in window) || !koreanVoice) return;
+    const myToken = ++speakToken;
+    try{
+      window.speechSynthesis.cancel();
+      setTimeout(() => {
+        if(myToken !== speakToken) return;
+        try{
+          const utter = new SpeechSynthesisUtterance(text);
+          utter.voice = koreanVoice;
+          utter.lang = koreanVoice.lang;
+          utter.rate = 0.9;
+          window.speechSynthesis.speak(utter);
+        }catch(e){ console.error('発音の再生に失敗しました', e); }
+      }, 60);
+    }catch(e){ console.error('発音の再生に失敗しました', e); }
+  }
+  function speakKorean(text){
+    const filename = audioManifest[text];
+    if(filename){
+      speakToken++; // supersede any pending synthesis fallback
+      try{
+        if(currentAudio){ currentAudio.pause(); }
+        currentAudio = new Audio(`${AUDIO_BASE}/${filename}`);
+        const playPromise = currentAudio.play();
+        if(playPromise && playPromise.catch){ playPromise.catch(() => {}); }
+      }catch(e){
+        console.error('音声ファイルの再生に失敗しました', e);
+        speakWithSynthesis(text);
+      }
+      return;
+    }
+    speakWithSynthesis(text);
+  }
+
+  function playTone(freq, duration, type){
+    try{
+      if(!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+      const osc = audioCtx.createOscillator();
+      const gain = audioCtx.createGain();
+      osc.type = type || 'sine';
+      osc.frequency.value = freq;
+      gain.gain.setValueAtTime(0.16, audioCtx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + duration);
+      osc.connect(gain);
+      gain.connect(audioCtx.destination);
+      osc.start();
+      osc.stop(audioCtx.currentTime + duration);
+    }catch(e){ /* audio unsupported — silently ignore */ }
+  }
+  function playTapSound(){ playTone(650, 0.07); }
+  function playUndoSound(){ playTone(420, 0.06); }
+  function playCorrectSound(){
+    playTone(880, 0.09);
+    setTimeout(() => playTone(1175, 0.14), 90);
+  }
+  function playWrongSound(){ playTone(180, 0.22, 'sawtooth'); }
+
+  function shuffle(arr){
+    const a = arr.slice();
+    for(let i=a.length-1;i>0;i--){
+      const j = Math.floor(Math.random()*(i+1));
+      [a[i],a[j]] = [a[j],a[i]];
+    }
+    return a;
+  }
+
+  function buildCatGrid(){
+    els.catGrid.innerHTML = '';
+    CATEGORIES.forEach(([key, label, sentences]) => {
+      const chip = document.createElement('label');
+      chip.className = 'cat-chip active';
+      chip.innerHTML = `<input type="checkbox" checked data-cat="${key}"> ${label} <span class="cat-count">${sentences.length}</span>`;
+      const input = chip.querySelector('input');
+      input.addEventListener('change', () => {
+        if(input.checked){ selectedCats.add(key); chip.classList.add('active'); }
+        else { selectedCats.delete(key); chip.classList.remove('active'); }
+      });
+      els.catGrid.appendChild(chip);
+    });
+  }
+
+  function setAllCategories(checked){
+    const inputs = els.catGrid.querySelectorAll('input[type="checkbox"]');
+    inputs.forEach(input => {
+      input.checked = checked;
+      const key = input.dataset.cat;
+      const chip = input.closest('.cat-chip');
+      if(checked){ selectedCats.add(key); chip.classList.add('active'); }
+      else { selectedCats.delete(key); chip.classList.remove('active'); }
+    });
+  }
+
+  function showScreen(name){
+    els.startScreen.classList.toggle('hidden', name!=='start');
+    els.quizScreen.classList.toggle('hidden', name!=='quiz');
+    els.resultScreen.classList.toggle('hidden', name!=='result');
+  }
+
+  function buildPool(){
+    let pool = [];
+    CATEGORIES.forEach(([key, label, sentences]) => {
+      if(selectedCats.has(key)){
+        sentences.forEach(s => pool.push({cat:key, chunks:s.chunks}));
+      }
+    });
+    return pool;
+  }
+
+  function startRound(){
+    const pool = buildPool();
+    const size = Math.min(ROUND_SIZE, pool.length);
+    deck = shuffle(pool).slice(0, size);
+    qi = 0; score = 0; streak = 0; bestStreak = 0;
+    roundActive = true;
+    showScreen('quiz');
+    renderQuestion();
+  }
+
+  function renderQuestion(){
+    locked = false;
+    currentSentence = deck[qi];
+    els.qIndex.textContent = `問題 ${qi+1} / ${deck.length}`;
+    els.streakCount.textContent = streak;
+    els.jaSentence.textContent = currentSentence.chunks.map(c => c[0]).join('');
+    els.revealBox.innerHTML = '';
+    els.answerRow.classList.remove('correct','wrong');
+
+    answerChunks = [];
+    availableChunks = shuffle(currentSentence.chunks.map((c, idx) => ({ko:c[1], origIndex:idx})));
+    renderChunks();
+  }
+
+  function renderChunks(){
+    els.answerRow.innerHTML = '';
+    if(answerChunks.length === 0){
+      const hint = document.createElement('span');
+      hint.style.color = '#9a9480';
+      hint.style.fontSize = '13px';
+      hint.style.alignSelf = 'center';
+      hint.textContent = '下のチップをタップして並べてください';
+      els.answerRow.appendChild(hint);
+    }
+    answerChunks.forEach((c, i) => {
+      const chip = document.createElement('span');
+      chip.className = 'chip chip-placed';
+      chip.textContent = c.ko;
+      chip.addEventListener('click', () => {
+        if(locked) return;
+        playUndoSound();
+        answerChunks.splice(i, 1);
+        availableChunks.push(c);
+        renderChunks();
+      });
+      els.answerRow.appendChild(chip);
+    });
+
+    els.availableRow.innerHTML = '';
+    availableChunks.forEach((c, i) => {
+      const chip = document.createElement('span');
+      chip.className = 'chip chip-available';
+      chip.textContent = c.ko;
+      chip.addEventListener('click', () => {
+        if(locked) return;
+        playTapSound();
+        speakKorean(c.ko);
+        availableChunks.splice(i, 1);
+        answerChunks.push(c);
+        renderChunks();
+        if(availableChunks.length === 0) checkAnswer();
+      });
+      els.availableRow.appendChild(chip);
+    });
+  }
+
+  function checkAnswer(){
+    locked = true;
+    const correct = answerChunks.every((c, i) => c.origIndex === i);
+    if(correct){
+      els.answerRow.classList.add('correct');
+      score++; streak++; bestStreak = Math.max(bestStreak, streak);
+      playCorrectSound();
+    } else {
+      els.answerRow.classList.add('wrong');
+      streak = 0;
+      playWrongSound();
+    }
+
+    const reveal = document.createElement('div');
+    reveal.className = 'reveal-box';
+    currentSentence.chunks.forEach(c => {
+      const row = document.createElement('div');
+      row.className = 'reveal-row';
+      row.innerHTML = `<span class="reveal-ja">${c[0]}</span><span class="reveal-ko">${c[1]}</span>`;
+      reveal.appendChild(row);
+    });
+    const nextBtn = document.createElement('button');
+    nextBtn.className = 'btn btn-primary next-btn';
+    nextBtn.textContent = (qi + 1 < deck.length) ? '次へ' : '結果を見る';
+    nextBtn.addEventListener('click', () => {
+      qi++;
+      if(!roundActive) return;
+      if(qi < deck.length) renderQuestion();
+      else showResult();
+    });
+    reveal.appendChild(nextBtn);
+    els.revealBox.innerHTML = '';
+    els.revealBox.appendChild(reveal);
+  }
+
+  function showResult(){
+    showScreen('result');
+    els.scoreBig.textContent = `${score} / ${deck.length}`;
+    const pct = deck.length ? score/deck.length : 0;
+    let label = '';
+    if(pct === 1) label = '満点！お見事です';
+    else if(pct >= 0.8) label = 'とても良い調子';
+    else if(pct >= 0.5) label = 'いい感じ、続けよう';
+    else label = 'もう一度挑戦してみよう';
+    els.scoreLabel.textContent = `${label}（最長連続正解 ${bestStreak}）`;
+    updateTotals(score, deck.length);
+    addHistoryEntry({
+      date: new Date().toISOString(),
+      score: score,
+      total: deck.length,
+      bestStreak: bestStreak,
+      categories: Array.from(selectedCats),
+    });
+  }
+
+  function renderHistoryList(logs){
+    els.historyPanel.innerHTML = '';
+    if(!logs.length){
+      const empty = document.createElement('div');
+      empty.className = 'history-empty';
+      empty.textContent = 'まだ記録がありません。1回プレイすると、ここに履歴が残ります。';
+      els.historyPanel.appendChild(empty);
+      return;
+    }
+    const totals = getTotals();
+    const overallAccuracy = totals.questions ? Math.round((totals.correct/totals.questions)*100) : 0;
+    const summary = document.createElement('div');
+    summary.className = 'history-summary';
+    summary.innerHTML = `
+      <div class="summary-stat"><div class="summary-num">${totals.plays}</div><div class="summary-label">プレイ回数</div></div>
+      <div class="summary-stat"><div class="summary-num">${overallAccuracy}%</div><div class="summary-label">通算正答率</div></div>
+      <div class="summary-stat"><div class="summary-num">${totals.questions}</div><div class="summary-label">累計出題数</div></div>
+    `;
+    els.historyPanel.appendChild(summary);
+
+    logs.forEach(entry => {
+      const row = document.createElement('div');
+      row.className = 'history-row';
+      const pct = entry.total ? Math.round((entry.score/entry.total)*100) : 0;
+      const catLabels = (entry.categories||[]).map(k => CAT_LABELS[k] || k).join(' / ');
+      row.innerHTML = `<span class="history-date">${formatDate(entry.date)}</span><span style="flex:1;color:#5b5648;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${catLabels}</span><span class="history-score">${entry.score}/${entry.total}（${pct}%）</span>`;
+      els.historyPanel.appendChild(row);
+    });
+
+    const clearBtn = document.createElement('button');
+    clearBtn.className = 'history-clear';
+    clearBtn.textContent = '記録を消去する';
+    clearBtn.addEventListener('click', async () => { clearBtn.disabled = true; await clearHistory(); renderHistoryList([]); });
+    els.historyPanel.appendChild(clearBtn);
+  }
+
+  async function toggleHistoryPanel(){
+    const isHidden = els.historyPanel.classList.contains('hidden');
+    if(isHidden){
+      els.historyPanel.classList.remove('hidden');
+      els.historyPanel.innerHTML = '<div class="history-empty">読み込み中…</div>';
+      const logs = await getHistory();
+      renderHistoryList(logs);
+      els.historyToggleBtn.textContent = '記録を隠す';
+    } else {
+      els.historyPanel.classList.add('hidden');
+      els.historyToggleBtn.textContent = '記録を見る';
+    }
+  }
+
+  function showConfirmModal(message, onConfirm){
+    els.confirmMessage.textContent = message;
+    els.confirmOverlay.classList.remove('hidden');
+    function cleanup(){
+      els.confirmOverlay.classList.add('hidden');
+      els.confirmOkBtn.removeEventListener('click', onOk);
+      els.confirmCancelBtn.removeEventListener('click', onCancel);
+    }
+    function onOk(){ cleanup(); onConfirm(); }
+    function onCancel(){ cleanup(); }
+    els.confirmOkBtn.addEventListener('click', onOk);
+    els.confirmCancelBtn.addEventListener('click', onCancel);
+  }
+
+  buildCatGrid();
+  els.selectAllBtn.addEventListener('click', () => setAllCategories(true));
+  els.deselectAllBtn.addEventListener('click', () => setAllCategories(false));
+  els.startBtn.addEventListener('click', () => {
+    if(selectedCats.size === 0){ els.startWarning.classList.remove('hidden'); return; }
+    els.startWarning.classList.add('hidden');
+    startRound();
+  });
+  els.retryBtn.addEventListener('click', startRound);
+  els.backBtn.addEventListener('click', () => showScreen('start'));
+  els.historyToggleBtn.addEventListener('click', toggleHistoryPanel);
+  els.quitBtn.addEventListener('click', () => {
+    showConfirmModal('ドリルを中断しますか？この回の記録は保存されません。', () => {
+      roundActive = false;
+      showScreen('start');
+    });
+  });
+
+  showScreen('start');
+})();
+</script>
+</body>
+</html>

@@ -382,6 +382,39 @@
     <a class="video-youtube-link" href="https://youtu.be/j3OM2zgW0zI" id="openInYoutube" target="_blank" rel="noopener">YouTubeで開く ↗</a>
   </div>
 
+  <div class="video-section">
+    <div class="video-title">🎥 英語リスニング</div>
+    <p class="video-desc">日本人が聞き取りにくい英語のフレーズを紹介する動画です。カジュアルな発音→正式な書き方→解説、という流れになっています。</p>
+    <div class="video-embed">
+      <iframe id="listeningVideoFrame" src="https://www.youtube-nocookie.com/embed/RRnGIA_JofU" title="Sanapelit 英語リスニング #1" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+    </div>
+    <div class="video-list" id="listeningVideoList">
+      <button type="button" class="video-btn active" data-id="RRnGIA_JofU">#1</button>
+      <button type="button" class="video-btn" data-id="-oaWQgzFhBU">#2</button>
+      <button type="button" class="video-btn" data-id="h9IcCmku86U">#3</button>
+      <button type="button" class="video-btn" data-id="i0Bcqumk4zg">#4</button>
+    </div>
+    <a class="video-youtube-link" href="https://youtu.be/RRnGIA_JofU" id="openInYoutubeListening" target="_blank" rel="noopener">YouTubeで開く ↗</a>
+  </div>
+
+  <script>
+    (function(){
+      const frame = document.getElementById('listeningVideoFrame');
+      const list = document.getElementById('listeningVideoList');
+      const openLink = document.getElementById('openInYoutubeListening');
+      if(!list) return;
+      list.querySelectorAll('.video-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+          const id = btn.dataset.id;
+          frame.src = `https://www.youtube-nocookie.com/embed/${id}`;
+          openLink.href = `https://youtu.be/${id}`;
+          list.querySelectorAll('.video-btn').forEach(b => b.classList.remove('active'));
+          btn.classList.add('active');
+        });
+      });
+    })();
+  </script>
+
   <script>
     (function(){
       const frame = document.getElementById('mainVideoFrame');
@@ -403,6 +436,7 @@
   <div class="changelog">
     <div class="changelog-title">📝 更新履歴</div>
     <ul class="changelog-list">
+      <li><span class="changelog-date">2026-07-10</span><span>英語リスニング動画セクションを追加</span></li>
       <li><span class="changelog-date">2026-07-09</span><span>韓国語（単語・中級レベル・264語）版を追加</span></li>
       <li><span class="changelog-date">2026-07-08</span><span>韓国語（文型ドリル）を追加</span></li>
       <li><span class="changelog-date">2026-07-07</span><span>中国語の単語数を408語に拡充</span></li>

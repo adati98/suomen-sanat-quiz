@@ -1406,6 +1406,7 @@
     "hyönteiset ja meren eläimet": "昆虫・海の生き物",
     "kasvit ja kukat": "植物・花",
     "toimistotarvikkeet": "文房具",
+    "matka": "旅行",
     "sosiaaliset tilanteet": "社会的な場面",
     "maat": "国名",
     "ilmaisut": "表現",
@@ -2195,6 +2196,16 @@
       locked = true;
       showScreen('start');
     });
+  });
+
+  document.addEventListener('keydown', (e)=>{
+    if(els.quizScreen.classList.contains('hidden')) return;
+    const num = parseInt(e.key, 10);
+    if(num >= 1 && num <= 4){
+      const buttons = els.optionsGrid.querySelectorAll('.opt');
+      const btn = buttons[num - 1];
+      if(btn && !btn.disabled) btn.click();
+    }
   });
 
   buildCatGrid();

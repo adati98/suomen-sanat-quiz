@@ -1841,6 +1841,16 @@
     });
   });
 
+  document.addEventListener('keydown', (e)=>{
+    if(els.quizScreen.classList.contains('hidden')) return;
+    const num = parseInt(e.key, 10);
+    if(num >= 1 && num <= 4){
+      const buttons = els.optionsGrid.querySelectorAll('.opt');
+      const btn = buttons[num - 1];
+      if(btn && !btn.disabled) btn.click();
+    }
+  });
+
   buildCatGrid();
   showScreen('start');
   window.addEventListener('resize', ()=>{ initArc(); });

@@ -1393,6 +1393,7 @@
     "insekter og sjødyr": "昆虫・海の生き物",
     "planter og blomster": "植物・花",
     "kontorrekvisita": "文房具",
+    "reise": "旅行",
     "sosiale situasjoner": "社会的な場面",
     "land": "国名",
     "uttrykk": "表現",
@@ -2182,6 +2183,16 @@
       locked = true;
       showScreen('start');
     });
+  });
+
+  document.addEventListener('keydown', (e)=>{
+    if(els.quizScreen.classList.contains('hidden')) return;
+    const num = parseInt(e.key, 10);
+    if(num >= 1 && num <= 4){
+      const buttons = els.optionsGrid.querySelectorAll('.opt');
+      const btn = buttons[num - 1];
+      if(btn && !btn.disabled) btn.click();
+    }
   });
 
   buildCatGrid();

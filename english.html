@@ -407,7 +407,20 @@
     cursor:pointer;
     text-align:center;
     color:var(--ink);
+    position:relative;
     transition:transform .08s ease, background .15s ease, border-color .15s ease;
+  }
+  .opt-num{
+    position:absolute;
+    top:6px;
+    left:8px;
+    font-family:'JetBrains Mono',monospace;
+    font-size:11px;
+    font-weight:700;
+    color:#9a9480;
+    background:rgba(0,0,0,0.05);
+    border-radius:5px;
+    padding:1px 5px;
   }
   .opt:hover{ transform:translateY(-1px); background:#EDE6D6; }
   .opt:focus-visible{ outline:3px solid var(--ink); outline-offset:2px; }
@@ -1641,10 +1654,10 @@
     const options = shuffle([item, ...wrongs]);
 
     els.optionsGrid.innerHTML = '';
-    options.forEach(opt=>{
+    options.forEach((opt, idx)=>{
       const btn = document.createElement('button');
       btn.className = 'opt';
-      btn.textContent = opt.ja;
+      btn.innerHTML = `<span class="opt-num">${idx+1}</span>${opt.ja}`;
       btn.addEventListener('click', ()=>handleAnswer(btn, opt, item));
       els.optionsGrid.appendChild(btn);
     });

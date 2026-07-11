@@ -1775,6 +1775,7 @@
     options.forEach((opt, idx)=>{
       const btn = document.createElement('button');
       btn.className = 'opt';
+      btn.dataset.ja = opt.ja;
       btn.innerHTML = `<span class="opt-num">${idx+1}</span>${opt.ja}`;
       btn.addEventListener('click', ()=>handleAnswer(btn, opt, item));
       els.optionsGrid.appendChild(btn);
@@ -1798,7 +1799,7 @@
       btn.classList.add('wrong');
       streak = 0;
       missed.push(item);
-      const correctBtn = allBtns.find(b=>b.textContent===item.ja);
+      const correctBtn = allBtns.find(b=>b.dataset.ja===item.ja);
       if(correctBtn) correctBtn.classList.add('correct');
     }
     els.streakCount.textContent = streak;
@@ -2212,6 +2213,37 @@
   });
 
   document.addEventListener('keydown', (e)=>{
+    const activeTag = document.activeElement && document.activeElement.tagName;
+    const isTyping = activeTag === 'INPUT' || activeTag === 'TEXTAREA';
+
+    if(e.key === 'Escape'){
+      if(!els.confirmOverlay.classList.contains('hidden')){
+        e.preventDefault();
+        els.confirmCancelBtn.click();
+      } else if(!els.quizScreen.classList.contains('hidden')){
+        e.preventDefault();
+        els.quitBtn.click();
+      }
+      return;
+    }
+
+    if(e.key === 'Enter'){
+      if(!els.confirmOverlay.classList.contains('hidden')){
+        e.preventDefault();
+        els.confirmOkBtn.click();
+        return;
+      }
+      if(isTyping) return;
+      if(!els.startScreen.classList.contains('hidden')){
+        e.preventDefault();
+        els.startBtn.click();
+      } else if(!els.resultScreen.classList.contains('hidden')){
+        e.preventDefault();
+        els.retryBtn.click();
+      }
+      return;
+    }
+
     if(els.quizScreen.classList.contains('hidden')) return;
     const num = parseInt(e.key, 10);
     if(num >= 1 && num <= 4){

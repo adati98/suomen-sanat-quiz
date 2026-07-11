@@ -63,6 +63,17 @@
     color:#7a92a8;
     margin-bottom:36px;
   }
+  .lang-group{
+    margin-bottom:36px;
+  }
+  .lang-group-title{
+    font-family:'Bricolage Grotesque',sans-serif;
+    font-weight:700;
+    font-size:20px;
+    color:var(--birch);
+    margin-bottom:14px;
+    padding-left:2px;
+  }
   .grid{
     display:grid;
     grid-template-columns:1fr 1fr;
@@ -268,7 +279,9 @@
   <div class="subtitle">遊びながら外国語の単語を覚えるミニゲーム集<br>まずはフィンランド語から。今後いろいろな言語を追加していきます。</div>
   <div class="name-note">Sanapelit（サナペリット）はフィンランド語で「単語ゲーム」という意味です。</div>
 
-  <div class="grid">
+  <div class="lang-group">
+    <div class="lang-group-title">北欧諸語</div>
+    <div class="grid">
 
     <a class="card" href="finnish.html">
       <div class="flag"><img src="https://flagcdn.com/w80/fi.png" alt="フィンランド国旗"></div>
@@ -303,6 +316,24 @@
       </div>
     </a>
 
+    <div class="card disabled">
+      <div class="flag"><img src="https://flagcdn.com/w80/dk.png" alt="デンマーク国旗"></div>
+      <div class="lang-name-ja">デンマーク語</div>
+      <div class="lang-name-native">Dansk</div>
+      <div class="card-desc">準備中です。今後追加予定。</div>
+      <div class="card-footer">
+        <span class="word-count">—</span>
+        <span class="status-badge status-soon">準備中</span>
+      </div>
+    </div>
+
+    </div>
+  </div>
+
+  <div class="lang-group">
+    <div class="lang-group-title">英語</div>
+    <div class="grid">
+
     <a class="card" href="english_bizcol.html">
       <div class="flag"><img src="https://flagcdn.com/w80/gb.png" alt="イギリス国旗"></div>
       <div class="lang-name-ja">英語（ビジネス・コロケーション）</div>
@@ -324,6 +355,13 @@
         <span class="status-badge status-ready">プレイ可能</span>
       </div>
     </a>
+
+    </div>
+  </div>
+
+  <div class="lang-group">
+    <div class="lang-group-title">アジアの言語</div>
+    <div class="grid">
 
     <a class="card" href="chinese.html">
       <div class="flag"><img src="https://flagcdn.com/w80/cn.png" alt="中国国旗"></div>
@@ -358,17 +396,7 @@
       </div>
     </a>
 
-    <div class="card disabled">
-      <div class="flag"><img src="https://flagcdn.com/w80/dk.png" alt="デンマーク国旗"></div>
-      <div class="lang-name-ja">デンマーク語</div>
-      <div class="lang-name-native">Dansk</div>
-      <div class="card-desc">準備中です。今後追加予定。</div>
-      <div class="card-footer">
-        <span class="word-count">—</span>
-        <span class="status-badge status-soon">準備中</span>
-      </div>
     </div>
-
   </div>
 
   <div class="video-section">

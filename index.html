@@ -548,8 +548,20 @@
     作者:<a href="https://note.com/halfpolyglot" target="_blank" rel="noopener">中途半端な多言語学習者(note)</a><br>
     感想・要望は<a href="feedback.html" style="color:var(--ember);">こちら</a>から気軽にどうぞ
     <div style="margin-top:14px;">
-      <img src="https://hitscounter.dev/api/hit?url=https%3A%2F%2Fadati98.github.io%2Fsuomen-sanat-quiz%2F&label=views&icon=eye-fill&color=%235F8A5A" alt="アクセス数">
+      <span id="access-counter" style="font-size:12px; color:var(--frost);">アクセス数を読み込み中…</span>
     </div>
+    <script>
+      (function(){
+        var el = document.getElementById('access-counter');
+        fetch('https://api.countapi.xyz/hit/sanapelit-adati98/visits')
+          .then(function(r){ return r.json(); })
+          .then(function(data){
+            var n = data && typeof data.value === 'number' ? data.value : null;
+            el.textContent = n !== null ? ('これまでのアクセス数: ' + n.toLocaleString() + ' 回') : '';
+          })
+          .catch(function(){ el.textContent = ''; });
+      })();
+    </script>
   </footer>
 </div>
 </body>

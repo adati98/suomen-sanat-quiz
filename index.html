@@ -483,9 +483,49 @@
     })();
   </script>
 
+  <div class="video-section">
+    <div class="video-title">🎥 英検1級単語</div>
+    <p class="video-desc">英検準1級〜1級レベルの単語を、発音付きで覚える動画です。単語が表示→発音→意味が表示→意味の読み上げ→発音の反復、という流れになっています。品詞・発音記号も表示しています。</p>
+    <div class="video-embed">
+      <iframe id="eikenVideoFrame" src="https://www.youtube-nocookie.com/embed/sHC5r4kw_F4" title="Sanapelit 英検1級単語 #1" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+    </div>
+    <div class="video-list" id="eikenVideoList">
+      <button type="button" class="video-btn active" data-id="sHC5r4kw_F4">#1</button>
+      <button type="button" class="video-btn" data-id="kMPk5VeFplg">#2</button>
+      <button type="button" class="video-btn" data-id="NxIyO68vWYU">#3</button>
+      <button type="button" class="video-btn" data-id="VJB8bUQGdSk">#4</button>
+      <button type="button" class="video-btn" data-id="MYzHN0UB8yg">#5</button>
+      <button type="button" class="video-btn" data-id="DrWH05Ii1v0">#6</button>
+      <button type="button" class="video-btn" data-id="kyZ-G0XwxBA">#7</button>
+      <button type="button" class="video-btn" data-id="1p2g9GpB1_Y">#8</button>
+      <button type="button" class="video-btn" data-id="_auRmJISMt4">#9</button>
+      <button type="button" class="video-btn" data-id="DtbmmyQAtwE">#10</button>
+    </div>
+    <a class="video-youtube-link" href="https://youtu.be/sHC5r4kw_F4" id="openInYoutubeEiken" target="_blank" rel="noopener">YouTubeで開く ↗</a>
+  </div>
+
+  <script>
+    (function(){
+      const frame = document.getElementById('eikenVideoFrame');
+      const list = document.getElementById('eikenVideoList');
+      const openLink = document.getElementById('openInYoutubeEiken');
+      if(!list) return;
+      list.querySelectorAll('.video-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+          const id = btn.dataset.id;
+          frame.src = `https://www.youtube-nocookie.com/embed/${id}`;
+          openLink.href = `https://youtu.be/${id}`;
+          list.querySelectorAll('.video-btn').forEach(b => b.classList.remove('active'));
+          btn.classList.add('active');
+        });
+      });
+    })();
+  </script>
+
   <div class="changelog">
     <div class="changelog-title">📝 更新履歴</div>
     <ul class="changelog-list">
+      <li><span class="changelog-date">2026-07-13</span><span>英検1級単語の暗記動画セクションを追加</span></li>
       <li><span class="changelog-date">2026-07-10</span><span>英語（ビジネスメール表現・90項目）版を追加</span></li>
       <li><span class="changelog-date">2026-07-10</span><span>英語（コロケーション・160項目）版を追加</span></li>
       <li><span class="changelog-date">2026-07-10</span><span>英語（ビジネス・コロケーション・103項目）版を追加</span></li>

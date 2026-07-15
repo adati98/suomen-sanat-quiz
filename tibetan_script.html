@@ -1,0 +1,1647 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>チベット文字を覚える — Sanapelit</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@500;700;900&family=Fraunces:ital,opsz,wght@0,9..144,500;0,9..144,600;0,9..144,700;1,9..144,600;1,9..144,700&family=Bricolage+Grotesque:wght@700&family=Noto+Sans+Tibetan:wght@500;700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ink:#122036;
+    --ink-2:#1a3050;
+    --birch:#F6F1E7;
+    --birch-dim:#E7DFCF;
+    --lingon:#C23B32;
+    --moss:#5F8A5A;
+    --ember:#E2A63B;
+    --frost:#9FBAD1;
+    --radius:18px;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    background:var(--ink);
+    background-image:
+      radial-gradient(ellipse at 50% -10%, rgba(226,166,59,0.10), transparent 55%),
+      radial-gradient(ellipse at 50% 120%, rgba(95,138,90,0.10), transparent 50%);
+    color:var(--birch);
+    font-family:'Inter',sans-serif;
+    min-height:100vh;
+    display:flex;
+    align-items:flex-start;
+    justify-content:center;
+    padding:28px 16px 60px;
+  }
+  .app{
+    width:100%;
+    max-width:640px;
+  }
+  .back-link{
+    display:inline-block;
+    font-size:12.5px;
+    color:var(--frost);
+    text-decoration:none;
+    margin-bottom:10px;
+    opacity:0.85;
+  }
+  .back-link:hover{ opacity:1; text-decoration:underline; }
+  .cat-select-row{
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    gap:8px;
+    margin:14px 0 8px;
+  }
+  .link-btn{
+    background:none;
+    border:none;
+    padding:0;
+    font-family:'Inter',sans-serif;
+    font-size:12.5px;
+    font-weight:600;
+    color:var(--moss);
+    cursor:pointer;
+    text-decoration:underline;
+  }
+  .link-btn:hover{ opacity:0.75; }
+  .cat-select-sep{ color:#b9b19a; font-size:12px; }
+  .cat-grid-scroll{
+    max-height:280px;
+    overflow-y:auto;
+    padding-right:4px;
+    margin-bottom:16px;
+    border:1px solid var(--birch-dim);
+    border-radius:12px;
+    padding:10px;
+  }
+  .eyebrow{
+    font-family:'JetBrains Mono',monospace;
+    font-size:12px;
+    letter-spacing:0.14em;
+    text-transform:uppercase;
+    color:var(--frost);
+    text-align:center;
+    margin-bottom:4px;
+  }
+  h1{
+    font-family:'Bricolage Grotesque',sans-serif;
+    font-weight:700;
+    font-size:clamp(28px,7vw,42px);
+    text-align:center;
+    margin:0 0 4px;
+    letter-spacing:-0.01em;
+  }
+  .subtitle{
+    text-align:center;
+    color:var(--frost);
+    font-size:14px;
+    margin-bottom:22px;
+  }
+
+  /* ---- Arc progress (midnight sun) ---- */
+  .arc-wrap{
+    position:relative;
+    width:100%;
+    max-width:420px;
+    margin:4px auto 8px;
+  }
+  .arc-svg{ width:100%; height:auto; display:block; }
+  .arc-track{ fill:none; stroke:rgba(159,186,209,0.22); stroke-width:3; stroke-linecap:round; }
+  .arc-fill{ fill:none; stroke:var(--ember); stroke-width:3; stroke-linecap:round; }
+  .sun{ transition: cx 0.5s ease, cy 0.5s ease; }
+  .arc-caption{
+    font-family:'JetBrains Mono',monospace;
+    font-size:12px;
+    color:var(--frost);
+    text-align:center;
+    margin-top:-6px;
+  }
+
+  /* ---- Cards ---- */
+  .card{
+    background:var(--birch);
+    color:var(--ink);
+    border-radius:var(--radius);
+    padding:28px 24px;
+    margin-top:18px;
+  }
+  .hidden{ display:none !important; }
+
+  /* Start screen */
+  .cat-grid{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:10px;
+    margin:0;
+  }
+  .cat-chip{
+    display:flex;
+    align-items:center;
+    gap:9px;
+    background:var(--birch-dim);
+    border:2px solid transparent;
+    border-radius:12px;
+    padding:11px 12px;
+    cursor:pointer;
+    font-weight:600;
+    font-size:14px;
+    transition:border-color .15s ease, background .15s ease;
+    user-select:none;
+  }
+  .cat-chip input{ accent-color:var(--moss); width:16px; height:16px; flex:none; }
+  .cat-chip.active{ border-color:var(--moss); background:#EAF2E6; }
+  .cat-chip-text{
+    display:flex;
+    flex-direction:column;
+    line-height:1.25;
+  }
+  .cat-chip-ja{ font-weight:700; }
+  .cat-chip-fi{
+    font-family:'JetBrains Mono',monospace;
+    font-weight:500;
+    font-size:11px;
+    color:#8a8471;
+  }
+  .cat-count{
+    font-family:'JetBrains Mono',monospace;
+    font-size:11px;
+    color:#6b6656;
+    margin-left:auto;
+  }
+  .level-note{
+    font-size:13px;
+    color:#5b5648;
+    background:var(--birch-dim);
+    border-radius:10px;
+    padding:10px 14px;
+    margin-bottom:6px;
+  }
+  .btn{
+    font-family:'Unbounded',sans-serif;
+    font-weight:700;
+    font-size:15px;
+    border:none;
+    border-radius:12px;
+    padding:14px 22px;
+    cursor:pointer;
+    width:100%;
+    transition:transform .08s ease, filter .15s ease;
+  }
+  .btn:active{ transform:scale(0.98); }
+  .btn:focus-visible{ outline:3px solid var(--ember); outline-offset:2px; }
+  .btn-primary{ background:var(--ink); color:var(--birch); }
+  .btn-primary:hover{ filter:brightness(1.2); }
+  .btn-ghost{
+    background:transparent;
+    color:var(--frost);
+    border:1px solid rgba(159,186,209,0.4);
+    font-family:'Inter',sans-serif;
+    font-weight:600;
+    font-size:13px;
+    padding:10px 16px;
+  }
+  .btn-ghost:hover{ background:rgba(159,186,209,0.1); }
+
+  /* Quiz screen */
+  .quiz-meta{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    font-family:'JetBrains Mono',monospace;
+    font-size:12px;
+    color:var(--frost);
+    padding:0 2px;
+    margin-bottom:6px;
+    gap:8px;
+  }
+  .quit-btn{
+    font-family:'Inter',sans-serif;
+    font-size:11.5px;
+    font-weight:600;
+    color:#a5443c;
+    background:none;
+    border:1px solid rgba(194,59,50,0.35);
+    border-radius:8px;
+    padding:5px 9px;
+    cursor:pointer;
+    flex:none;
+  }
+  .quit-btn:hover{ background:rgba(194,59,50,0.08); }
+  .quit-btn:focus-visible{ outline:3px solid var(--ink); outline-offset:2px; }
+  .streak{ color:var(--ember); font-weight:700; }
+  .word-fi{
+    font-family:'Noto Sans Tibetan','Fraunces',serif;
+    font-family:'Fraunces',serif;
+    font-optical-sizing:auto;
+    font-weight:600;
+    font-size:clamp(32px,8.5vw,48px);
+    text-align:center;
+    margin:6px 0 4px;
+    line-height:1.15;
+    letter-spacing:-0.01em;
+    word-break:break-word;
+  }
+  .word-fi-row{
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    gap:12px;
+  }
+  .speak-btn{
+    flex:none;
+    width:44px;
+    height:44px;
+    border-radius:50%;
+    border:2px solid var(--birch-dim);
+    background:var(--birch-dim);
+    font-size:19px;
+    cursor:pointer;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    transition:transform .1s ease, background .15s ease;
+  }
+  .speak-btn:hover{ background:#EDE6D6; }
+  .speak-btn:active{ transform:scale(0.92); }
+  .speak-btn:focus-visible{ outline:3px solid var(--ink); outline-offset:2px; }
+  .speak-btn.speaking{ background:var(--ember); border-color:var(--ember); }
+  .speak-btn:disabled{ opacity:0.4; cursor:not-allowed; }
+  .speak-btn:disabled:hover{ background:var(--birch-dim); }
+  .voice-note{
+    text-align:center;
+    font-size:11.5px;
+    color:#a08a3a;
+    background:#FBF3DD;
+    border-radius:8px;
+    padding:6px 10px;
+    margin:-14px 0 16px;
+  }
+  .voice-label{
+    text-align:center;
+    font-family:'JetBrains Mono',monospace;
+    font-size:10.5px;
+    color:#8a8471;
+    margin:-14px 0 16px;
+  }
+
+  .inline-warning{
+    text-align:center;
+    font-size:12.5px;
+    color:var(--lingon);
+    margin-top:8px;
+    font-weight:600;
+  }
+
+  .modal-overlay{
+    position:fixed;
+    inset:0;
+    background:rgba(10,16,28,0.6);
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    padding:20px;
+    z-index:1000;
+  }
+  .modal-box{
+    background:var(--birch);
+    color:var(--ink);
+    border-radius:16px;
+    padding:24px 22px;
+    width:100%;
+    max-width:340px;
+  }
+  .modal-message{
+    font-size:15px;
+    font-weight:600;
+    text-align:center;
+    margin-bottom:18px;
+    line-height:1.5;
+  }
+  .modal-btns{
+    display:flex;
+    gap:10px;
+  }
+  .modal-btns .btn{ flex:1; }
+
+  .changelog{
+    margin-top:18px;
+    padding:18px 20px;
+    background:rgba(246,241,231,0.06);
+    border:1px solid rgba(159,186,209,0.18);
+    border-radius:14px;
+  }
+  .changelog-title{
+    font-family:'JetBrains Mono',monospace;
+    font-size:12px;
+    letter-spacing:0.08em;
+    text-transform:uppercase;
+    color:var(--frost);
+    margin-bottom:10px;
+  }
+  .changelog-list{
+    list-style:none;
+    margin:0;
+    padding:0;
+  }
+  .changelog-list li{
+    display:flex;
+    gap:10px;
+    font-size:12.5px;
+    color:var(--birch);
+    opacity:0.85;
+    padding:5px 0;
+    border-bottom:1px solid rgba(159,186,209,0.12);
+    line-height:1.5;
+  }
+  .changelog-list li:last-child{ border-bottom:none; }
+  .feedback-link-row{
+    text-align:center;
+    font-size:12.5px;
+    color:var(--frost);
+    margin-top:14px;
+  }
+  .feedback-link-row a{
+    color:var(--ember);
+    text-decoration:underline;
+  }
+  .changelog-date{
+    font-family:'JetBrains Mono',monospace;
+    font-size:11.5px;
+    color:var(--ember);
+    flex:none;
+    white-space:nowrap;
+  }
+  .word-cat{
+    text-align:center;
+    font-size:12px;
+    color:#7a7461;
+    font-family:'JetBrains Mono',monospace;
+    letter-spacing:0.06em;
+    text-transform:uppercase;
+    margin-bottom:6px;
+  }
+  .word-tag{
+    text-align:center;
+    font-size:11.5px;
+    font-weight:600;
+    color:#7a9e6f;
+    margin-bottom:16px;
+    min-height:14px;
+  }
+  .options{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:10px;
+  }
+  @media (max-width:420px){
+    .options{ grid-template-columns:1fr; }
+    .cat-grid{ grid-template-columns:1fr; }
+  }
+  .opt{
+    background:var(--birch-dim);
+    border:2px solid transparent;
+    border-radius:12px;
+    padding:15px 12px;
+    font-size:16px;
+    font-weight:600;
+    cursor:pointer;
+    text-align:center;
+    color:var(--ink);
+    position:relative;
+    transition:transform .08s ease, background .15s ease, border-color .15s ease;
+  }
+  .opt-num{
+    position:absolute;
+    top:6px;
+    left:8px;
+    font-family:'JetBrains Mono',monospace;
+    font-size:11px;
+    font-weight:700;
+    color:#9a9480;
+    background:rgba(0,0,0,0.05);
+    border-radius:5px;
+    padding:1px 5px;
+  }
+  .opt:hover{ transform:translateY(-1px); background:#EDE6D6; }
+  .opt:focus-visible{ outline:3px solid var(--ink); outline-offset:2px; }
+  .opt.correct{ background:var(--moss); color:#fff; border-color:var(--moss); }
+  .opt.wrong{ background:var(--lingon); color:#fff; border-color:var(--lingon); }
+  .opt[disabled]{ cursor:default; }
+  .opt[disabled]:hover{ transform:none; }
+
+  /* Result screen */
+  .score-big{
+    font-family:'Unbounded',sans-serif;
+    font-weight:900;
+    font-size:52px;
+    text-align:center;
+    margin:2px 0 2px;
+  }
+  .score-label{
+    text-align:center;
+    color:#6b6656;
+    font-size:13px;
+    font-family:'JetBrains Mono',monospace;
+    letter-spacing:0.08em;
+    text-transform:uppercase;
+    margin-bottom:20px;
+  }
+  .missed-title{
+    font-size:13px;
+    font-weight:700;
+    color:#5b5648;
+    margin:18px 0 8px;
+  }
+  .missed-row{
+    display:flex;
+    justify-content:space-between;
+    padding:9px 4px;
+    border-bottom:1px solid var(--birch-dim);
+    font-size:14px;
+  }
+  .missed-row .fi{ font-weight:700; }
+  .missed-row .ja{ color:#6b6656; }
+  .result-btns{ display:flex; gap:10px; margin-top:20px; }
+  .result-btns .btn{ flex:1; }
+  @media (prefers-reduced-motion: reduce){
+    *{ transition:none !important; }
+  }
+
+  /* History */
+  .history-panel{
+    margin-top:14px;
+    border-top:1px solid var(--birch-dim);
+    padding-top:14px;
+  }
+  .history-empty{
+    font-size:13px;
+    color:#7a7461;
+    text-align:center;
+    padding:10px 0;
+  }
+  .history-row{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:10px;
+    padding:10px 4px;
+    border-bottom:1px solid var(--birch-dim);
+    font-size:13px;
+  }
+  .history-row:last-child{ border-bottom:none; }
+  .history-date{
+    font-family:'JetBrains Mono',monospace;
+    font-size:11.5px;
+    color:#7a7461;
+    flex:none;
+    width:120px;
+  }
+  .history-cats{
+    flex:1;
+    color:#5b5648;
+    overflow:hidden;
+    text-overflow:ellipsis;
+    white-space:nowrap;
+  }
+  .history-score{
+    font-family:'JetBrains Mono',monospace;
+    font-weight:700;
+    flex:none;
+  }
+  .history-clear{
+    display:block;
+    margin:12px auto 0;
+    background:none;
+    border:none;
+    color:var(--lingon);
+    font-size:12px;
+    font-family:'Inter',sans-serif;
+    cursor:pointer;
+    text-decoration:underline;
+  }
+  .history-loading{
+    font-size:13px;
+    color:#7a7461;
+    text-align:center;
+    padding:10px 0;
+  }
+  .backup-section{
+    margin-top:18px;
+    padding-top:16px;
+    border-top:1px solid var(--birch-dim);
+  }
+  .backup-title{
+    font-size:13px;
+    font-weight:700;
+    color:#5b5648;
+    margin-bottom:6px;
+  }
+  .backup-desc{
+    font-size:12px;
+    color:#7a7461;
+    line-height:1.6;
+    margin:0 0 10px;
+  }
+  .backup-btns{
+    display:flex;
+    gap:8px;
+  }
+  .backup-btns .btn{
+    flex:1;
+    font-size:12.5px;
+    padding:10px 12px;
+  }
+  .backup-message{
+    font-size:12px;
+    color:var(--moss);
+    margin-top:8px;
+    min-height:14px;
+    font-weight:600;
+  }
+  .backup-message.error{ color:var(--lingon); }
+
+  .history-cap-note{
+    font-size:11px;
+    color:#9a9480;
+    text-align:center;
+    margin:-6px 0 14px;
+  }
+  .history-summary{
+    display:grid;
+    grid-template-columns:repeat(3, 1fr);
+    gap:8px;
+    margin-bottom:16px;
+  }
+  .summary-stat{
+    background:var(--birch-dim);
+    border-radius:10px;
+    padding:12px 6px;
+    text-align:center;
+  }
+  .summary-num{
+    font-family:'Unbounded',sans-serif;
+    font-weight:700;
+    font-size:20px;
+    color:var(--ink);
+  }
+  .summary-label{
+    font-size:10.5px;
+    color:#7a7461;
+    margin-top:2px;
+  }
+
+  .word-stats-search{
+    width:100%;
+    font-family:'Inter',sans-serif;
+    font-size:13px;
+    padding:9px 12px;
+    border-radius:10px;
+    border:1px solid var(--birch-dim);
+    background:#fff;
+    color:var(--ink);
+    margin-bottom:12px;
+  }
+  .word-stats-search:focus{ outline:2px solid var(--moss); }
+  .word-stat-row{
+    display:flex;
+    align-items:center;
+    gap:8px;
+    padding:9px 4px;
+    border-bottom:1px solid var(--birch-dim);
+    font-size:13px;
+  }
+  .word-stat-row:last-child{ border-bottom:none; }
+  .word-stat-fi{
+    font-weight:700;
+    flex:1 1 30%;
+    min-width:0;
+    overflow:hidden;
+    text-overflow:ellipsis;
+    white-space:nowrap;
+  }
+  .word-stat-ja{
+    color:#6b6656;
+    flex:1 1 28%;
+    min-width:0;
+    overflow:hidden;
+    text-overflow:ellipsis;
+    white-space:nowrap;
+  }
+  .word-stat-count{
+    font-family:'JetBrains Mono',monospace;
+    font-size:11.5px;
+    color:#5b5648;
+    flex:none;
+    width:64px;
+    text-align:right;
+  }
+  .box-dots{
+    display:flex;
+    gap:2px;
+    flex:none;
+  }
+  .box-dot{
+    width:7px;
+    height:7px;
+    border-radius:50%;
+    background:var(--birch-dim);
+  }
+  .box-dot.filled{ background:var(--moss); }
+  .word-stats-empty{
+    font-size:13px;
+    color:#7a7461;
+    text-align:center;
+    padding:10px 0;
+  }
+  .word-stats-count-label{
+    font-size:11.5px;
+    color:#7a7461;
+    margin-bottom:10px;
+  }
+</style>
+</head>
+<body>
+<div class="app">
+  <a class="back-link" href="index.html">← ほかの言語を見る</a>
+  <div class="eyebrow">བོད་ཡིག་སློབ་སྦྱོང་</div>
+  <h1>チベット文字</h1>
+  <div class="subtitle">チベット文字（子音30字＋母音記号4つ）の読み方を覚えるクイズ</div>
+
+  <div class="arc-wrap">
+    <svg class="arc-svg" viewBox="0 0 400 130">
+      <path id="arcTrack" class="arc-track" d="M 20 120 A 180 92 0 0 1 380 120"></path>
+      <path id="arcFill" class="arc-fill" d="M 20 120 A 180 92 0 0 1 380 120" stroke-dasharray="0 1000"></path>
+      <circle id="sunDot" class="sun" cx="20" cy="120" r="9" fill="#E2A63B"></circle>
+    </svg>
+    <div class="arc-caption" id="arcCaption">昇る太陽と一緒に進もう</div>
+  </div>
+
+  <!-- START SCREEN -->
+  <div class="card" id="startScreen">
+    <div class="level-note">レベル：入門（文字の読み方のみ。単語の意味は含みません）</div>
+    <div class="cat-select-row">
+      <button type="button" class="link-btn" id="selectAllBtn">すべて選択</button>
+      <span class="cat-select-sep">・</span>
+      <button type="button" class="link-btn" id="deselectAllBtn">選択を解除</button>
+    </div>
+    <div class="cat-grid-scroll">
+      <div class="cat-grid" id="catGrid"></div>
+    </div>
+    <button class="btn btn-primary" id="startBtn">はじめる</button>
+    <div class="inline-warning hidden" id="startWarning">少なくとも1つカテゴリーを選んでください</div>
+    <button class="btn btn-ghost" id="historyToggleBtn" style="margin-top:10px;">記録を見る</button>
+    <div id="historyPanel" class="history-panel hidden"></div>
+    <button class="btn btn-ghost" id="wordStatsToggleBtn" style="margin-top:10px;">単語ごとの学習記録を見る</button>
+    <div id="wordStatsPanel" class="history-panel hidden"></div>
+
+    <div class="backup-section">
+      <div class="backup-title">💾 データのバックアップ</div>
+      <p class="backup-desc">記録はこのブラウザの中にだけ保存されています。ブラウザのデータを消したり、他の端末に変えたりすると記録が失われるので、時々バックアップファイルを保存しておくと安心です。</p>
+      <div class="backup-btns">
+        <button class="btn btn-ghost" id="exportBtn" type="button">バックアップを保存</button>
+        <button class="btn btn-ghost" id="importBtn" type="button">バックアップから復元</button>
+      </div>
+      <input type="file" id="importFileInput" accept="application/json" class="hidden">
+      <div class="backup-message" id="backupMessage"></div>
+    </div>
+  </div>
+
+  <!-- QUIZ SCREEN -->
+  <div class="card hidden" id="quizScreen">
+    <div class="quiz-meta">
+      <span id="qIndex">問題 1 / 15</span>
+      <span>連続正解 <span class="streak" id="streakCount">0</span></span>
+      <button class="quit-btn" id="quitBtn" type="button">✕ やめる</button>
+    </div>
+    <div class="word-fi-row">
+      <div class="word-fi" id="wordFi">kiitos</div>
+      <button class="speak-btn" id="speakBtn" type="button" aria-label="発音を再生">🔊</button>
+    </div>
+    <div class="word-cat" id="wordCat">tervehdykset</div>
+    <div class="word-tag" id="wordTag"></div>
+    <div class="voice-note hidden" id="voiceNote">この端末にはフィンランド語の音声が見つからないため、発音の再生をスキップしています</div>
+    <div class="voice-label" id="voiceLabel"></div>
+    <div class="options" id="optionsGrid"></div>
+  </div>
+
+  <!-- RESULT SCREEN -->
+  <div class="card hidden" id="resultScreen">
+    <div class="score-big" id="scoreBig">12 / 15</div>
+    <div class="score-label" id="scoreLabel">お見事！</div>
+    <div id="missedWrap"></div>
+    <div class="result-btns">
+      <button class="btn btn-ghost" id="backBtn">カテゴリーを選び直す</button>
+      <button class="btn btn-primary" id="retryBtn">もう一度</button>
+    </div>
+  </div>
+
+  <div class="changelog">
+    <div class="changelog-title">📝 更新履歴</div>
+    <ul class="changelog-list">
+      <li><span class="changelog-date">2026-07-15</span><span>チベット文字を覚えるクイズを公開（子音30字＋母音記号4つ）</span></li>
+      <li><span class="changelog-date">2026-07-05</span><span>単語数を541語に拡充。旅行・社会的な場面・国名などのカテゴリーを追加</span></li>
+      <li><span class="changelog-date">2026-07-05</span><span>記録のバックアップ保存・復元機能を追加。言語ごとに記録を分離</span></li>
+      <li><span class="changelog-date">2026-07-04</span><span>発音の音声ファイルを追加(収録済み音声で再生されるように改善)</span></li>
+      <li><span class="changelog-date">2026-07-04</span><span>単語ごとの学習記録・忘却曲線を考慮した出題ロジックを追加</span></li>
+      <li><span class="changelog-date">2026-07-04</span><span>単語数を359語に拡充(カテゴリーを大幅に追加)</span></li>
+      <li><span class="changelog-date">2026-07-03</span><span>公開</span></li>
+    </ul>
+  </div>
+
+  <div class="feedback-link-row">
+    感想・要望は<a href="feedback.html">こちら</a>から気軽にどうぞ
+  </div>
+</div>
+
+<div class="modal-overlay hidden" id="confirmOverlay">
+  <div class="modal-box">
+    <div class="modal-message" id="confirmMessage">クイズを中断しますか？</div>
+    <div class="modal-btns">
+      <button class="btn btn-ghost" id="confirmCancelBtn">キャンセル</button>
+      <button class="btn btn-primary" id="confirmOkBtn">中断する</button>
+    </div>
+  </div>
+</div>
+
+<script>
+(function(){
+  const WORDS = [
+    // consonants — 基本子音（30字）
+    {fi:"ཀ", ja:"ka（カ）", cat:"consonants"},
+    {fi:"ཁ", ja:"kha（カ）", cat:"consonants"},
+    {fi:"ག", ja:"ga（ガ）", cat:"consonants"},
+    {fi:"ང", ja:"nga（ンガ）", cat:"consonants"},
+    {fi:"ཅ", ja:"ca（チャ）", cat:"consonants"},
+    {fi:"ཆ", ja:"cha（チャ）", cat:"consonants"},
+    {fi:"ཇ", ja:"ja（ジャ）", cat:"consonants"},
+    {fi:"ཉ", ja:"nya（ニャ）", cat:"consonants"},
+    {fi:"ཏ", ja:"ta（タ）", cat:"consonants"},
+    {fi:"ཐ", ja:"tha（タ）", cat:"consonants"},
+    {fi:"ད", ja:"da（ダ）", cat:"consonants"},
+    {fi:"ན", ja:"na（ナ）", cat:"consonants"},
+    {fi:"པ", ja:"pa（パ）", cat:"consonants"},
+    {fi:"ཕ", ja:"pha（パ）", cat:"consonants"},
+    {fi:"བ", ja:"ba（バ）", cat:"consonants"},
+    {fi:"མ", ja:"ma（マ）", cat:"consonants"},
+    {fi:"ཙ", ja:"tsa（ツァ）", cat:"consonants"},
+    {fi:"ཚ", ja:"tsha（ツァ）", cat:"consonants"},
+    {fi:"ཛ", ja:"dza（ヅァ）", cat:"consonants"},
+    {fi:"ཝ", ja:"wa（ワ）", cat:"consonants"},
+    {fi:"ཞ", ja:"zha（ジャ）", cat:"consonants"},
+    {fi:"ཟ", ja:"za（ザ）", cat:"consonants"},
+    {fi:"འ", ja:"'a（ア）", cat:"consonants"},
+    {fi:"ཡ", ja:"ya（ヤ）", cat:"consonants"},
+    {fi:"ར", ja:"ra（ラ）", cat:"consonants"},
+    {fi:"ལ", ja:"la（ラ）", cat:"consonants"},
+    {fi:"ཤ", ja:"sha（シャ）", cat:"consonants"},
+    {fi:"ས", ja:"sa（サ）", cat:"consonants"},
+    {fi:"ཧ", ja:"ha（ハ）", cat:"consonants"},
+    {fi:"ཨ", ja:"a（ア）", cat:"consonants"},
+    // vowels — 母音記号（4つ・「ཀ」に付けた例）
+    {fi:"ཀི", ja:"ki（キ）", cat:"vowels"},
+    {fi:"ཀུ", ja:"ku（ク）", cat:"vowels"},
+    {fi:"ཀེ", ja:"ke（ケ）", cat:"vowels"},
+    {fi:"ཀོ", ja:"ko（コ）", cat:"vowels"},
+  ];
+
+  const CATS = [...new Set(WORDS.map(w=>w.cat))];
+  const CAT_LABELS = {
+    "consonants": "基本子音（30字）",
+    "vowels": "母音記号（4つ・「ཀ」に付けた例）",
+  };
+  function catLabel(cat){
+    return CAT_LABELS[cat] ? `${CAT_LABELS[cat]}（${cat}）` : cat;
+  }
+  const ROUND_SIZE = 15;
+
+  const els = {
+    startScreen: document.getElementById('startScreen'),
+    quizScreen: document.getElementById('quizScreen'),
+    resultScreen: document.getElementById('resultScreen'),
+    catGrid: document.getElementById('catGrid'),
+    startBtn: document.getElementById('startBtn'),
+    selectAllBtn: document.getElementById('selectAllBtn'),
+    deselectAllBtn: document.getElementById('deselectAllBtn'),
+    qIndex: document.getElementById('qIndex'),
+    streakCount: document.getElementById('streakCount'),
+    wordFi: document.getElementById('wordFi'),
+    wordCat: document.getElementById('wordCat'),
+    wordTag: document.getElementById('wordTag'),
+    optionsGrid: document.getElementById('optionsGrid'),
+    scoreBig: document.getElementById('scoreBig'),
+    scoreLabel: document.getElementById('scoreLabel'),
+    missedWrap: document.getElementById('missedWrap'),
+    backBtn: document.getElementById('backBtn'),
+    retryBtn: document.getElementById('retryBtn'),
+    arcFill: document.getElementById('arcFill'),
+    sunDot: document.getElementById('sunDot'),
+    arcCaption: document.getElementById('arcCaption'),
+    historyToggleBtn: document.getElementById('historyToggleBtn'),
+    historyPanel: document.getElementById('historyPanel'),
+    wordStatsToggleBtn: document.getElementById('wordStatsToggleBtn'),
+    wordStatsPanel: document.getElementById('wordStatsPanel'),
+    exportBtn: document.getElementById('exportBtn'),
+    importBtn: document.getElementById('importBtn'),
+    importFileInput: document.getElementById('importFileInput'),
+    backupMessage: document.getElementById('backupMessage'),
+    speakBtn: document.getElementById('speakBtn'),
+    voiceNote: document.getElementById('voiceNote'),
+    voiceLabel: document.getElementById('voiceLabel'),
+    quitBtn: document.getElementById('quitBtn'),
+    startWarning: document.getElementById('startWarning'),
+    confirmOverlay: document.getElementById('confirmOverlay'),
+    confirmMessage: document.getElementById('confirmMessage'),
+    confirmCancelBtn: document.getElementById('confirmCancelBtn'),
+    confirmOkBtn: document.getElementById('confirmOkBtn'),
+  };
+
+  let selectedCats = new Set(CATS);
+  let deck = [];
+  let qi = 0;
+  let score = 0;
+  let streak = 0;
+  let bestStreak = 0;
+  let missed = [];
+  let arcLen = 0;
+  let locked = false;
+  let roundActive = false;
+
+  // --- spaced repetition (Leitner-style) ---
+  const WORD_STATS_KEY = 'quiz-word-stats-bo';
+  const BOX_INTERVAL_DAYS = [0, 1, 3, 7, 14, 30]; // box 0 (new/wrong) .. box 5 (mastered)
+  let wordStats = {};
+
+  function loadWordStats(){
+    try{
+      const raw = localStorage.getItem(WORD_STATS_KEY);
+      wordStats = raw ? JSON.parse(raw) : {};
+      if(!wordStats || typeof wordStats !== 'object') wordStats = {};
+    }catch(err){
+      wordStats = {};
+    }
+  }
+
+  function persistWordStats(){
+    try{
+      localStorage.setItem(WORD_STATS_KEY, JSON.stringify(wordStats));
+    }catch(err){
+      console.error('学習状況の保存に失敗しました', err);
+    }
+  }
+
+  function updateWordStat(word, correct){
+    const stat = wordStats[word.fi] || {box: 0, seenCount: 0, correctCount: 0};
+    stat.seenCount = (stat.seenCount || 0) + 1;
+    if(correct) stat.correctCount = (stat.correctCount || 0) + 1;
+    stat.box = correct ? Math.min(stat.box + 1, BOX_INTERVAL_DAYS.length - 1) : 0;
+    const dueDate = new Date(Date.now() + BOX_INTERVAL_DAYS[stat.box] * 86400000);
+    stat.due = dueDate.toISOString();
+    wordStats[word.fi] = stat;
+    persistWordStats();
+  }
+
+  // Weight: never-seen words get a strong boost (so new words keep appearing),
+  // overdue review words get boosted the longer they've been overdue, and
+  // words that were just reviewed and aren't due yet get a small weight so
+  // they can still occasionally show up for extra reinforcement.
+  function getWordWeight(word){
+    const stat = wordStats[word.fi];
+    if(!stat) return 5;
+    const dueTime = new Date(stat.due).getTime();
+    const now = Date.now();
+    if(now >= dueTime){
+      const overdueDays = (now - dueTime) / 86400000;
+      return 3 + Math.min(overdueDays, 10) * 0.3;
+    }
+    return 0.15;
+  }
+
+  // Efraimidis–Spirakis weighted sampling without replacement.
+  function weightedSample(pool, k){
+    const keyed = pool.map(item => ({
+      item,
+      key: Math.pow(Math.random(), 1 / Math.max(getWordWeight(item), 0.01)),
+    }));
+    keyed.sort((a, b) => b.key - a.key);
+    return keyed.slice(0, k).map(x => x.item);
+  }
+
+  loadWordStats();
+
+  // --- pre-recorded audio files (preferred) ---
+  const AUDIO_BASE = 'audio/bo';
+  const NATIVE_LANG_PREFIXES = ["bo"];
+  let audioManifest = {};
+  let audioManifestLoaded = false;
+  let currentAudio = null;
+
+  fetch(`${AUDIO_BASE}/manifest.json`)
+    .then(res => { if(!res.ok) throw new Error('manifest not found'); return res.json(); })
+    .then(data => {
+      audioManifest = data || {};
+      audioManifestLoaded = Object.keys(audioManifest).length > 0;
+      updateSpeakAvailability();
+    })
+    .catch(() => {
+      // No pre-recorded audio uploaded yet (or running from a local file where
+      // fetch() can't load it) — the game just falls back to browser speech.
+      audioManifest = {};
+      audioManifestLoaded = false;
+    });
+
+  let finnishVoice = null;
+  let voiceAvailable = false;
+  function pickFinnishVoice(){
+    if(!('speechSynthesis' in window)) return;
+    const voices = window.speechSynthesis.getVoices();
+    if(!voices.length) return;
+    // Prefer an actual native voice. Failing that, fall back to English rather
+    // than letting the browser silently default to a Japanese system voice,
+    // which mispronounces the word badly.
+    finnishVoice =
+      NATIVE_LANG_PREFIXES.map(p => voices.find(v => v.lang && v.lang.toLowerCase().startsWith(p))).find(Boolean) ||
+      null;
+    voiceAvailable = !!finnishVoice;
+    updateSpeakAvailability();
+  }
+  if('speechSynthesis' in window){
+    pickFinnishVoice();
+    window.speechSynthesis.onvoiceschanged = pickFinnishVoice;
+  } else {
+    updateSpeakAvailability();
+  }
+
+  function updateSpeakAvailability(){
+    if(!els.speakBtn) return;
+    if(audioManifestLoaded){
+      // Pre-recorded audio is available for at least some words — always keep
+      // the button enabled; per-word fallback to synthesis (or silence) is
+      // handled inside speakWord() itself.
+      els.speakBtn.disabled = false;
+      els.speakBtn.title = '発音を再生';
+      els.voiceNote.classList.add('hidden');
+      return;
+    }
+    if(voiceAvailable){
+      els.speakBtn.disabled = false;
+      els.speakBtn.title = '発音を再生';
+      els.voiceNote.classList.add('hidden');
+      const isReallyNative = NATIVE_LANG_PREFIXES.some(p => finnishVoice.lang && finnishVoice.lang.toLowerCase().startsWith(p));
+      els.voiceLabel.textContent = isReallyNative
+        ? `使用中の音声: ${finnishVoice.name}（${finnishVoice.lang}）`
+        : `この言語の音声が見つからないため代替音声を使用中: ${finnishVoice.name}（${finnishVoice.lang}）`;
+    } else {
+      els.speakBtn.disabled = true;
+      els.speakBtn.title = 'この端末では発音の再生に対応していません';
+      els.voiceNote.classList.remove('hidden');
+      els.voiceLabel.textContent = '';
+    }
+  }
+
+  let speakToken = 0;
+
+  function speakWithSynthesis(text){
+    if(!('speechSynthesis' in window) || !finnishVoice) return;
+    const myToken = ++speakToken;
+    try{
+      window.speechSynthesis.cancel();
+      // Calling speak() immediately after cancel() is unreliable in some
+      // browsers (Chrome especially) and tends to garble or cut off longer
+      // words. A short delay lets the cancel actually take effect first.
+      setTimeout(()=>{
+        if(myToken !== speakToken) return; // a newer speak request superseded this one
+        try{
+          const utter = new SpeechSynthesisUtterance(text);
+          utter.voice = finnishVoice;
+          utter.lang = finnishVoice.lang;
+          utter.rate = 0.85;
+          els.speakBtn.classList.add('speaking');
+          utter.onend = () => els.speakBtn.classList.remove('speaking');
+          utter.onerror = () => els.speakBtn.classList.remove('speaking');
+          window.speechSynthesis.speak(utter);
+        }catch(err){
+          console.error('音声の再生に失敗しました', err);
+        }
+      }, 80);
+    }catch(err){
+      console.error('音声の再生に失敗しました', err);
+    }
+  }
+
+  function speakWord(text){
+    const filename = audioManifest[text];
+    if(filename){
+      speakToken++; // supersede any pending synthesis fallback
+      try{
+        if(currentAudio){ currentAudio.pause(); }
+        currentAudio = new Audio(`${AUDIO_BASE}/${filename}`);
+        els.speakBtn.classList.add('speaking');
+        currentAudio.onended = () => els.speakBtn.classList.remove('speaking');
+        currentAudio.onerror = () => {
+          els.speakBtn.classList.remove('speaking');
+          speakWithSynthesis(text); // the file failed to load — fall back
+        };
+        const playPromise = currentAudio.play();
+        if(playPromise && playPromise.catch){
+          playPromise.catch(() => els.speakBtn.classList.remove('speaking'));
+        }
+      }catch(err){
+        console.error('音声ファイルの再生に失敗しました', err);
+        speakWithSynthesis(text);
+      }
+      return;
+    }
+    speakWithSynthesis(text);
+  }
+
+  function showConfirmModal(message, onConfirm){
+    els.confirmMessage.textContent = message;
+    els.confirmOverlay.classList.remove('hidden');
+
+    function cleanup(){
+      els.confirmOverlay.classList.add('hidden');
+      els.confirmOkBtn.removeEventListener('click', onOk);
+      els.confirmCancelBtn.removeEventListener('click', onCancel);
+    }
+    function onOk(){ cleanup(); onConfirm(); }
+    function onCancel(){ cleanup(); }
+
+    els.confirmOkBtn.addEventListener('click', onOk);
+    els.confirmCancelBtn.addEventListener('click', onCancel);
+  }
+
+  function shuffle(arr){
+    const a = arr.slice();
+    for(let i=a.length-1;i>0;i--){
+      const j = Math.floor(Math.random()*(i+1));
+      [a[i],a[j]] = [a[j],a[i]];
+    }
+    return a;
+  }
+
+  function buildCatGrid(){
+    els.catGrid.innerHTML = '';
+    CATS.forEach(cat=>{
+      const count = WORDS.filter(w=>w.cat===cat).length;
+      const label = document.createElement('label');
+      label.className = 'cat-chip active';
+      label.innerHTML = `
+        <input type="checkbox" checked data-cat="${cat}">
+        <span class="cat-chip-text">
+          <span class="cat-chip-ja">${CAT_LABELS[cat] || cat}</span>
+          <span class="cat-chip-fi">${cat}</span>
+        </span>
+        <span class="cat-count">${count}</span>
+      `;
+      const input = label.querySelector('input');
+      input.addEventListener('change', ()=>{
+        if(input.checked){ selectedCats.add(cat); label.classList.add('active'); }
+        else { selectedCats.delete(cat); label.classList.remove('active'); }
+      });
+      els.catGrid.appendChild(label);
+    });
+  }
+
+  function showScreen(name){
+    els.startScreen.classList.toggle('hidden', name!=='start');
+    els.quizScreen.classList.toggle('hidden', name!=='quiz');
+    els.resultScreen.classList.toggle('hidden', name!=='result');
+  }
+
+  function initArc(){
+    arcLen = els.arcFill.getTotalLength();
+    els.arcFill.style.strokeDasharray = arcLen;
+    els.arcFill.style.strokeDashoffset = arcLen;
+  }
+
+  function updateArc(progressFraction){
+    const offset = arcLen * (1 - progressFraction);
+    els.arcFill.style.strokeDashoffset = offset;
+    const point = els.arcFill.getPointAtLength(arcLen * progressFraction);
+    els.sunDot.setAttribute('cx', point.x);
+    els.sunDot.setAttribute('cy', point.y);
+  }
+
+  function startRound(){
+    const pool = WORDS.filter(w=>selectedCats.has(w.cat));
+    const size = Math.min(ROUND_SIZE, pool.length);
+    deck = shuffle(weightedSample(pool, size));
+    qi = 0; score = 0; streak = 0; bestStreak = 0; missed = [];
+    roundActive = true;
+    showScreen('quiz');
+    initArc();
+    updateArc(0);
+    renderQuestion();
+  }
+
+  function renderQuestion(){
+    locked = false;
+    const item = deck[qi];
+    els.qIndex.textContent = `問題 ${qi+1} / ${deck.length}`;
+    els.streakCount.textContent = streak;
+    els.wordFi.textContent = item.fi;
+    els.wordCat.textContent = catLabel(item.cat);
+    const stat = wordStats[item.fi];
+    if(!stat){
+      els.wordTag.textContent = '🆕 新出単語';
+    } else if(Date.now() >= new Date(stat.due).getTime()){
+      els.wordTag.textContent = '🔁 復習のタイミング';
+    } else {
+      els.wordTag.textContent = '';
+    }
+    speakWord(item.fi);
+
+    const wrongPool = WORDS.filter(w=>w.ja!==item.ja);
+    const wrongs = shuffle(wrongPool).slice(0,3);
+    const options = shuffle([item, ...wrongs]);
+
+    els.optionsGrid.innerHTML = '';
+    options.forEach((opt, idx)=>{
+      const btn = document.createElement('button');
+      btn.className = 'opt';
+      btn.dataset.ja = opt.ja;
+      btn.innerHTML = `<span class="opt-num">${idx+1}</span>${opt.ja}`;
+      btn.addEventListener('click', ()=>handleAnswer(btn, opt, item));
+      els.optionsGrid.appendChild(btn);
+    });
+  }
+
+  function handleAnswer(btn, opt, item){
+    if(locked) return;
+    locked = true;
+    const correct = opt.ja === item.ja;
+    const allBtns = Array.from(els.optionsGrid.children);
+    allBtns.forEach(b=>b.disabled = true);
+    updateWordStat(item, correct);
+
+    if(correct){
+      btn.classList.add('correct');
+      score++;
+      streak++;
+      bestStreak = Math.max(bestStreak, streak);
+    } else {
+      btn.classList.add('wrong');
+      streak = 0;
+      missed.push(item);
+      const correctBtn = allBtns.find(b=>b.dataset.ja===item.ja);
+      if(correctBtn) correctBtn.classList.add('correct');
+    }
+    els.streakCount.textContent = streak;
+    updateArc((qi+1)/deck.length);
+
+    setTimeout(()=>{
+      if(!roundActive) return;
+      qi++;
+      if(qi < deck.length){
+        renderQuestion();
+      } else {
+        showResult();
+      }
+    }, correct ? 550 : 1000);
+  }
+
+  function showResult(){
+    showScreen('result');
+    els.scoreBig.textContent = `${score} / ${deck.length}`;
+    const pct = score/deck.length;
+    let label = '';
+    if(pct === 1) label = '満点！お見事です';
+    else if(pct >= 0.8) label = 'とても良い調子';
+    else if(pct >= 0.5) label = 'いい感じ、続けよう';
+    else label = 'もう一度挑戦してみよう';
+    els.scoreLabel.textContent = `${label}（最長連続正解 ${bestStreak}）`;
+
+    updateTotals(score, deck.length);
+    addHistoryEntry({
+      date: new Date().toISOString(),
+      score: score,
+      total: deck.length,
+      bestStreak: bestStreak,
+      categories: Array.from(selectedCats),
+      missedWords: missed.map(m => ({fi: m.fi, ja: m.ja})),
+    });
+
+    els.missedWrap.innerHTML = '';
+    if(missed.length){
+      const title = document.createElement('div');
+      title.className = 'missed-title';
+      title.textContent = `間違えた単語（${missed.length}）`;
+      els.missedWrap.appendChild(title);
+      missed.forEach(m=>{
+        const row = document.createElement('div');
+        row.className = 'missed-row';
+        row.innerHTML = `<span class="fi">${m.fi}</span><span class="ja">${m.ja}</span>`;
+        els.missedWrap.appendChild(row);
+      });
+    }
+  }
+
+  const HISTORY_KEY = 'quiz-history-log-bo';
+  const MAX_HISTORY = 50;
+  const TOTALS_KEY = 'quiz-totals-bo';
+
+  function getTotals(){
+    try{
+      const raw = localStorage.getItem(TOTALS_KEY);
+      const parsed = raw ? JSON.parse(raw) : null;
+      if(parsed && typeof parsed === 'object'){
+        return {
+          plays: parsed.plays || 0,
+          questions: parsed.questions || 0,
+          correct: parsed.correct || 0,
+        };
+      }
+    }catch(err){ /* fall through to default */ }
+    return { plays: 0, questions: 0, correct: 0 };
+  }
+
+  function updateTotals(score, total){
+    try{
+      const totals = getTotals();
+      totals.plays += 1;
+      totals.questions += total;
+      totals.correct += score;
+      localStorage.setItem(TOTALS_KEY, JSON.stringify(totals));
+    }catch(err){
+      console.error('累計記録の保存に失敗しました', err);
+    }
+  }
+
+  async function getHistory(){
+    try{
+      const raw = localStorage.getItem(HISTORY_KEY);
+      if(!raw) return [];
+      const parsed = JSON.parse(raw);
+      return Array.isArray(parsed) ? parsed : [];
+    }catch(err){
+      return [];
+    }
+  }
+
+  async function addHistoryEntry(entry){
+    try{
+      const current = await getHistory();
+      const updated = [entry, ...current].slice(0, MAX_HISTORY);
+      localStorage.setItem(HISTORY_KEY, JSON.stringify(updated));
+    }catch(err){
+      // storage unavailable (e.g. private browsing) — the round still completes without saving
+      console.error('履歴の保存に失敗しました', err);
+    }
+  }
+
+  async function clearHistory(){
+    try{
+      localStorage.removeItem(HISTORY_KEY);
+    }catch(err){
+      console.error('履歴の削除に失敗しました', err);
+    }
+  }
+
+  function formatDate(iso){
+    const d = new Date(iso);
+    const mm = String(d.getMonth()+1).padStart(2,'0');
+    const dd = String(d.getDate()).padStart(2,'0');
+    const hh = String(d.getHours()).padStart(2,'0');
+    const mi = String(d.getMinutes()).padStart(2,'0');
+    return `${mm}/${dd} ${hh}:${mi}`;
+  }
+
+  function renderHistoryList(logs){
+    els.historyPanel.innerHTML = '';
+    if(!logs.length){
+      const empty = document.createElement('div');
+      empty.className = 'history-empty';
+      empty.textContent = 'まだ記録がありません。1回プレイすると、ここに履歴が残ります。';
+      els.historyPanel.appendChild(empty);
+      return;
+    }
+
+    // --- aggregate summary: use the uncapped lifetime totals, not just the
+    // (max 50) stored session log, so heavy players see accurate numbers ---
+    const totals = getTotals();
+    const overallAccuracy = totals.questions ? Math.round((totals.correct/totals.questions)*100) : 0;
+    const missTally = {}; // "fi|ja" -> {fi, ja, count}
+    logs.forEach(entry=>{
+      (entry.missedWords || []).forEach(m=>{
+        const key = m.fi + '|' + m.ja;
+        if(!missTally[key]) missTally[key] = {fi: m.fi, ja: m.ja, count: 0};
+        missTally[key].count++;
+      });
+    });
+    const topMissed = Object.values(missTally).sort((a,b)=>b.count-a.count).slice(0,5);
+
+    const summary = document.createElement('div');
+    summary.className = 'history-summary';
+    summary.innerHTML = `
+      <div class="summary-stat">
+        <div class="summary-num">${totals.plays}</div>
+        <div class="summary-label">プレイ回数</div>
+      </div>
+      <div class="summary-stat">
+        <div class="summary-num">${overallAccuracy}%</div>
+        <div class="summary-label">通算正答率</div>
+      </div>
+      <div class="summary-stat">
+        <div class="summary-num">${totals.questions}</div>
+        <div class="summary-label">累計出題数</div>
+      </div>
+    `;
+    els.historyPanel.appendChild(summary);
+    if(logs.length < totals.plays){
+      const note = document.createElement('div');
+      note.className = 'history-cap-note';
+      note.textContent = `※ プレイ履歴の一覧は直近${MAX_HISTORY}件までの表示です（集計は全期間分）`;
+      els.historyPanel.appendChild(note);
+    }
+
+    if(topMissed.length){
+      const weakTitle = document.createElement('div');
+      weakTitle.className = 'missed-title';
+      weakTitle.textContent = '苦手な単語 トップ5';
+      els.historyPanel.appendChild(weakTitle);
+      topMissed.forEach(m=>{
+        const row = document.createElement('div');
+        row.className = 'missed-row';
+        row.innerHTML = `<span class="fi">${m.fi}</span><span class="ja">${m.ja}（${m.count}回間違い）</span>`;
+        els.historyPanel.appendChild(row);
+      });
+    }
+
+    const sessionsTitle = document.createElement('div');
+    sessionsTitle.className = 'missed-title';
+    sessionsTitle.textContent = 'プレイ履歴';
+    els.historyPanel.appendChild(sessionsTitle);
+
+    logs.forEach(entry=>{
+      const row = document.createElement('div');
+      row.className = 'history-row';
+      const pct = entry.total ? Math.round((entry.score/entry.total)*100) : 0;
+      row.innerHTML = `
+        <span class="history-date">${formatDate(entry.date)}</span>
+        <span class="history-cats">${entry.categories.map(catLabel).join(' / ')}</span>
+        <span class="history-score">${entry.score}/${entry.total}（${pct}%）</span>
+      `;
+      els.historyPanel.appendChild(row);
+    });
+
+    const clearBtn = document.createElement('button');
+    clearBtn.className = 'history-clear';
+    clearBtn.textContent = '記録を消去する';
+    clearBtn.addEventListener('click', async ()=>{
+      clearBtn.disabled = true;
+      await clearHistory();
+      renderHistoryList([]);
+    });
+    els.historyPanel.appendChild(clearBtn);
+  }
+
+  async function toggleHistoryPanel(){
+    const isHidden = els.historyPanel.classList.contains('hidden');
+    if(isHidden){
+      els.historyPanel.classList.remove('hidden');
+      els.historyPanel.innerHTML = '<div class="history-loading">読み込み中…</div>';
+      const logs = await getHistory();
+      renderHistoryList(logs);
+      els.historyToggleBtn.textContent = '記録を隠す';
+    } else {
+      els.historyPanel.classList.add('hidden');
+      els.historyToggleBtn.textContent = '記録を見る';
+    }
+  }
+
+
+  function renderWordStatsList(filterText){
+    els.wordStatsPanel.innerHTML = '';
+
+    const search = document.createElement('input');
+    search.type = 'text';
+    search.className = 'word-stats-search';
+    search.placeholder = '単語を検索（フィンランド語 または 日本語）';
+    search.value = filterText || '';
+    search.addEventListener('input', ()=> renderWordStatsList(search.value));
+    els.wordStatsPanel.appendChild(search);
+
+    const query = (filterText || '').trim().toLowerCase();
+    let rows = WORDS
+      .map(w => ({ word: w, stat: wordStats[w.fi] || null }))
+      .filter(r => r.stat && r.stat.seenCount > 0);
+
+    if(query){
+      rows = WORDS
+        .map(w => ({ word: w, stat: wordStats[w.fi] || null }))
+        .filter(r => r.word.fi.toLowerCase().includes(query) || r.word.ja.toLowerCase().includes(query));
+    }
+
+    rows.sort((a, b) => (b.stat ? b.stat.seenCount : 0) - (a.stat ? a.stat.seenCount : 0));
+
+    const countLabel = document.createElement('div');
+    countLabel.className = 'word-stats-count-label';
+    countLabel.textContent = query
+      ? `${rows.length}件ヒット`
+      : `これまでに学習した単語: ${rows.length} / ${WORDS.length}語`;
+    els.wordStatsPanel.appendChild(countLabel);
+
+    if(!rows.length){
+      const empty = document.createElement('div');
+      empty.className = 'word-stats-empty';
+      empty.textContent = query
+        ? '一致する単語が見つかりません。'
+        : 'まだ学習記録がありません。クイズをプレイすると、ここに単語ごとの記録が表示されます。';
+      els.wordStatsPanel.appendChild(empty);
+      return;
+    }
+
+    rows.forEach(({word, stat})=>{
+      const seenCount = stat ? stat.seenCount : 0;
+      const correctCount = stat ? (stat.correctCount || 0) : 0;
+      const box = stat ? stat.box : 0;
+      const row = document.createElement('div');
+      row.className = 'word-stat-row';
+      const dots = Array.from({length: BOX_INTERVAL_DAYS.length - 1}, (_, i) =>
+        `<span class="box-dot ${i < box ? 'filled' : ''}"></span>`
+      ).join('');
+      row.innerHTML = `
+        <span class="word-stat-fi">${word.fi}</span>
+        <span class="word-stat-ja">${word.ja}</span>
+        <span class="word-stat-count">${seenCount}回中${correctCount}正解</span>
+        <span class="box-dots" title="習熟度">${dots}</span>
+      `;
+      els.wordStatsPanel.appendChild(row);
+    });
+  }
+
+  function toggleWordStatsPanel(){
+    const isHidden = els.wordStatsPanel.classList.contains('hidden');
+    if(isHidden){
+      els.wordStatsPanel.classList.remove('hidden');
+      renderWordStatsList('');
+      els.wordStatsToggleBtn.textContent = '単語ごとの学習記録を隠す';
+    } else {
+      els.wordStatsPanel.classList.add('hidden');
+      els.wordStatsToggleBtn.textContent = '単語ごとの学習記録を見る';
+    }
+  }
+
+  function setAllCategories(checked){
+    const inputs = els.catGrid.querySelectorAll('input[type="checkbox"]');
+    inputs.forEach(input => {
+      input.checked = checked;
+      const cat = input.dataset.cat;
+      const chip = input.closest('.cat-chip');
+      if(checked){
+        selectedCats.add(cat);
+        if(chip) chip.classList.add('active');
+      } else {
+        selectedCats.delete(cat);
+        if(chip) chip.classList.remove('active');
+      }
+    });
+  }
+  els.selectAllBtn.addEventListener('click', ()=> setAllCategories(true));
+  els.deselectAllBtn.addEventListener('click', ()=> setAllCategories(false));
+
+  els.startBtn.addEventListener('click', ()=>{
+    if(selectedCats.size === 0){
+      els.startWarning.classList.remove('hidden');
+      return;
+    }
+    els.startWarning.classList.add('hidden');
+    startRound();
+  });
+  els.retryBtn.addEventListener('click', startRound);
+  els.backBtn.addEventListener('click', ()=>showScreen('start'));
+  els.historyToggleBtn.addEventListener('click', toggleHistoryPanel);
+  els.wordStatsToggleBtn.addEventListener('click', toggleWordStatsPanel);
+
+  function showBackupMessage(text, isError){
+    els.backupMessage.textContent = text;
+    els.backupMessage.classList.toggle('error', !!isError);
+  }
+
+  function exportBackupData(){
+    try{
+      const historyRaw = localStorage.getItem(HISTORY_KEY);
+      const statsRaw = localStorage.getItem(WORD_STATS_KEY);
+      const totalsRaw = localStorage.getItem(TOTALS_KEY);
+      const payload = {
+        app: 'sanapelit',
+        totals: totalsRaw ? JSON.parse(totalsRaw) : null,
+        language: 'fi',
+        exportedAt: new Date().toISOString(),
+        history: historyRaw ? JSON.parse(historyRaw) : [],
+        wordStats: statsRaw ? JSON.parse(statsRaw) : {},
+      };
+      const blob = new Blob([JSON.stringify(payload, null, 2)], {type: 'application/json'});
+      const url = URL.createObjectURL(blob);
+      const dateStr = new Date().toISOString().slice(0,10);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `sanapelit-fi-backup-${dateStr}.json`;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      URL.revokeObjectURL(url);
+      showBackupMessage('バックアップファイルを保存しました。');
+    }catch(err){
+      console.error('バックアップの保存に失敗しました', err);
+      showBackupMessage('バックアップの保存に失敗しました。', true);
+    }
+  }
+
+  function restoreBackupData(file){
+    const reader = new FileReader();
+    reader.onload = () => {
+      try{
+        const data = JSON.parse(reader.result);
+        if(!data || (!Array.isArray(data.history) && typeof data.wordStats !== 'object')){
+          throw new Error('invalid backup file');
+        }
+        showConfirmModal('バックアップを復元しますか？現在この端末に保存されている記録は上書きされます。', () => {
+          localStorage.setItem(HISTORY_KEY, JSON.stringify(data.history || []));
+          localStorage.setItem(WORD_STATS_KEY, JSON.stringify(data.wordStats || {}));
+          if(data.totals){ localStorage.setItem(TOTALS_KEY, JSON.stringify(data.totals)); }
+          wordStats = data.wordStats || {};
+          showBackupMessage('バックアップから復元しました。');
+          if(!els.historyPanel.classList.contains('hidden')){
+            getHistory().then(renderHistoryList);
+          }
+          if(!els.wordStatsPanel.classList.contains('hidden')){
+            renderWordStatsList('');
+          }
+        });
+      }catch(err){
+        console.error('バックアップの読み込みに失敗しました', err);
+        showBackupMessage('このファイルは復元できませんでした。バックアップファイルを選び直してください。', true);
+      }
+    };
+    reader.readAsText(file);
+  }
+
+  els.exportBtn.addEventListener('click', exportBackupData);
+  els.importBtn.addEventListener('click', () => els.importFileInput.click());
+  els.importFileInput.addEventListener('change', (e) => {
+    const file = e.target.files && e.target.files[0];
+    if(file) restoreBackupData(file);
+    e.target.value = '';
+  });
+  els.speakBtn.addEventListener('click', ()=>{
+    if(deck[qi]) speakWord(deck[qi].fi);
+  });
+  els.quitBtn.addEventListener('click', ()=>{
+    showConfirmModal('クイズを中断しますか？この回の記録は保存されません。', ()=>{
+      if('speechSynthesis' in window) window.speechSynthesis.cancel();
+      roundActive = false;
+      locked = true;
+      showScreen('start');
+    });
+  });
+
+  document.addEventListener('keydown', (e)=>{
+    const activeTag = document.activeElement && document.activeElement.tagName;
+    const isTyping = activeTag === 'INPUT' || activeTag === 'TEXTAREA';
+
+    if(e.key === 'Escape'){
+      if(!els.confirmOverlay.classList.contains('hidden')){
+        e.preventDefault();
+        els.confirmCancelBtn.click();
+      } else if(!els.quizScreen.classList.contains('hidden')){
+        e.preventDefault();
+        els.quitBtn.click();
+      }
+      return;
+    }
+
+    if(e.key === 'Enter'){
+      if(!els.confirmOverlay.classList.contains('hidden')){
+        e.preventDefault();
+        els.confirmOkBtn.click();
+        return;
+      }
+      if(isTyping) return;
+      if(!els.startScreen.classList.contains('hidden')){
+        e.preventDefault();
+        els.startBtn.click();
+      } else if(!els.resultScreen.classList.contains('hidden')){
+        e.preventDefault();
+        els.retryBtn.click();
+      }
+      return;
+    }
+
+    if(els.quizScreen.classList.contains('hidden')) return;
+    const num = parseInt(e.key, 10);
+    if(num >= 1 && num <= 4){
+      const buttons = els.optionsGrid.querySelectorAll('.opt');
+      const btn = buttons[num - 1];
+      if(btn && !btn.disabled) btn.click();
+    }
+  });
+
+  buildCatGrid();
+  showScreen('start');
+  window.addEventListener('resize', ()=>{ initArc(); });
+})();
+</script>
+</body>
+</html>

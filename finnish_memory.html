@@ -1,0 +1,720 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>フィンランド語 神経衰弱 — Sanapelit</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@700&family=Fraunces:ital,opsz,wght@0,9..144,600;0,9..144,700;1,9..144,700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ink:#122036;
+    --birch:#F6F1E7;
+    --birch-dim:#E7DFCF;
+    --lingon:#C23B32;
+    --moss:#5F8A5A;
+    --ember:#E2A63B;
+    --frost:#9FBAD1;
+    --radius:16px;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    background:var(--ink);
+    background-image:
+      radial-gradient(ellipse at 50% -10%, rgba(226,166,59,0.10), transparent 55%),
+      radial-gradient(ellipse at 50% 120%, rgba(95,138,90,0.10), transparent 50%);
+    color:var(--birch);
+    font-family:'Inter',sans-serif;
+    min-height:100vh;
+    display:flex;
+    justify-content:center;
+    padding:28px 16px 60px;
+  }
+  .app{ width:100%; max-width:720px; }
+  .back-link{
+    display:inline-block;
+    font-size:12.5px;
+    color:var(--frost);
+    text-decoration:none;
+    margin-bottom:14px;
+    opacity:0.85;
+  }
+  .back-link:hover{ opacity:1; text-decoration:underline; }
+  .eyebrow{
+    font-family:'JetBrains Mono',monospace;
+    font-size:12px;
+    letter-spacing:0.14em;
+    text-transform:uppercase;
+    color:var(--frost);
+    text-align:center;
+    margin-bottom:4px;
+  }
+  h1{
+    font-family:'Bricolage Grotesque',sans-serif;
+    font-weight:700;
+    font-size:clamp(28px,7vw,42px);
+    text-align:center;
+    margin:0 0 6px;
+    letter-spacing:-0.01em;
+  }
+  .subtitle{
+    text-align:center;
+    color:var(--frost);
+    font-size:14px;
+    margin-bottom:24px;
+    line-height:1.6;
+  }
+  .card-panel{
+    background:var(--birch);
+    color:var(--ink);
+    border-radius:var(--radius);
+    padding:28px 24px;
+    margin-top:18px;
+  }
+  .hidden{ display:none !important; }
+
+  .level-note{
+    font-size:13px;
+    color:#5b5648;
+    background:var(--birch-dim);
+    border-radius:10px;
+    padding:10px 14px;
+    margin-bottom:14px;
+  }
+  .cat-select-row{
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    gap:8px;
+    margin:6px 0 8px;
+  }
+  .link-btn{
+    background:none;
+    border:none;
+    padding:0;
+    font-family:'Inter',sans-serif;
+    font-size:12.5px;
+    font-weight:600;
+    color:var(--moss);
+    cursor:pointer;
+    text-decoration:underline;
+  }
+  .link-btn:hover{ opacity:0.75; }
+  .cat-select-sep{ color:#b9b19a; font-size:12px; }
+  .cat-grid-scroll{
+    max-height:220px;
+    overflow-y:auto;
+    padding:10px;
+    margin-bottom:16px;
+    border:1px solid var(--birch-dim);
+    border-radius:12px;
+  }
+  .cat-grid{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:10px;
+  }
+  @media (max-width:420px){ .cat-grid{ grid-template-columns:1fr; } }
+  .cat-chip{
+    display:flex;
+    align-items:center;
+    gap:9px;
+    background:var(--birch-dim);
+    border:2px solid transparent;
+    border-radius:12px;
+    padding:11px 12px;
+    cursor:pointer;
+    font-weight:600;
+    font-size:13.5px;
+    user-select:none;
+  }
+  .cat-chip input{ accent-color:var(--moss); width:16px; height:16px; flex:none; }
+  .cat-chip.active{ border-color:var(--moss); background:#EAF2E6; }
+  .cat-count{ font-family:'JetBrains Mono',monospace; font-size:11px; color:#6b6656; margin-left:auto; }
+
+  .size-row{
+    display:flex;
+    gap:8px;
+    justify-content:center;
+    margin-bottom:16px;
+  }
+  .size-btn{
+    font-family:'JetBrains Mono',monospace;
+    font-weight:700;
+    font-size:13px;
+    background:var(--birch-dim);
+    border:2px solid transparent;
+    border-radius:10px;
+    padding:9px 14px;
+    cursor:pointer;
+    color:var(--ink);
+  }
+  .size-btn.active{ border-color:var(--moss); background:#EAF2E6; }
+
+  .btn{
+    font-family:'Bricolage Grotesque',sans-serif;
+    font-weight:700;
+    font-size:15px;
+    border:none;
+    border-radius:12px;
+    padding:14px 22px;
+    cursor:pointer;
+    width:100%;
+    transition:transform .08s ease, filter .15s ease;
+  }
+  .btn:active{ transform:scale(0.98); }
+  .btn-primary{ background:var(--ink); color:var(--birch); }
+  .btn-primary:hover{ filter:brightness(1.2); }
+  .btn-ghost{
+    background:transparent;
+    color:var(--frost);
+    border:1px solid rgba(159,186,209,0.4);
+    font-family:'Inter',sans-serif;
+    font-weight:600;
+    font-size:13px;
+    padding:10px 16px;
+  }
+  .btn-ghost:hover{ background:rgba(159,186,209,0.1); }
+  .inline-warning{ text-align:center; font-size:12.5px; color:var(--lingon); margin-top:8px; font-weight:600; }
+
+  .game-meta{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    font-family:'JetBrains Mono',monospace;
+    font-size:12px;
+    color:var(--frost);
+    padding:0 2px;
+    margin-bottom:10px;
+    gap:8px;
+  }
+  .quit-btn{
+    font-family:'Inter',sans-serif;
+    font-size:11.5px;
+    font-weight:600;
+    color:#a5443c;
+    background:none;
+    border:1px solid rgba(194,59,50,0.35);
+    border-radius:8px;
+    padding:5px 9px;
+    cursor:pointer;
+    flex:none;
+  }
+  .quit-btn:hover{ background:rgba(194,59,50,0.08); }
+
+  .memory-grid{
+    display:grid;
+    gap:8px;
+  }
+  .memory-card{
+    aspect-ratio:1 / 0.78;
+    border-radius:10px;
+    cursor:pointer;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    text-align:center;
+    padding:6px;
+    font-weight:700;
+    position:relative;
+    transition:transform .12s ease;
+    user-select:none;
+    background:var(--ink);
+  }
+  .memory-card .back-icon{
+    font-family:'JetBrains Mono',monospace;
+    font-size:11px;
+    color:var(--frost);
+    letter-spacing:0.08em;
+  }
+  .memory-card.flipped{ background:var(--birch-dim); }
+  .memory-card.flipped.type-fi{ background:var(--birch); }
+  .memory-card.flipped.type-ja{ background:#EAF2E6; }
+  .memory-card .front-text{ display:none; font-size:13px; line-height:1.25; word-break:break-word; }
+  .memory-card.flipped .back-icon{ display:none; }
+  .memory-card.flipped .front-text{ display:block; }
+  .memory-card.type-fi .front-text{ font-family:'Fraunces',serif; font-style:italic; font-weight:700; font-size:15px; color:var(--ink); }
+  .memory-card.type-ja .front-text{ font-family:'Inter',sans-serif; font-weight:600; font-size:12px; color:#3d5a38; }
+  .memory-card.matched{ opacity:0.35; cursor:default; pointer-events:none; }
+  .memory-card.wrong{ animation:shake .3s; }
+  @keyframes shake{ 0%,100%{transform:translateX(0);} 25%{transform:translateX(-4px);} 75%{transform:translateX(4px);} }
+
+  .score-big{
+    font-family:'Bricolage Grotesque',sans-serif;
+    font-weight:700;
+    font-size:44px;
+    text-align:center;
+    margin:2px 0 2px;
+  }
+  .score-label{
+    text-align:center;
+    color:#6b6656;
+    font-size:13px;
+    font-family:'JetBrains Mono',monospace;
+    letter-spacing:0.06em;
+    margin-bottom:20px;
+  }
+  .result-btns{ display:flex; gap:10px; margin-top:20px; }
+  .result-btns .btn{ flex:1; }
+
+  .history-panel{ margin-top:14px; border-top:1px solid var(--birch-dim); padding-top:14px; }
+  .history-empty{ font-size:13px; color:#7a7461; text-align:center; padding:10px 0; }
+  .history-summary{ display:grid; grid-template-columns:repeat(3,1fr); gap:8px; margin-bottom:16px; }
+  .summary-stat{ background:var(--birch-dim); border-radius:10px; padding:12px 6px; text-align:center; }
+  .summary-num{ font-family:'Bricolage Grotesque',sans-serif; font-weight:700; font-size:20px; color:var(--ink); }
+  .summary-label{ font-size:10.5px; color:#7a7461; margin-top:2px; }
+  .history-row{ display:flex; align-items:center; justify-content:space-between; gap:10px; padding:10px 4px; border-bottom:1px solid var(--birch-dim); font-size:13px; }
+  .history-row:last-child{ border-bottom:none; }
+  .history-date{ font-family:'JetBrains Mono',monospace; font-size:11.5px; color:#7a7461; flex:none; width:100px; }
+  .history-clear{ display:block; margin:12px auto 0; background:none; border:none; color:var(--lingon); font-size:12px; cursor:pointer; text-decoration:underline; }
+
+  .modal-overlay{
+    position:fixed; inset:0; background:rgba(10,16,28,0.6);
+    display:flex; align-items:center; justify-content:center; padding:20px; z-index:1000;
+  }
+  .modal-box{ background:var(--birch); color:var(--ink); border-radius:16px; padding:24px 22px; width:100%; max-width:340px; }
+  .modal-message{ font-size:15px; font-weight:600; text-align:center; margin-bottom:18px; line-height:1.5; }
+  .modal-btns{ display:flex; gap:10px; }
+  .modal-btns .btn{ flex:1; }
+
+  .changelog{
+    margin-top:18px; padding:18px 20px;
+    background:rgba(246,241,231,0.06);
+    border:1px solid rgba(159,186,209,0.18);
+    border-radius:14px;
+  }
+  .changelog-title{ font-family:'JetBrains Mono',monospace; font-size:12px; letter-spacing:0.08em; text-transform:uppercase; color:var(--frost); margin-bottom:10px; }
+  .changelog-list{ list-style:none; margin:0; padding:0; }
+  .changelog-list li{ display:flex; gap:10px; font-size:12.5px; color:var(--birch); opacity:0.85; padding:5px 0; border-bottom:1px solid rgba(159,186,209,0.12); line-height:1.5; }
+  .changelog-list li:last-child{ border-bottom:none; }
+  .changelog-date{ font-family:'JetBrains Mono',monospace; font-size:11.5px; color:var(--ember); flex:none; white-space:nowrap; }
+  .feedback-link-row{ text-align:center; font-size:12.5px; color:var(--frost); margin-top:14px; }
+  .feedback-link-row a{ color:var(--ember); text-decoration:underline; }
+</style>
+</head>
+<body>
+<div class="app">
+  <a class="back-link" href="index.html">← ほかの言語を見る</a>
+  <div class="eyebrow">MUISTIPELI</div>
+  <h1>フィンランド語 神経衰弱</h1>
+  <div class="subtitle">フィンランド語のカードと、日本語の意味のカードをめくって、同じペアを探しましょう。</div>
+
+  <!-- START SCREEN -->
+  <div class="card-panel" id="startScreen">
+    <div class="level-note">レベル：初心者向け（4択クイズと同じ単語データを使っています）</div>
+    <div class="cat-select-row">
+      <button type="button" class="link-btn" id="selectAllBtn">すべて選択</button>
+      <span class="cat-select-sep">・</span>
+      <button type="button" class="link-btn" id="deselectAllBtn">選択を解除</button>
+    </div>
+    <div class="cat-grid-scroll"><div class="cat-grid" id="catGrid"></div></div>
+
+    <div style="text-align:center; font-size:12.5px; color:#6b6656; margin-bottom:8px;">ペア数を選ぶ</div>
+    <div class="size-row" id="sizeRow">
+      <button type="button" class="size-btn" data-size="6">6ペア</button>
+      <button type="button" class="size-btn active" data-size="8">8ペア</button>
+      <button type="button" class="size-btn" data-size="10">10ペア</button>
+      <button type="button" class="size-btn" data-size="12">12ペア</button>
+    </div>
+
+    <button class="btn btn-primary" id="startBtn">はじめる</button>
+    <div class="inline-warning hidden" id="startWarning">少なくとも1つカテゴリーを選んでください</div>
+    <button class="btn btn-ghost" id="historyToggleBtn" style="margin-top:10px;">記録を見る</button>
+    <div id="historyPanel" class="history-panel hidden"></div>
+  </div>
+
+  <!-- GAME SCREEN -->
+  <div class="card-panel hidden" id="gameScreen">
+    <div class="game-meta">
+      <span id="movesCount">手数 0</span>
+      <span id="timeCount">経過 0:00</span>
+      <button class="quit-btn" id="quitBtn" type="button">✕ やめる</button>
+    </div>
+    <div class="memory-grid" id="memoryGrid"></div>
+  </div>
+
+  <!-- RESULT SCREEN -->
+  <div class="card-panel hidden" id="resultScreen">
+    <div class="score-big" id="scoreBig">18手・1:24</div>
+    <div class="score-label" id="scoreLabel">クリア！</div>
+    <div class="result-btns">
+      <button class="btn btn-ghost" id="backBtn">カテゴリーを選び直す</button>
+      <button class="btn btn-primary" id="retryBtn">もう一度</button>
+    </div>
+  </div>
+
+  <div class="changelog">
+    <div class="changelog-title">📝 更新履歴</div>
+    <ul class="changelog-list">
+      <li><span class="changelog-date">2026-07-18</span><span>フィンランド語 神経衰弱を公開</span></li>
+    </ul>
+  </div>
+
+  <div class="feedback-link-row">
+    感想・要望は<a href="feedback.html">こちら</a>から気軽にどうぞ
+  </div>
+</div>
+
+<div class="modal-overlay hidden" id="confirmOverlay">
+  <div class="modal-box">
+    <div class="modal-message" id="confirmMessage">やめますか？</div>
+    <div class="modal-btns">
+      <button class="btn btn-ghost" id="confirmCancelBtn">キャンセル</button>
+      <button class="btn btn-primary" id="confirmOkBtn">中断する</button>
+    </div>
+  </div>
+</div>
+
+<script>
+(function(){
+  const WORDS = [{"fi": "hei", "ja": "やあ／こんにちは", "cat": "tervehdykset"}, {"fi": "moi", "ja": "やあ（カジュアル）", "cat": "tervehdykset"}, {"fi": "hyvää huomenta", "ja": "おはよう", "cat": "tervehdykset"}, {"fi": "hyvää iltaa", "ja": "こんばんは", "cat": "tervehdykset"}, {"fi": "näkemiin", "ja": "さようなら", "cat": "tervehdykset"}, {"fi": "kiitos", "ja": "ありがとう", "cat": "tervehdykset"}, {"fi": "ole hyvä", "ja": "どういたしまして", "cat": "tervehdykset"}, {"fi": "anteeksi", "ja": "すみません", "cat": "tervehdykset"}, {"fi": "kyllä", "ja": "はい", "cat": "tervehdykset"}, {"fi": "ei", "ja": "いいえ", "cat": "tervehdykset"}, {"fi": "yksi", "ja": "1（いち）", "cat": "numerot"}, {"fi": "kaksi", "ja": "2（に）", "cat": "numerot"}, {"fi": "kolme", "ja": "3（さん）", "cat": "numerot"}, {"fi": "neljä", "ja": "4（よん）", "cat": "numerot"}, {"fi": "viisi", "ja": "5（ご）", "cat": "numerot"}, {"fi": "kuusi", "ja": "6（ろく）", "cat": "numerot"}, {"fi": "seitsemän", "ja": "7（なな）", "cat": "numerot"}, {"fi": "kahdeksan", "ja": "8（はち）", "cat": "numerot"}, {"fi": "yhdeksän", "ja": "9（きゅう）", "cat": "numerot"}, {"fi": "kymmenen", "ja": "10（じゅう）", "cat": "numerot"}, {"fi": "punainen", "ja": "赤", "cat": "värit"}, {"fi": "sininen", "ja": "青", "cat": "värit"}, {"fi": "vihreä", "ja": "緑", "cat": "värit"}, {"fi": "keltainen", "ja": "黄色", "cat": "värit"}, {"fi": "musta", "ja": "黒", "cat": "värit"}, {"fi": "valkoinen", "ja": "白", "cat": "värit"}, {"fi": "ruskea", "ja": "茶色", "cat": "värit"}, {"fi": "harmaa", "ja": "灰色", "cat": "värit"}, {"fi": "koira", "ja": "犬", "cat": "eläimet"}, {"fi": "kissa", "ja": "猫", "cat": "eläimet"}, {"fi": "hevonen", "ja": "馬", "cat": "eläimet"}, {"fi": "lintu", "ja": "鳥", "cat": "eläimet"}, {"fi": "kala", "ja": "魚", "cat": "eläimet"}, {"fi": "karhu", "ja": "熊", "cat": "eläimet"}, {"fi": "susi", "ja": "狼", "cat": "eläimet"}, {"fi": "poro", "ja": "トナカイ", "cat": "eläimet"}, {"fi": "leipä", "ja": "パン", "cat": "ruoka"}, {"fi": "vesi", "ja": "水", "cat": "ruoka"}, {"fi": "maito", "ja": "牛乳", "cat": "ruoka"}, {"fi": "kahvi", "ja": "コーヒー", "cat": "ruoka"}, {"fi": "omena", "ja": "りんご", "cat": "ruoka"}, {"fi": "liha", "ja": "肉", "cat": "ruoka"}, {"fi": "juusto", "ja": "チーズ", "cat": "ruoka"}, {"fi": "peruna", "ja": "じゃがいも", "cat": "ruoka"}, {"fi": "äiti", "ja": "母", "cat": "perhe"}, {"fi": "isä", "ja": "父", "cat": "perhe"}, {"fi": "sisko", "ja": "姉／妹", "cat": "perhe"}, {"fi": "veli", "ja": "兄／弟", "cat": "perhe"}, {"fi": "lapsi", "ja": "子供", "cat": "perhe"}, {"fi": "mies", "ja": "男性／夫", "cat": "perhe"}, {"fi": "nainen", "ja": "女性", "cat": "perhe"}, {"fi": "ystävä", "ja": "友達", "cat": "perhe"}, {"fi": "talo", "ja": "家", "cat": "yleiset sanat"}, {"fi": "kirja", "ja": "本", "cat": "yleiset sanat"}, {"fi": "auto", "ja": "車", "cat": "yleiset sanat"}, {"fi": "koulu", "ja": "学校", "cat": "yleiset sanat"}, {"fi": "aurinko", "ja": "太陽", "cat": "yleiset sanat"}, {"fi": "kuu", "ja": "月", "cat": "yleiset sanat"}, {"fi": "meri", "ja": "海", "cat": "yleiset sanat"}, {"fi": "metsä", "ja": "森", "cat": "yleiset sanat"}, {"fi": "järvi", "ja": "湖", "cat": "yleiset sanat"}, {"fi": "yksitoista", "ja": "11（じゅういち）", "cat": "numerot"}, {"fi": "kaksitoista", "ja": "12（じゅうに）", "cat": "numerot"}, {"fi": "kaksikymmentä", "ja": "20（にじゅう）", "cat": "numerot"}, {"fi": "kolmekymmentä", "ja": "30（さんじゅう）", "cat": "numerot"}, {"fi": "neljäkymmentä", "ja": "40（よんじゅう）", "cat": "numerot"}, {"fi": "viisikymmentä", "ja": "50（ごじゅう）", "cat": "numerot"}, {"fi": "sata", "ja": "100（ひゃく）", "cat": "numerot"}, {"fi": "tuhat", "ja": "1000（せん）", "cat": "numerot"}, {"fi": "kevät", "ja": "春", "cat": "vuodenajat"}, {"fi": "kesä", "ja": "夏", "cat": "vuodenajat"}, {"fi": "syksy", "ja": "秋", "cat": "vuodenajat"}, {"fi": "talvi", "ja": "冬", "cat": "vuodenajat"}, {"fi": "tammikuu", "ja": "1月", "cat": "kuukaudet"}, {"fi": "helmikuu", "ja": "2月", "cat": "kuukaudet"}, {"fi": "maaliskuu", "ja": "3月", "cat": "kuukaudet"}, {"fi": "huhtikuu", "ja": "4月", "cat": "kuukaudet"}, {"fi": "toukokuu", "ja": "5月", "cat": "kuukaudet"}, {"fi": "kesäkuu", "ja": "6月", "cat": "kuukaudet"}, {"fi": "heinäkuu", "ja": "7月", "cat": "kuukaudet"}, {"fi": "elokuu", "ja": "8月", "cat": "kuukaudet"}, {"fi": "syyskuu", "ja": "9月", "cat": "kuukaudet"}, {"fi": "lokakuu", "ja": "10月", "cat": "kuukaudet"}, {"fi": "marraskuu", "ja": "11月", "cat": "kuukaudet"}, {"fi": "joulukuu", "ja": "12月", "cat": "kuukaudet"}, {"fi": "maanantai", "ja": "月曜日", "cat": "viikonpäivät"}, {"fi": "tiistai", "ja": "火曜日", "cat": "viikonpäivät"}, {"fi": "keskiviikko", "ja": "水曜日", "cat": "viikonpäivät"}, {"fi": "torstai", "ja": "木曜日", "cat": "viikonpäivät"}, {"fi": "perjantai", "ja": "金曜日", "cat": "viikonpäivät"}, {"fi": "lauantai", "ja": "土曜日", "cat": "viikonpäivät"}, {"fi": "sunnuntai", "ja": "日曜日", "cat": "viikonpäivät"}, {"fi": "aurinkoista", "ja": "晴れ", "cat": "sää"}, {"fi": "sataa", "ja": "雨が降る", "cat": "sää"}, {"fi": "lunta", "ja": "雪（が降る）", "cat": "sää"}, {"fi": "tuulista", "ja": "風が強い", "cat": "sää"}, {"fi": "pilvistä", "ja": "曇り", "cat": "sää"}, {"fi": "kylmä", "ja": "寒い", "cat": "sää"}, {"fi": "lämmin", "ja": "暖かい", "cat": "sää"}, {"fi": "kuuma", "ja": "暑い", "cat": "sää"}, {"fi": "pää", "ja": "頭", "cat": "keho"}, {"fi": "silmä", "ja": "目", "cat": "keho"}, {"fi": "korva", "ja": "耳", "cat": "keho"}, {"fi": "nenä", "ja": "鼻", "cat": "keho"}, {"fi": "suu", "ja": "口", "cat": "keho"}, {"fi": "käsi", "ja": "手", "cat": "keho"}, {"fi": "jalka", "ja": "足", "cat": "keho"}, {"fi": "sydän", "ja": "心臓", "cat": "keho"}, {"fi": "hiukset", "ja": "髪", "cat": "keho"}, {"fi": "selkä", "ja": "背中", "cat": "keho"}, {"fi": "paita", "ja": "シャツ", "cat": "vaatteet"}, {"fi": "housut", "ja": "ズボン", "cat": "vaatteet"}, {"fi": "hame", "ja": "スカート", "cat": "vaatteet"}, {"fi": "takki", "ja": "コート", "cat": "vaatteet"}, {"fi": "kengät", "ja": "靴", "cat": "vaatteet"}, {"fi": "hattu", "ja": "帽子", "cat": "vaatteet"}, {"fi": "sukat", "ja": "靴下", "cat": "vaatteet"}, {"fi": "käsine", "ja": "手袋", "cat": "vaatteet"}, {"fi": "keittiö", "ja": "キッチン", "cat": "koti"}, {"fi": "makuuhuone", "ja": "寝室", "cat": "koti"}, {"fi": "olohuone", "ja": "リビング", "cat": "koti"}, {"fi": "kylpyhuone", "ja": "浴室", "cat": "koti"}, {"fi": "ikkuna", "ja": "窓", "cat": "koti"}, {"fi": "ovi", "ja": "ドア", "cat": "koti"}, {"fi": "pöytä", "ja": "テーブル", "cat": "koti"}, {"fi": "tuoli", "ja": "椅子", "cat": "koti"}, {"fi": "sänky", "ja": "ベッド", "cat": "koti"}, {"fi": "sohva", "ja": "ソファ", "cat": "koti"}, {"fi": "opettaja", "ja": "先生", "cat": "ammatit"}, {"fi": "lääkäri", "ja": "医者", "cat": "ammatit"}, {"fi": "insinööri", "ja": "エンジニア", "cat": "ammatit"}, {"fi": "poliisi", "ja": "警察官", "cat": "ammatit"}, {"fi": "kokki", "ja": "料理人", "cat": "ammatit"}, {"fi": "taiteilija", "ja": "芸術家", "cat": "ammatit"}, {"fi": "myyjä", "ja": "店員", "cat": "ammatit"}, {"fi": "sairaanhoitaja", "ja": "看護師", "cat": "ammatit"}, {"fi": "olla", "ja": "〜である", "cat": "verbit"}, {"fi": "mennä", "ja": "行く", "cat": "verbit"}, {"fi": "tulla", "ja": "来る", "cat": "verbit"}, {"fi": "syödä", "ja": "食べる", "cat": "verbit"}, {"fi": "juoda", "ja": "飲む", "cat": "verbit"}, {"fi": "nukkua", "ja": "眠る", "cat": "verbit"}, {"fi": "puhua", "ja": "話す", "cat": "verbit"}, {"fi": "lukea", "ja": "読む", "cat": "verbit"}, {"fi": "kirjoittaa", "ja": "書く", "cat": "verbit"}, {"fi": "ostaa", "ja": "買う", "cat": "verbit"}, {"fi": "tehdä", "ja": "する／作る", "cat": "verbit"}, {"fi": "nähdä", "ja": "見る", "cat": "verbit"}, {"fi": "kuulla", "ja": "聞く", "cat": "verbit"}, {"fi": "rakastaa", "ja": "愛する", "cat": "verbit"}, {"fi": "oppia", "ja": "学ぶ", "cat": "verbit"}, {"fi": "iso", "ja": "大きい", "cat": "adjektiivit"}, {"fi": "pieni", "ja": "小さい", "cat": "adjektiivit"}, {"fi": "hyvä", "ja": "良い", "cat": "adjektiivit"}, {"fi": "huono", "ja": "悪い", "cat": "adjektiivit"}, {"fi": "kaunis", "ja": "美しい", "cat": "adjektiivit"}, {"fi": "uusi", "ja": "新しい", "cat": "adjektiivit"}, {"fi": "vanha", "ja": "古い", "cat": "adjektiivit"}, {"fi": "nopea", "ja": "速い", "cat": "adjektiivit"}, {"fi": "hidas", "ja": "遅い", "cat": "adjektiivit"}, {"fi": "helppo", "ja": "簡単な", "cat": "adjektiivit"}, {"fi": "vaikea", "ja": "難しい", "cat": "adjektiivit"}, {"fi": "taivas", "ja": "空", "cat": "luonto"}, {"fi": "tähti", "ja": "星", "cat": "luonto"}, {"fi": "pilvi", "ja": "雲", "cat": "luonto"}, {"fi": "sade", "ja": "雨", "cat": "luonto"}, {"fi": "lumi", "ja": "雪", "cat": "luonto"}, {"fi": "tuuli", "ja": "風", "cat": "luonto"}, {"fi": "kivi", "ja": "石", "cat": "luonto"}, {"fi": "hiekka", "ja": "砂", "cat": "luonto"}, {"fi": "juna", "ja": "電車", "cat": "liikenne"}, {"fi": "bussi", "ja": "バス", "cat": "liikenne"}, {"fi": "lentokone", "ja": "飛行機", "cat": "liikenne"}, {"fi": "laiva", "ja": "船", "cat": "liikenne"}, {"fi": "polkupyörä", "ja": "自転車", "cat": "liikenne"}, {"fi": "taksi", "ja": "タクシー", "cat": "liikenne"}, {"fi": "onnellinen", "ja": "幸せな", "cat": "tunteet"}, {"fi": "surullinen", "ja": "悲しい", "cat": "tunteet"}, {"fi": "vihainen", "ja": "怒っている", "cat": "tunteet"}, {"fi": "väsynyt", "ja": "疲れた", "cat": "tunteet"}, {"fi": "iloinen", "ja": "嬉しい", "cat": "tunteet"}, {"fi": "peloissaan", "ja": "怖がっている", "cat": "tunteet"}, {"fi": "tänään", "ja": "今日", "cat": "aika"}, {"fi": "huomenna", "ja": "明日", "cat": "aika"}, {"fi": "eilen", "ja": "昨日", "cat": "aika"}, {"fi": "nyt", "ja": "今", "cat": "aika"}, {"fi": "myöhemmin", "ja": "後で", "cat": "aika"}, {"fi": "aamu", "ja": "朝", "cat": "aika"}, {"fi": "ilta", "ja": "夜", "cat": "aika"}, {"fi": "yö", "ja": "夜中", "cat": "aika"}, {"fi": "päivä", "ja": "昼／日", "cat": "aika"}, {"fi": "mitä", "ja": "何", "cat": "kysymyssanat"}, {"fi": "kuka", "ja": "誰", "cat": "kysymyssanat"}, {"fi": "missä", "ja": "どこ", "cat": "kysymyssanat"}, {"fi": "milloin", "ja": "いつ", "cat": "kysymyssanat"}, {"fi": "miksi", "ja": "なぜ", "cat": "kysymyssanat"}, {"fi": "miten", "ja": "どうやって", "cat": "kysymyssanat"}, {"fi": "banaani", "ja": "バナナ", "cat": "hedelmät ja vihannekset"}, {"fi": "appelsiini", "ja": "オレンジ", "cat": "hedelmät ja vihannekset"}, {"fi": "mansikka", "ja": "いちご", "cat": "hedelmät ja vihannekset"}, {"fi": "viinirypäle", "ja": "ぶどう", "cat": "hedelmät ja vihannekset"}, {"fi": "porkkana", "ja": "にんじん", "cat": "hedelmät ja vihannekset"}, {"fi": "tomaatti", "ja": "トマト", "cat": "hedelmät ja vihannekset"}, {"fi": "kurkku", "ja": "きゅうり", "cat": "hedelmät ja vihannekset"}, {"fi": "sipuli", "ja": "たまねぎ", "cat": "hedelmät ja vihannekset"}, {"fi": "tee", "ja": "紅茶", "cat": "juomat"}, {"fi": "mehu", "ja": "ジュース", "cat": "juomat"}, {"fi": "olut", "ja": "ビール", "cat": "juomat"}, {"fi": "viini", "ja": "ワイン", "cat": "juomat"}, {"fi": "oppilas", "ja": "生徒", "cat": "koulu"}, {"fi": "kynä", "ja": "ペン", "cat": "koulu"}, {"fi": "vihko", "ja": "ノート", "cat": "koulu"}, {"fi": "pulpetti", "ja": "机", "cat": "koulu"}, {"fi": "luokka", "ja": "教室", "cat": "koulu"}, {"fi": "jalkapallo", "ja": "サッカー", "cat": "urheilu"}, {"fi": "uinti", "ja": "水泳", "cat": "urheilu"}, {"fi": "juoksu", "ja": "ランニング", "cat": "urheilu"}, {"fi": "hiihto", "ja": "スキー", "cat": "urheilu"}, {"fi": "jääkiekko", "ja": "アイスホッケー", "cat": "urheilu"}, {"fi": "puhelin", "ja": "電話", "cat": "teknologia"}, {"fi": "tietokone", "ja": "コンピューター", "cat": "teknologia"}, {"fi": "internet", "ja": "インターネット", "cat": "teknologia"}, {"fi": "sähköposti", "ja": "メール", "cat": "teknologia"}, {"fi": "televisio", "ja": "テレビ", "cat": "teknologia"}, {"fi": "lusikka", "ja": "スプーン", "cat": "keittiövälineet"}, {"fi": "haarukka", "ja": "フォーク", "cat": "keittiövälineet"}, {"fi": "veitsi", "ja": "ナイフ", "cat": "keittiövälineet"}, {"fi": "lautanen", "ja": "お皿", "cat": "keittiövälineet"}, {"fi": "kuppi", "ja": "カップ", "cat": "keittiövälineet"}, {"fi": "pannu", "ja": "フライパン", "cat": "keittiövälineet"}, {"fi": "lammas", "ja": "羊", "cat": "eläimet"}, {"fi": "sika", "ja": "豚", "cat": "eläimet"}, {"fi": "kana", "ja": "鶏", "cat": "eläimet"}, {"fi": "jänis", "ja": "うさぎ", "cat": "eläimet"}, {"fi": "orava", "ja": "リス", "cat": "eläimet"}, {"fi": "käärme", "ja": "蛇", "cat": "eläimet"}, {"fi": "kauppa", "ja": "店", "cat": "paikat"}, {"fi": "sairaala", "ja": "病院", "cat": "paikat"}, {"fi": "pankki", "ja": "銀行", "cat": "paikat"}, {"fi": "kirjasto", "ja": "図書館", "cat": "paikat"}, {"fi": "puisto", "ja": "公園", "cat": "paikat"}, {"fi": "ravintola", "ja": "レストラン", "cat": "paikat"}, {"fi": "hotelli", "ja": "ホテル", "cat": "paikat"}, {"fi": "asema", "ja": "駅", "cat": "paikat"}, {"fi": "lentokenttä", "ja": "空港", "cat": "paikat"}, {"fi": "kirkko", "ja": "教会", "cat": "paikat"}, {"fi": "ylös", "ja": "上へ", "cat": "suunnat"}, {"fi": "alas", "ja": "下へ", "cat": "suunnat"}, {"fi": "vasen", "ja": "左", "cat": "suunnat"}, {"fi": "oikea", "ja": "右", "cat": "suunnat"}, {"fi": "edessä", "ja": "前に", "cat": "suunnat"}, {"fi": "takana", "ja": "後ろに", "cat": "suunnat"}, {"fi": "sisällä", "ja": "中に", "cat": "suunnat"}, {"fi": "ulkona", "ja": "外に", "cat": "suunnat"}, {"fi": "vasara", "ja": "ハンマー", "cat": "työkalut"}, {"fi": "naula", "ja": "釘", "cat": "työkalut"}, {"fi": "ruuvimeisseli", "ja": "ドライバー", "cat": "työkalut"}, {"fi": "saha", "ja": "のこぎり", "cat": "työkalut"}, {"fi": "avain", "ja": "鍵", "cat": "työkalut"}, {"fi": "musiikki", "ja": "音楽", "cat": "musiikki ja viihde"}, {"fi": "elokuva", "ja": "映画", "cat": "musiikki ja viihde"}, {"fi": "laulu", "ja": "歌", "cat": "musiikki ja viihde"}, {"fi": "tanssi", "ja": "ダンス", "cat": "musiikki ja viihde"}, {"fi": "peli", "ja": "ゲーム", "cat": "musiikki ja viihde"}, {"fi": "näytelmä", "ja": "演劇", "cat": "musiikki ja viihde"}, {"fi": "raha", "ja": "お金", "cat": "raha ja ostokset"}, {"fi": "hinta", "ja": "値段", "cat": "raha ja ostokset"}, {"fi": "halpa", "ja": "安い", "cat": "raha ja ostokset"}, {"fi": "kallis", "ja": "高い（値段）", "cat": "raha ja ostokset"}, {"fi": "alennus", "ja": "割引", "cat": "raha ja ostokset"}, {"fi": "kassa", "ja": "レジ", "cat": "raha ja ostokset"}, {"fi": "sairas", "ja": "病気の", "cat": "terveys"}, {"fi": "terve", "ja": "健康な", "cat": "terveys"}, {"fi": "kipu", "ja": "痛み", "cat": "terveys"}, {"fi": "lääke", "ja": "薬", "cat": "terveys"}, {"fi": "apteekki", "ja": "薬局", "cat": "terveys"}, {"fi": "kuume", "ja": "熱", "cat": "terveys"}, {"fi": "aina", "ja": "いつも", "cat": "adverbit"}, {"fi": "joskus", "ja": "時々", "cat": "adverbit"}, {"fi": "usein", "ja": "よく", "cat": "adverbit"}, {"fi": "harvoin", "ja": "めったに", "cat": "adverbit"}, {"fi": "hitaasti", "ja": "ゆっくり", "cat": "adverbit"}, {"fi": "nopeasti", "ja": "速く", "cat": "adverbit"}, {"fi": "ja", "ja": "そして", "cat": "konjunktiot"}, {"fi": "mutta", "ja": "しかし", "cat": "konjunktiot"}, {"fi": "tai", "ja": "または", "cat": "konjunktiot"}, {"fi": "koska", "ja": "なぜなら", "cat": "konjunktiot"}, {"fi": "jos", "ja": "もし", "cat": "konjunktiot"}, {"fi": "hyvää yötä", "ja": "おやすみ", "cat": "tervehdykset"}, {"fi": "tervetuloa", "ja": "ようこそ", "cat": "tervehdykset"}, {"fi": "onneksi olkoon", "ja": "おめでとう", "cat": "tervehdykset"}, {"fi": "terveisin", "ja": "よろしく（手紙の結び）", "cat": "tervehdykset"}, {"fi": "mitä kuuluu", "ja": "元気ですか", "cat": "tervehdykset"}, {"fi": "isoäiti", "ja": "祖母", "cat": "perhe"}, {"fi": "isoisä", "ja": "祖父", "cat": "perhe"}, {"fi": "täti", "ja": "おば", "cat": "perhe"}, {"fi": "setä", "ja": "おじ", "cat": "perhe"}, {"fi": "serkku", "ja": "いとこ", "cat": "perhe"}, {"fi": "vaimo", "ja": "妻", "cat": "perhe"}, {"fi": "aviomies", "ja": "夫", "cat": "perhe"}, {"fi": "moottoripyörä", "ja": "バイク", "cat": "liikenne"}, {"fi": "raitiovaunu", "ja": "路面電車", "cat": "liikenne"}, {"fi": "helikopteri", "ja": "ヘリコプター", "cat": "liikenne"}, {"fi": "vene", "ja": "ボート", "cat": "liikenne"}, {"fi": "tie", "ja": "道路", "cat": "liikenne"}, {"fi": "perhonen", "ja": "蝶", "cat": "hyönteiset ja meren eläimet"}, {"fi": "mehiläinen", "ja": "蜂", "cat": "hyönteiset ja meren eläimet"}, {"fi": "muurahainen", "ja": "アリ", "cat": "hyönteiset ja meren eläimet"}, {"fi": "hämähäkki", "ja": "クモ", "cat": "hyönteiset ja meren eläimet"}, {"fi": "delfiini", "ja": "イルカ", "cat": "hyönteiset ja meren eläimet"}, {"fi": "valas", "ja": "クジラ", "cat": "hyönteiset ja meren eläimet"}, {"fi": "hai", "ja": "サメ", "cat": "hyönteiset ja meren eläimet"}, {"fi": "meduusa", "ja": "クラゲ", "cat": "hyönteiset ja meren eläimet"}, {"fi": "kukka", "ja": "花", "cat": "kasvit ja kukat"}, {"fi": "puu", "ja": "木", "cat": "kasvit ja kukat"}, {"fi": "ruusu", "ja": "バラ", "cat": "kasvit ja kukat"}, {"fi": "lehti", "ja": "葉", "cat": "kasvit ja kukat"}, {"fi": "ruoho", "ja": "草", "cat": "kasvit ja kukat"}, {"fi": "kuusikymmentä", "ja": "60（ろくじゅう）", "cat": "numerot"}, {"fi": "seitsemänkymmentä", "ja": "70（ななじゅう）", "cat": "numerot"}, {"fi": "kahdeksankymmentä", "ja": "80（はちじゅう）", "cat": "numerot"}, {"fi": "yhdeksänkymmentä", "ja": "90（きゅうじゅう）", "cat": "numerot"}, {"fi": "miljoona", "ja": "100万（ひゃくまん）", "cat": "numerot"}, {"fi": "pitkä", "ja": "長い／背が高い", "cat": "adjektiivit"}, {"fi": "lyhyt", "ja": "短い／背が低い", "cat": "adjektiivit"}, {"fi": "leveä", "ja": "広い", "cat": "adjektiivit"}, {"fi": "kapea", "ja": "狭い", "cat": "adjektiivit"}, {"fi": "syvä", "ja": "深い", "cat": "adjektiivit"}, {"fi": "matala", "ja": "浅い", "cat": "adjektiivit"}, {"fi": "raskas", "ja": "重い", "cat": "adjektiivit"}, {"fi": "kevyt", "ja": "軽い", "cat": "adjektiivit"}, {"fi": "hammas", "ja": "歯", "cat": "keho"}, {"fi": "kaula", "ja": "首", "cat": "keho"}, {"fi": "olkapää", "ja": "肩", "cat": "keho"}, {"fi": "polvi", "ja": "膝", "cat": "keho"}, {"fi": "sormi", "ja": "指", "cat": "keho"}, {"fi": "varvas", "ja": "つま先", "cat": "keho"}, {"fi": "sumu", "ja": "霧", "cat": "sää"}, {"fi": "ukkonen", "ja": "雷", "cat": "sää"}, {"fi": "jää", "ja": "氷", "cat": "sää"}, {"fi": "kosteus", "ja": "湿気", "cat": "sää"}, {"fi": "paperi", "ja": "紙", "cat": "toimistotarvikkeet"}, {"fi": "kumi", "ja": "消しゴム", "cat": "toimistotarvikkeet"}, {"fi": "viivotin", "ja": "定規", "cat": "toimistotarvikkeet"}, {"fi": "sakset", "ja": "はさみ", "cat": "toimistotarvikkeet"}, {"fi": "teippi", "ja": "テープ", "cat": "toimistotarvikkeet"}, {"fi": "riisi", "ja": "ご飯／米", "cat": "ruoka"}, {"fi": "pasta", "ja": "パスタ", "cat": "ruoka"}, {"fi": "keitto", "ja": "スープ", "cat": "ruoka"}, {"fi": "salaatti", "ja": "サラダ", "cat": "ruoka"}, {"fi": "kakku", "ja": "ケーキ", "cat": "ruoka"}, {"fi": "suklaa", "ja": "チョコレート", "cat": "ruoka"}, {"fi": "jäätelö", "ja": "アイスクリーム", "cat": "ruoka"}, {"fi": "munat", "ja": "卵", "cat": "ruoka"}, {"fi": "rakastunut", "ja": "恋している", "cat": "tunteet"}, {"fi": "yllättynyt", "ja": "驚いた", "cat": "tunteet"}, {"fi": "hämmentynyt", "ja": "困惑した", "cat": "tunteet"}, {"fi": "ylpeä", "ja": "誇りに思う", "cat": "tunteet"}, {"fi": "kiitollinen", "ja": "感謝している", "cat": "tunteet"}, {"fi": "passi", "ja": "パスポート", "cat": "matka"}, {"fi": "lippu", "ja": "チケット", "cat": "matka"}, {"fi": "matkalaukku", "ja": "スーツケース", "cat": "matka"}, {"fi": "kartta", "ja": "地図", "cat": "matka"}, {"fi": "matkaopas", "ja": "旅行ガイド", "cat": "matka"}, {"fi": "varaus", "ja": "予約", "cat": "matka"}, {"fi": "lähtö", "ja": "出発", "cat": "matka"}, {"fi": "saapuminen", "ja": "到着", "cat": "matka"}, {"fi": "aikataulu", "ja": "時刻表", "cat": "matka"}, {"fi": "laituri", "ja": "プラットフォーム／ホーム", "cat": "matka"}, {"fi": "tulli", "ja": "税関", "cat": "matka"}, {"fi": "viisumi", "ja": "ビザ", "cat": "matka"}, {"fi": "vaihto", "ja": "乗り換え", "cat": "matka"}, {"fi": "leijona", "ja": "ライオン", "cat": "eläimet"}, {"fi": "norsu", "ja": "象", "cat": "eläimet"}, {"fi": "apina", "ja": "猿", "cat": "eläimet"}, {"fi": "kirahvi", "ja": "キリン", "cat": "eläimet"}, {"fi": "pingviini", "ja": "ペンギン", "cat": "eläimet"}, {"fi": "krokotiili", "ja": "ワニ", "cat": "eläimet"}, {"fi": "kilpikonna", "ja": "亀", "cat": "eläimet"}, {"fi": "papukaija", "ja": "オウム", "cat": "eläimet"}, {"fi": "vuori", "ja": "山", "cat": "luonto"}, {"fi": "laakso", "ja": "谷", "cat": "luonto"}, {"fi": "aavikko", "ja": "砂漠", "cat": "luonto"}, {"fi": "viidakko", "ja": "ジャングル", "cat": "luonto"}, {"fi": "saari", "ja": "島", "cat": "luonto"}, {"fi": "ranta", "ja": "浜辺", "cat": "luonto"}, {"fi": "niitty", "ja": "草原", "cat": "luonto"}, {"fi": "yliopisto", "ja": "大学", "cat": "paikat"}, {"fi": "museo", "ja": "美術館／博物館", "cat": "paikat"}, {"fi": "teatteri", "ja": "劇場", "cat": "paikat"}, {"fi": "uimahalli", "ja": "プール", "cat": "paikat"}, {"fi": "stadion", "ja": "スタジアム", "cat": "paikat"}, {"fi": "kirjakauppa", "ja": "本屋", "cat": "paikat"}, {"fi": "pyjama", "ja": "パジャマ", "cat": "vaatteet"}, {"fi": "uimapuku", "ja": "水着", "cat": "vaatteet"}, {"fi": "solmio", "ja": "ネクタイ", "cat": "vaatteet"}, {"fi": "vyö", "ja": "ベルト", "cat": "vaatteet"}, {"fi": "huivi", "ja": "スカーフ", "cat": "vaatteet"}, {"fi": "korut", "ja": "アクセサリー", "cat": "vaatteet"}, {"fi": "näppäimistö", "ja": "キーボード", "cat": "teknologia"}, {"fi": "hiiri", "ja": "マウス（PC）", "cat": "teknologia"}, {"fi": "tabletti", "ja": "タブレット", "cat": "teknologia"}, {"fi": "sovellus", "ja": "アプリ", "cat": "teknologia"}, {"fi": "verkko", "ja": "ネットワーク", "cat": "teknologia"}, {"fi": "salasana", "ja": "パスワード", "cat": "teknologia"}, {"fi": "kyynärpää", "ja": "肘", "cat": "keho"}, {"fi": "ranne", "ja": "手首", "cat": "keho"}, {"fi": "nilkka", "ja": "足首", "cat": "keho"}, {"fi": "otsa", "ja": "額", "cat": "keho"}, {"fi": "leuka", "ja": "あご", "cat": "keho"}, {"fi": "poski", "ja": "頬", "cat": "keho"}, {"fi": "tutkinto", "ja": "学位", "cat": "koulu"}, {"fi": "kurssi", "ja": "コース", "cat": "koulu"}, {"fi": "koe", "ja": "試験", "cat": "koulu"}, {"fi": "läksyt", "ja": "宿題", "cat": "koulu"}, {"fi": "luento", "ja": "講義", "cat": "koulu"}, {"fi": "soitin", "ja": "楽器", "cat": "musiikki ja viihde"}, {"fi": "kitara", "ja": "ギター", "cat": "musiikki ja viihde"}, {"fi": "piano", "ja": "ピアノ", "cat": "musiikki ja viihde"}, {"fi": "rumpu", "ja": "ドラム", "cat": "musiikki ja viihde"}, {"fi": "orkesteri", "ja": "オーケストラ", "cat": "musiikki ja viihde"}, {"fi": "konsertti", "ja": "コンサート", "cat": "musiikki ja viihde"}, {"fi": "haluta", "ja": "欲しい", "cat": "verbit"}, {"fi": "tarvita", "ja": "必要とする", "cat": "verbit"}, {"fi": "pitää", "ja": "好き（に思う）", "cat": "verbit"}, {"fi": "avata", "ja": "開ける", "cat": "verbit"}, {"fi": "sulkea", "ja": "閉める", "cat": "verbit"}, {"fi": "antaa", "ja": "与える", "cat": "verbit"}, {"fi": "ottaa", "ja": "取る", "cat": "verbit"}, {"fi": "auttaa", "ja": "手伝う", "cat": "verbit"}, {"fi": "odottaa", "ja": "待つ", "cat": "verbit"}, {"fi": "etsiä", "ja": "探す", "cat": "verbit"}, {"fi": "löytää", "ja": "見つける", "cat": "verbit"}, {"fi": "hävitä", "ja": "失う／負ける", "cat": "verbit"}, {"fi": "voittaa", "ja": "勝つ", "cat": "verbit"}, {"fi": "leikkiä", "ja": "遊ぶ", "cat": "verbit"}, {"fi": "työskennellä", "ja": "働く", "cat": "verbit"}, {"fi": "opiskella", "ja": "勉強する", "cat": "verbit"}, {"fi": "matkustaa", "ja": "旅行する", "cat": "verbit"}, {"fi": "saapua", "ja": "到着する", "cat": "verbit"}, {"fi": "lähteä", "ja": "出発する", "cat": "verbit"}, {"fi": "palata", "ja": "戻る", "cat": "verbit"}, {"fi": "muistaa", "ja": "覚えている", "cat": "verbit"}, {"fi": "unohtaa", "ja": "忘れる", "cat": "verbit"}, {"fi": "ymmärtää", "ja": "理解する", "cat": "verbit"}, {"fi": "selittää", "ja": "説明する", "cat": "verbit"}, {"fi": "kysyä", "ja": "尋ねる", "cat": "verbit"}, {"fi": "vastata", "ja": "答える", "cat": "verbit"}, {"fi": "toivoa", "ja": "望む", "cat": "verbit"}, {"fi": "yrittää", "ja": "試みる", "cat": "verbit"}, {"fi": "lopettaa", "ja": "終える", "cat": "verbit"}, {"fi": "aloittaa", "ja": "始める", "cat": "verbit"}, {"fi": "jatkaa", "ja": "続ける", "cat": "verbit"}, {"fi": "pysähtyä", "ja": "止まる", "cat": "verbit"}, {"fi": "muuttaa", "ja": "変える", "cat": "verbit"}, {"fi": "päättää", "ja": "決める", "cat": "verbit"}, {"fi": "valita", "ja": "選ぶ", "cat": "verbit"}, {"fi": "paistaa", "ja": "焼く／炒める", "cat": "verbit"}, {"fi": "keittää", "ja": "茹でる／煮る", "cat": "verbit"}, {"fi": "sekoittaa", "ja": "混ぜる", "cat": "verbit"}, {"fi": "leikata", "ja": "切る", "cat": "verbit"}, {"fi": "pilkkoa", "ja": "刻む", "cat": "verbit"}, {"fi": "maustaa", "ja": "味付けする", "cat": "verbit"}, {"fi": "tarjoilla", "ja": "給仕する", "cat": "verbit"}, {"fi": "hengittää", "ja": "呼吸する", "cat": "verbit"}, {"fi": "aivastaa", "ja": "くしゃみをする", "cat": "verbit"}, {"fi": "yskiä", "ja": "咳をする", "cat": "verbit"}, {"fi": "itkeä", "ja": "泣く", "cat": "verbit"}, {"fi": "nauraa", "ja": "笑う", "cat": "verbit"}, {"fi": "hymyillä", "ja": "微笑む", "cat": "verbit"}, {"fi": "terävä", "ja": "鋭い", "cat": "adjektiivit"}, {"fi": "tylsä", "ja": "退屈な", "cat": "adjektiivit"}, {"fi": "puhdas", "ja": "きれいな／清潔", "cat": "adjektiivit"}, {"fi": "likainen", "ja": "汚い", "cat": "adjektiivit"}, {"fi": "täysi", "ja": "いっぱいの", "cat": "adjektiivit"}, {"fi": "tyhjä", "ja": "空の", "cat": "adjektiivit"}, {"fi": "kuiva", "ja": "乾いた", "cat": "adjektiivit"}, {"fi": "märkä", "ja": "濡れた", "cat": "adjektiivit"}, {"fi": "vahva", "ja": "強い", "cat": "adjektiivit"}, {"fi": "heikko", "ja": "弱い", "cat": "adjektiivit"}, {"fi": "rikas", "ja": "裕福な", "cat": "adjektiivit"}, {"fi": "köyhä", "ja": "貧しい", "cat": "adjektiivit"}, {"fi": "nuori", "ja": "若い", "cat": "adjektiivit"}, {"fi": "myrsky", "ja": "嵐", "cat": "sää"}, {"fi": "räntä", "ja": "みぞれ", "cat": "sää"}, {"fi": "helle", "ja": "猛暑", "cat": "sää"}, {"fi": "pakkanen", "ja": "氷点下", "cat": "sää"}, {"fi": "puoli", "ja": "半分", "cat": "numerot"}, {"fi": "neljännes", "ja": "4分の1", "cat": "numerot"}, {"fi": "pari", "ja": "ペア／一組", "cat": "numerot"}, {"fi": "tusina", "ja": "ダース", "cat": "numerot"}, {"fi": "ensimmäinen", "ja": "1番目", "cat": "numerot"}, {"fi": "toinen", "ja": "2番目", "cat": "numerot"}, {"fi": "kolmas", "ja": "3番目", "cat": "numerot"}, {"fi": "viimeinen", "ja": "最後の", "cat": "numerot"}, {"fi": "seuraava", "ja": "次の", "cat": "numerot"}, {"fi": "rauhallinen", "ja": "穏やかな", "cat": "tunteet"}, {"fi": "hermostunut", "ja": "緊張した", "cat": "tunteet"}, {"fi": "innostunut", "ja": "わくわくした", "cat": "tunteet"}, {"fi": "tylsistynyt", "ja": "退屈した", "cat": "tunteet"}, {"fi": "turhautunut", "ja": "イライラした", "cat": "tunteet"}, {"fi": "limonadi", "ja": "サイダー／清涼飲料", "cat": "ruoka"}, {"fi": "vesipullo", "ja": "水筒", "cat": "ruoka"}, {"fi": "smoothie", "ja": "スムージー", "cat": "ruoka"}, {"fi": "energiajuoma", "ja": "エナジードリンク", "cat": "ruoka"}, {"fi": "pulla", "ja": "菓子パン", "cat": "ruoka"}, {"fi": "keksi", "ja": "クッキー", "cat": "ruoka"}, {"fi": "donitsi", "ja": "ドーナツ", "cat": "ruoka"}, {"fi": "vohveli", "ja": "ワッフル", "cat": "ruoka"}, {"fi": "hillo", "ja": "ジャム", "cat": "ruoka"}, {"fi": "hunaja", "ja": "はちみつ", "cat": "ruoka"}, {"fi": "tarjoilija", "ja": "ウェイター", "cat": "ruoka"}, {"fi": "lasku", "ja": "お会計", "cat": "ruoka"}, {"fi": "juomaraha", "ja": "チップ", "cat": "ruoka"}, {"fi": "ruokalista", "ja": "メニュー", "cat": "ruoka"}, {"fi": "muusikko", "ja": "音楽家", "cat": "ammatit"}, {"fi": "kirjailija", "ja": "作家", "cat": "ammatit"}, {"fi": "ohjelmoija", "ja": "プログラマー", "cat": "ammatit"}, {"fi": "arkkitehti", "ja": "建築家", "cat": "ammatit"}, {"fi": "pankkiiri", "ja": "銀行員", "cat": "ammatit"}, {"fi": "maanviljelijä", "ja": "農家", "cat": "ammatit"}, {"fi": "onnittelut", "ja": "お祝いの言葉", "cat": "sosiaaliset tilanteet"}, {"fi": "osanotto", "ja": "お悔やみ", "cat": "sosiaaliset tilanteet"}, {"fi": "anteeksipyyntö", "ja": "謝罪", "cat": "sosiaaliset tilanteet"}, {"fi": "kutsu", "ja": "招待", "cat": "sosiaaliset tilanteet"}, {"fi": "vierailu", "ja": "訪問", "cat": "sosiaaliset tilanteet"}, {"fi": "tapaaminen", "ja": "会合／約束", "cat": "sosiaaliset tilanteet"}, {"fi": "Suomi", "ja": "フィンランド", "cat": "maat"}, {"fi": "Ruotsi", "ja": "スウェーデン", "cat": "maat"}, {"fi": "Norja", "ja": "ノルウェー", "cat": "maat"}, {"fi": "Japani", "ja": "日本", "cat": "maat"}, {"fi": "Saksa", "ja": "ドイツ", "cat": "maat"}, {"fi": "Ranska", "ja": "フランス", "cat": "maat"}, {"fi": "Espanja", "ja": "スペイン", "cat": "maat"}, {"fi": "Yhdysvallat", "ja": "アメリカ", "cat": "maat"}, {"fi": "vau", "ja": "わあ", "cat": "ilmaisut"}, {"fi": "voi ei", "ja": "あらら／なんてこと", "cat": "ilmaisut"}, {"fi": "onneksi", "ja": "幸運にも", "cat": "ilmaisut"}, {"fi": "valitettavasti", "ja": "残念ながら", "cat": "ilmaisut"}, {"fi": "tietysti", "ja": "もちろん", "cat": "ilmaisut"}, {"fi": "ehkä", "ja": "たぶん", "cat": "ilmaisut"}];
+  const CAT_LABELS = {"tervehdykset": "挨拶", "numerot": "数字", "värit": "色", "eläimet": "動物", "ruoka": "食べ物", "perhe": "家族", "yleiset sanat": "日常語", "vuodenajat": "季節", "kuukaudet": "月", "viikonpäivät": "曜日", "sää": "天気", "keho": "体", "vaatteet": "服", "koti": "家・部屋", "ammatit": "職業", "verbit": "動詞", "adjektiivit": "形容詞", "luonto": "自然", "liikenne": "乗り物", "tunteet": "感情", "aika": "時間", "kysymyssanat": "疑問詞", "hedelmät ja vihannekset": "果物・野菜", "juomat": "飲み物", "koulu": "学校", "urheilu": "スポーツ", "teknologia": "テクノロジー", "keittiövälineet": "台所用品", "paikat": "場所", "suunnat": "方向・位置", "työkalut": "道具", "musiikki ja viihde": "音楽・娯楽", "raha ja ostokset": "お金・買い物", "terveys": "健康", "adverbit": "副詞", "konjunktiot": "接続詞", "hyönteiset ja meren eläimet": "昆虫・海の生き物", "kasvit ja kukat": "植物・花", "toimistotarvikkeet": "文房具", "matka": "旅行", "sosiaaliset tilanteet": "社会的な場面", "maat": "国名", "ilmaisut": "表現"};
+  const CAT_ORDER = Object.keys(CAT_LABELS);
+
+  const els = {
+    startScreen: document.getElementById('startScreen'),
+    gameScreen: document.getElementById('gameScreen'),
+    resultScreen: document.getElementById('resultScreen'),
+    catGrid: document.getElementById('catGrid'),
+    sizeRow: document.getElementById('sizeRow'),
+    startBtn: document.getElementById('startBtn'),
+    startWarning: document.getElementById('startWarning'),
+    selectAllBtn: document.getElementById('selectAllBtn'),
+    deselectAllBtn: document.getElementById('deselectAllBtn'),
+    movesCount: document.getElementById('movesCount'),
+    timeCount: document.getElementById('timeCount'),
+    quitBtn: document.getElementById('quitBtn'),
+    memoryGrid: document.getElementById('memoryGrid'),
+    scoreBig: document.getElementById('scoreBig'),
+    scoreLabel: document.getElementById('scoreLabel'),
+    backBtn: document.getElementById('backBtn'),
+    retryBtn: document.getElementById('retryBtn'),
+    historyToggleBtn: document.getElementById('historyToggleBtn'),
+    historyPanel: document.getElementById('historyPanel'),
+    confirmOverlay: document.getElementById('confirmOverlay'),
+    confirmMessage: document.getElementById('confirmMessage'),
+    confirmCancelBtn: document.getElementById('confirmCancelBtn'),
+    confirmOkBtn: document.getElementById('confirmOkBtn'),
+  };
+
+  let selectedCats = new Set(CAT_ORDER);
+  let roundSize = 8;
+  let deck = [];          // array of {key, type: 'fi'|'ja', text, matched}
+  let firstPick = null;
+  let secondPick = null;
+  let locked = false;
+  let moves = 0;
+  let matchedPairs = 0;
+  let totalPairs = 0;
+  let timerInterval = null;
+  let startTime = null;
+  let roundActive = false;
+
+  const HISTORY_KEY = 'memory-history-log-fi';
+  const TOTALS_KEY = 'memory-totals-fi';
+  const MAX_HISTORY = 50;
+
+  function shuffle(arr){
+    const a = arr.slice();
+    for(let i=a.length-1;i>0;i--){
+      const j = Math.floor(Math.random()*(i+1));
+      [a[i],a[j]] = [a[j],a[i]];
+    }
+    return a;
+  }
+
+  function buildCatGrid(){
+    els.catGrid.innerHTML = '';
+    CAT_ORDER.forEach(key => {
+      const label = CAT_LABELS[key];
+      const count = WORDS.filter(w => w.cat === key).length;
+      const chip = document.createElement('label');
+      chip.className = 'cat-chip active';
+      chip.innerHTML = `<input type="checkbox" checked data-cat="${key}"> ${label} <span class="cat-count">${count}</span>`;
+      const input = chip.querySelector('input');
+      input.addEventListener('change', () => {
+        if(input.checked){ selectedCats.add(key); chip.classList.add('active'); }
+        else { selectedCats.delete(key); chip.classList.remove('active'); }
+      });
+      els.catGrid.appendChild(chip);
+    });
+  }
+
+  function setAllCategories(checked){
+    const inputs = els.catGrid.querySelectorAll('input[type="checkbox"]');
+    inputs.forEach(input => {
+      input.checked = checked;
+      const key = input.dataset.cat;
+      const chip = input.closest('.cat-chip');
+      if(checked){ selectedCats.add(key); chip.classList.add('active'); }
+      else { selectedCats.delete(key); chip.classList.remove('active'); }
+    });
+  }
+
+  els.sizeRow.querySelectorAll('.size-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      els.sizeRow.querySelectorAll('.size-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      roundSize = parseInt(btn.dataset.size, 10);
+    });
+  });
+
+  function showScreen(name){
+    els.startScreen.classList.toggle('hidden', name!=='start');
+    els.gameScreen.classList.toggle('hidden', name!=='game');
+    els.resultScreen.classList.toggle('hidden', name!=='result');
+  }
+
+  function formatTime(sec){
+    const m = Math.floor(sec/60);
+    const s = sec%60;
+    return `${m}:${String(s).padStart(2,'0')}`;
+  }
+
+  function startRound(){
+    const pool = WORDS.filter(w => selectedCats.has(w.cat));
+    const picked = shuffle(pool).slice(0, roundSize);
+    totalPairs = picked.length;
+    matchedPairs = 0;
+    moves = 0;
+    firstPick = null; secondPick = null; locked = false;
+    els.movesCount.textContent = '手数 0';
+    els.timeCount.textContent = '経過 0:00';
+
+    let cards = [];
+    picked.forEach((w, idx) => {
+      cards.push({key: idx, type: 'fi', text: w.fi, matched: false});
+      cards.push({key: idx, type: 'ja', text: w.ja, matched: false});
+    });
+    deck = shuffle(cards);
+
+    renderGrid();
+    showScreen('game');
+    roundActive = true;
+
+    startTime = Date.now();
+    if(timerInterval) clearInterval(timerInterval);
+    timerInterval = setInterval(() => {
+      const sec = Math.floor((Date.now()-startTime)/1000);
+      els.timeCount.textContent = '経過 ' + formatTime(sec);
+    }, 1000);
+
+    // grid columns based on round size for a reasonably square layout
+    const cols = roundSize <= 6 ? 4 : (roundSize <= 8 ? 4 : (roundSize <= 10 ? 5 : 6));
+    els.memoryGrid.style.gridTemplateColumns = `repeat(${cols}, 1fr)`;
+  }
+
+  function renderGrid(){
+    els.memoryGrid.innerHTML = '';
+    deck.forEach((card, idx) => {
+      const div = document.createElement('div');
+      div.className = 'memory-card';
+      div.dataset.idx = idx;
+      div.innerHTML = `<span class="back-icon">FI/JA</span><span class="front-text"></span>`;
+      div.addEventListener('click', () => onCardClick(idx));
+      els.memoryGrid.appendChild(div);
+    });
+  }
+
+  function onCardClick(idx){
+    if(locked) return;
+    const card = deck[idx];
+    if(card.matched) return;
+    if(firstPick !== null && firstPick.idx === idx) return;
+    if(secondPick !== null) return;
+
+    const el = els.memoryGrid.children[idx];
+    el.classList.add('flipped', 'type-' + card.type);
+    el.querySelector('.front-text').textContent = card.text;
+
+    if(firstPick === null){
+      firstPick = {idx, card};
+      return;
+    }
+
+    secondPick = {idx, card};
+    moves++;
+    els.movesCount.textContent = '手数 ' + moves;
+
+    const isMatch = firstPick.card.key === secondPick.card.key && firstPick.card.type !== secondPick.card.type;
+
+    if(isMatch){
+      deck[firstPick.idx].matched = true;
+      deck[secondPick.idx].matched = true;
+      els.memoryGrid.children[firstPick.idx].classList.add('matched');
+      els.memoryGrid.children[secondPick.idx].classList.add('matched');
+      matchedPairs++;
+      firstPick = null; secondPick = null;
+      if(matchedPairs === totalPairs){
+        locked = true;
+        setTimeout(finishRound, 400);
+      }
+    } else {
+      locked = true;
+      el.classList.add('wrong');
+      els.memoryGrid.children[firstPick.idx].classList.add('wrong');
+      setTimeout(() => {
+        els.memoryGrid.children[firstPick.idx].classList.remove('flipped','type-fi','type-ja','wrong');
+        els.memoryGrid.children[firstPick.idx].querySelector('.front-text').textContent = '';
+        els.memoryGrid.children[secondPick.idx].classList.remove('flipped','type-fi','type-ja','wrong');
+        els.memoryGrid.children[secondPick.idx].querySelector('.front-text').textContent = '';
+        firstPick = null; secondPick = null;
+        locked = false;
+      }, 750);
+    }
+  }
+
+  function getTotals(){
+    try{
+      const raw = localStorage.getItem(TOTALS_KEY);
+      const parsed = raw ? JSON.parse(raw) : null;
+      if(parsed) return { plays: parsed.plays||0, bestMoves: parsed.bestMoves||null, bestTime: parsed.bestTime||null };
+    }catch(e){}
+    return { plays:0, bestMoves:null, bestTime:null };
+  }
+  function updateTotals(movesVal, timeVal){
+    try{
+      const t = getTotals();
+      t.plays += 1;
+      if(t.bestMoves === null || movesVal < t.bestMoves) t.bestMoves = movesVal;
+      if(t.bestTime === null || timeVal < t.bestTime) t.bestTime = timeVal;
+      localStorage.setItem(TOTALS_KEY, JSON.stringify(t));
+    }catch(e){ console.error('累計記録の保存に失敗しました', e); }
+  }
+  async function getHistory(){
+    try{
+      const raw = localStorage.getItem(HISTORY_KEY);
+      const parsed = raw ? JSON.parse(raw) : [];
+      return Array.isArray(parsed) ? parsed : [];
+    }catch(e){ return []; }
+  }
+  async function addHistoryEntry(entry){
+    try{
+      const current = await getHistory();
+      const updated = [entry, ...current].slice(0, MAX_HISTORY);
+      localStorage.setItem(HISTORY_KEY, JSON.stringify(updated));
+    }catch(e){ console.error('履歴の保存に失敗しました', e); }
+  }
+  async function clearHistory(){
+    try{ localStorage.removeItem(HISTORY_KEY); localStorage.removeItem(TOTALS_KEY); }catch(e){}
+  }
+  function formatDate(iso){
+    const d = new Date(iso);
+    return `${String(d.getMonth()+1).padStart(2,'0')}/${String(d.getDate()).padStart(2,'0')} ${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}`;
+  }
+
+  function finishRound(){
+    roundActive = false;
+    clearInterval(timerInterval);
+    const elapsed = Math.floor((Date.now()-startTime)/1000);
+    showScreen('result');
+    els.scoreBig.textContent = `${moves}手 ・ ${formatTime(elapsed)}`;
+    const efficiency = totalPairs / moves;
+    let label = '';
+    if(efficiency >= 0.9) label = '完璧に近い手数！';
+    else if(efficiency >= 0.6) label = 'いい感じ！';
+    else label = 'クリア！次はもっと少ない手数を目指そう';
+    els.scoreLabel.textContent = label;
+
+    updateTotals(moves, elapsed);
+    addHistoryEntry({
+      date: new Date().toISOString(),
+      moves: moves,
+      time: elapsed,
+      pairs: totalPairs,
+      categories: Array.from(selectedCats),
+    });
+  }
+
+  function renderHistoryList(logs){
+    els.historyPanel.innerHTML = '';
+    if(!logs.length){
+      const empty = document.createElement('div');
+      empty.className = 'history-empty';
+      empty.textContent = 'まだ記録がありません。1回プレイすると、ここに履歴が残ります。';
+      els.historyPanel.appendChild(empty);
+      return;
+    }
+    const totals = getTotals();
+    const summary = document.createElement('div');
+    summary.className = 'history-summary';
+    summary.innerHTML = `
+      <div class="summary-stat"><div class="summary-num">${totals.plays}</div><div class="summary-label">プレイ回数</div></div>
+      <div class="summary-stat"><div class="summary-num">${totals.bestMoves ?? '-'}</div><div class="summary-label">最少手数</div></div>
+      <div class="summary-stat"><div class="summary-num">${totals.bestTime !== null ? formatTime(totals.bestTime) : '-'}</div><div class="summary-label">最速タイム</div></div>
+    `;
+    els.historyPanel.appendChild(summary);
+
+    logs.forEach(entry => {
+      const row = document.createElement('div');
+      row.className = 'history-row';
+      row.innerHTML = `<span class="history-date">${formatDate(entry.date)}</span><span style="flex:1;color:#5b5648;">${entry.pairs}ペア</span><span style="font-family:'JetBrains Mono',monospace;font-weight:700;">${entry.moves}手・${formatTime(entry.time)}</span>`;
+      els.historyPanel.appendChild(row);
+    });
+
+    const clearBtn = document.createElement('button');
+    clearBtn.className = 'history-clear';
+    clearBtn.textContent = '記録を消去する';
+    clearBtn.addEventListener('click', async () => { clearBtn.disabled = true; await clearHistory(); renderHistoryList([]); });
+    els.historyPanel.appendChild(clearBtn);
+  }
+
+  async function toggleHistoryPanel(){
+    const isHidden = els.historyPanel.classList.contains('hidden');
+    if(isHidden){
+      els.historyPanel.classList.remove('hidden');
+      els.historyPanel.innerHTML = '<div class="history-empty">読み込み中…</div>';
+      const logs = await getHistory();
+      renderHistoryList(logs);
+      els.historyToggleBtn.textContent = '記録を隠す';
+    } else {
+      els.historyPanel.classList.add('hidden');
+      els.historyToggleBtn.textContent = '記録を見る';
+    }
+  }
+
+  function showConfirmModal(message, onConfirm){
+    els.confirmMessage.textContent = message;
+    els.confirmOverlay.classList.remove('hidden');
+    function cleanup(){
+      els.confirmOverlay.classList.add('hidden');
+      els.confirmOkBtn.removeEventListener('click', onOk);
+      els.confirmCancelBtn.removeEventListener('click', onCancel);
+    }
+    function onOk(){ cleanup(); onConfirm(); }
+    function onCancel(){ cleanup(); }
+    els.confirmOkBtn.addEventListener('click', onOk);
+    els.confirmCancelBtn.addEventListener('click', onCancel);
+  }
+
+  buildCatGrid();
+  els.selectAllBtn.addEventListener('click', () => setAllCategories(true));
+  els.deselectAllBtn.addEventListener('click', () => setAllCategories(false));
+  els.startBtn.addEventListener('click', () => {
+    if(selectedCats.size === 0){ els.startWarning.classList.remove('hidden'); return; }
+    const poolSize = WORDS.filter(w => selectedCats.has(w.cat)).length;
+    if(poolSize < roundSize){
+      els.startWarning.textContent = `選んだカテゴリーの単語数（${poolSize}語）がペア数より少ないです`;
+      els.startWarning.classList.remove('hidden');
+      return;
+    }
+    els.startWarning.classList.add('hidden');
+    startRound();
+  });
+  els.retryBtn.addEventListener('click', startRound);
+  els.backBtn.addEventListener('click', () => showScreen('start'));
+  els.historyToggleBtn.addEventListener('click', toggleHistoryPanel);
+  els.quitBtn.addEventListener('click', () => {
+    showConfirmModal('神経衰弱を中断しますか？この回の記録は保存されません。', () => {
+      roundActive = false;
+      clearInterval(timerInterval);
+      showScreen('start');
+    });
+  });
+
+  showScreen('start');
+})();
+</script>
+</body>
+</html>

@@ -31,7 +31,7 @@
     justify-content:center;
     padding:40px 16px 60px;
   }
-  .app{ width:100%; max-width:760px; }
+  .app{ width:100%; max-width:1040px; }
   .eyebrow{
     font-family:'JetBrains Mono',monospace;
     font-size:12px;
@@ -76,8 +76,11 @@
   }
   .grid{
     display:grid;
-    grid-template-columns:1fr 1fr;
+    grid-template-columns:repeat(3, 1fr);
     gap:16px;
+  }
+  @media (max-width:860px){
+    .grid{ grid-template-columns:1fr 1fr; }
   }
   @media (max-width:560px){
     .grid{ grid-template-columns:1fr; }
@@ -116,18 +119,11 @@
     object-fit:cover;
     display:block;
   }
-  .lang-name-ja{
+  .card-title{
     font-family:'Fraunces',serif;
     font-weight:700;
-    font-size:21px;
+    font-size:20px;
     letter-spacing:-0.01em;
-  }
-  .lang-name-native{
-    font-family:'JetBrains Mono',monospace;
-    font-size:12px;
-    color:#6b6656;
-    text-transform:uppercase;
-    letter-spacing:0.04em;
   }
   .card-desc{
     font-size:13px;
@@ -135,31 +131,11 @@
     line-height:1.5;
     flex:1;
   }
-  .card-footer{
-    display:flex;
-    align-items:center;
-    justify-content:space-between;
-    margin-top:4px;
-  }
   .word-count{
     font-family:'JetBrains Mono',monospace;
-    font-size:11.5px;
-    color:#7a7461;
-  }
-  .status-badge{
-    font-family:'Inter',sans-serif;
-    font-size:11.5px;
-    font-weight:700;
-    padding:5px 10px;
-    border-radius:20px;
-  }
-  .status-ready{
-    background:var(--moss);
-    color:#fff;
-  }
-  .status-soon{
-    background:var(--birch-dim);
-    color:#7a7461;
+    font-size:11px;
+    color:#9a927a;
+    margin-top:2px;
   }
   footer{
     text-align:center;
@@ -285,79 +261,51 @@
 
     <a class="card" href="finnish_life.html">
       <div class="flag"><img src="https://flagcdn.com/w80/fi.png" alt="フィンランド国旗"></div>
-      <div class="lang-name-ja">フィンランド語（暮らし・人）</div>
-      <div class="lang-name-native">Suomi — Elämä ja ihmiset</div>
-      <div class="card-desc">挨拶・家族・体・服・家/部屋・日常語・感情・表現など、暮らしと人にまつわる語彙107語。</div>
-      <div class="card-footer">
-        <span class="word-count">107語</span>
-        <span class="status-badge status-ready">プレイ可能</span>
-      </div>
+      <div class="card-title">暮らし・人</div>
+      <div class="card-desc">挨拶・家族・体・服・家/部屋・感情など</div>
+      <div class="word-count">107語</div>
     </a>
 
     <a class="card" href="finnish_nature.html">
       <div class="flag"><img src="https://flagcdn.com/w80/fi.png" alt="フィンランド国旗"></div>
-      <div class="lang-name-ja">フィンランド語（自然・生き物）</div>
-      <div class="lang-name-native">Suomi — Luonto ja eläimet</div>
-      <div class="card-desc">動物・自然・天気・季節・昆虫/海の生き物・植物/花など、自然にまつわる語彙70語。</div>
-      <div class="card-footer">
-        <span class="word-count">70語</span>
-        <span class="status-badge status-ready">プレイ可能</span>
-      </div>
+      <div class="card-title">自然・生き物</div>
+      <div class="card-desc">動物・自然・天気・季節・植物など</div>
+      <div class="word-count">70語</div>
     </a>
 
     <a class="card" href="finnish_numbers.html">
       <div class="flag"><img src="https://flagcdn.com/w80/fi.png" alt="フィンランド国旗"></div>
-      <div class="lang-name-ja">フィンランド語（数字・時間）</div>
-      <div class="lang-name-native">Suomi — Numerot ja aika</div>
-      <div class="card-desc">数字・時間・月・曜日・色・疑問詞・副詞・接続詞など、基本語彙85語。</div>
-      <div class="card-footer">
-        <span class="word-count">85語</span>
-        <span class="status-badge status-ready">プレイ可能</span>
-      </div>
+      <div class="card-title">数字・時間</div>
+      <div class="card-desc">数字・時間・月・曜日・色など</div>
+      <div class="word-count">85語</div>
     </a>
 
     <a class="card" href="finnish_society.html">
       <div class="flag"><img src="https://flagcdn.com/w80/fi.png" alt="フィンランド国旗"></div>
-      <div class="lang-name-ja">フィンランド語（学校・社会）</div>
-      <div class="lang-name-native">Suomi — Koulu ja yhteiskunta</div>
-      <div class="card-desc">職業・学校・社会的な場面・国名・動詞・形容詞など、学校や社会にまつわる語彙133語。</div>
-      <div class="card-footer">
-        <span class="word-count">133語</span>
-        <span class="status-badge status-ready">プレイ可能</span>
-      </div>
+      <div class="card-title">学校・社会</div>
+      <div class="card-desc">職業・学校・社会的な場面・国名など</div>
+      <div class="word-count">133語</div>
     </a>
 
     <a class="card" href="finnish_travel.html">
       <div class="flag"><img src="https://flagcdn.com/w80/fi.png" alt="フィンランド国旗"></div>
-      <div class="lang-name-ja">フィンランド語（旅行・技術）</div>
-      <div class="lang-name-native">Suomi — Matka ja tekniikka</div>
-      <div class="card-desc">乗り物・場所・旅行・テクノロジー・お金/買い物・スポーツ・健康など、外出先で使う語彙104語。</div>
-      <div class="card-footer">
-        <span class="word-count">104語</span>
-        <span class="status-badge status-ready">プレイ可能</span>
-      </div>
+      <div class="card-title">旅行・技術</div>
+      <div class="card-desc">乗り物・旅行・お金・スポーツなど</div>
+      <div class="word-count">104語</div>
     </a>
 
     <a class="card" href="finnish_food.html">
       <div class="flag"><img src="https://flagcdn.com/w80/fi.png" alt="フィンランド国旗"></div>
-      <div class="lang-name-ja">フィンランド語（食べ物）</div>
-      <div class="lang-name-native">Suomi — Ruoka</div>
-      <div class="card-desc">果物・野菜・肉・魚介類・調味料・伝統料理など、食べ物に特化した語彙500語。23の細かいカテゴリーから選べます。</div>
-      <div class="card-footer">
-        <span class="word-count">500語</span>
-        <span class="status-badge status-ready">プレイ可能</span>
-      </div>
+      <div class="card-title">食べ物</div>
+      <div class="card-desc">果物・野菜・肉・魚介・調味料など、23カテゴリー</div>
+      <div class="word-count">500語</div>
     </a>
 
     <a class="card" href="finnish_memory.html">
       <div class="flag"><img src="https://flagcdn.com/w80/fi.png" alt="フィンランド国旗"></div>
-      <div class="lang-name-ja">フィンランド語（神経衰弱）</div>
-      <div class="lang-name-native">Muistipeli</div>
-      <div class="card-desc">4択クイズではなく神経衰弱。フィンランド語のカードと日本語の意味のカードをめくって、同じペアを探します。ペア数は選べます。</div>
-      <div class="card-footer">
-        <span class="word-count">約540語</span>
-        <span class="status-badge status-ready">プレイ可能</span>
-      </div>
+      <div class="card-title">神経衰弱</div>
+      <div class="card-desc">4択ではなく神経衰弱。ペア数は選択可</div>
+      <div class="word-count">約540語</div>
     </a>
 
     </div>
@@ -369,35 +317,23 @@
 
     <a class="card" href="swedish.html">
       <div class="flag"><img src="https://flagcdn.com/w80/se.png" alt="スウェーデン国旗"></div>
-      <div class="lang-name-ja">スウェーデン語</div>
-      <div class="lang-name-native">Svenska</div>
-      <div class="card-desc">挨拶・数字・色・動物など、日常でよく使う基本単語を4択クイズで学べます。忘却曲線を考慮した出題つき。</div>
-      <div class="card-footer">
-        <span class="word-count">約540語</span>
-        <span class="status-badge status-ready">プレイ可能</span>
-      </div>
+      <div class="card-title">スウェーデン語</div>
+      <div class="card-desc">挨拶・数字・色・動物など基本単語</div>
+      <div class="word-count">約540語</div>
     </a>
 
     <a class="card" href="norwegian.html">
       <div class="flag"><img src="https://flagcdn.com/w80/no.png" alt="ノルウェー国旗"></div>
-      <div class="lang-name-ja">ノルウェー語</div>
-      <div class="lang-name-native">Norsk</div>
-      <div class="card-desc">挨拶・数字・色・動物など、日常でよく使う基本単語を4択クイズで学べます。忘却曲線を考慮した出題つき。</div>
-      <div class="card-footer">
-        <span class="word-count">約540語</span>
-        <span class="status-badge status-ready">プレイ可能</span>
-      </div>
+      <div class="card-title">ノルウェー語</div>
+      <div class="card-desc">挨拶・数字・色・動物など基本単語</div>
+      <div class="word-count">約540語</div>
     </a>
 
     <a class="card" href="danish.html">
       <div class="flag"><img src="https://flagcdn.com/w80/dk.png" alt="デンマーク国旗"></div>
-      <div class="lang-name-ja">デンマーク語</div>
-      <div class="lang-name-native">Dansk</div>
-      <div class="card-desc">挨拶・数字・色・動物など、日常でよく使う基本単語を4択クイズで学べます。忘却曲線を考慮した出題つき。</div>
-      <div class="card-footer">
-        <span class="word-count">532語</span>
-        <span class="status-badge status-ready">プレイ可能</span>
-      </div>
+      <div class="card-title">デンマーク語</div>
+      <div class="card-desc">挨拶・数字・色・動物など基本単語</div>
+      <div class="word-count">532語</div>
     </a>
 
     </div>
@@ -409,68 +345,44 @@
 
     <a class="card" href="english_bizmail.html">
       <div class="flag"><img src="https://flagcdn.com/w80/gb.png" alt="イギリス国旗"></div>
-      <div class="lang-name-ja">英語（ビジネスメール表現）</div>
-      <div class="lang-name-native">Business Email</div>
-      <div class="card-desc">メールや会議で使う表現90項目。書き出し・依頼・お詫び・結び・進捗報告・ビジネス俗語など、実務で使える表現を4択クイズで学べます。</div>
-      <div class="card-footer">
-        <span class="word-count">90項目</span>
-        <span class="status-badge status-ready">プレイ可能</span>
-      </div>
+      <div class="card-title">ビジネスメール表現</div>
+      <div class="card-desc">書き出し・依頼・お詫び・結びなど実務表現</div>
+      <div class="word-count">90項目</div>
     </a>
 
     <a class="card" href="english_collocation.html">
       <div class="flag"><img src="https://flagcdn.com/w80/gb.png" alt="イギリス国旗"></div>
-      <div class="lang-name-ja">英語（コロケーション）</div>
-      <div class="lang-name-native">Collocations</div>
-      <div class="card-desc">動詞＋名詞、形容詞＋名詞、前置詞表現など、自然な単語の組み合わせ160項目。不自然な英語を卒業するための語彙です。</div>
-      <div class="card-footer">
-        <span class="word-count">160項目</span>
-        <span class="status-badge status-ready">プレイ可能</span>
-      </div>
+      <div class="card-title">コロケーション</div>
+      <div class="card-desc">動詞+名詞、形容詞+名詞など自然な組み合わせ</div>
+      <div class="word-count">160項目</div>
     </a>
 
     <a class="card" href="english_pre2.html">
       <div class="flag"><img src="https://flagcdn.com/w80/gb.png" alt="イギリス国旗"></div>
-      <div class="lang-name-ja">英語（英検準2級）</div>
-      <div class="lang-name-native">English</div>
-      <div class="card-desc">英検準2級レベルの語彙143語。学校・家族・買い物・気持ちなど、基礎的なジャンルで学べます。</div>
-      <div class="card-footer">
-        <span class="word-count">143語</span>
-        <span class="status-badge status-ready">プレイ可能</span>
-      </div>
+      <div class="card-title">英検準2級</div>
+      <div class="card-desc">学校・家族・買い物・気持ちなど基礎</div>
+      <div class="word-count">143語</div>
     </a>
 
     <a class="card" href="english_2kyu.html">
       <div class="flag"><img src="https://flagcdn.com/w80/gb.png" alt="イギリス国旗"></div>
-      <div class="lang-name-ja">英語（英検2級）</div>
-      <div class="lang-name-native">English</div>
-      <div class="card-desc">英検2級レベルの語彙182語。日常生活・学校・旅行・仕事など、身近なジャンルで学べます。</div>
-      <div class="card-footer">
-        <span class="word-count">182語</span>
-        <span class="status-badge status-ready">プレイ可能</span>
-      </div>
+      <div class="card-title">英検2級</div>
+      <div class="card-desc">日常生活・学校・旅行・仕事など</div>
+      <div class="word-count">182語</div>
     </a>
 
     <a class="card" href="english_pre1.html">
       <div class="flag"><img src="https://flagcdn.com/w80/gb.png" alt="イギリス国旗"></div>
-      <div class="lang-name-ja">英語（英検準1級）</div>
-      <div class="lang-name-native">English</div>
-      <div class="card-desc">英検準1級レベルの語彙185語。社会問題・環境・経済・科学技術など、幅広いジャンルで学べます。</div>
-      <div class="card-footer">
-        <span class="word-count">185語</span>
-        <span class="status-badge status-ready">プレイ可能</span>
-      </div>
+      <div class="card-title">英検準1級</div>
+      <div class="card-desc">社会問題・環境・経済・科学技術など</div>
+      <div class="word-count">185語</div>
     </a>
 
     <a class="card" href="english.html">
       <div class="flag"><img src="https://flagcdn.com/w80/gb.png" alt="イギリス国旗"></div>
-      <div class="lang-name-ja">英語（英検1級）</div>
-      <div class="lang-name-native">English</div>
-      <div class="card-desc">英検1級レベルの語彙500語。ビジネス・政治・科学・心理など、幅広いジャンルで上級単語を4択クイズで学べます。</div>
-      <div class="card-footer">
-        <span class="word-count">500語</span>
-        <span class="status-badge status-ready">プレイ可能</span>
-      </div>
+      <div class="card-title">英検1級</div>
+      <div class="card-desc">ビジネス・政治・科学・心理など上級語彙</div>
+      <div class="word-count">500語</div>
     </a>
 
     </div>
@@ -482,46 +394,30 @@
 
     <a class="card" href="chinese.html">
       <div class="flag"><img src="https://flagcdn.com/w80/cn.png" alt="中国国旗"></div>
-      <div class="lang-name-ja">中国語（中級〜上級）</div>
-      <div class="lang-name-native">中文</div>
-      <div class="card-desc">成語・ビジネス・旅行・ネット流行語・紛らわしい漢字など、中級〜上級向けの語彙408語。基礎は含みません。</div>
-      <div class="card-footer">
-        <span class="word-count">408語</span>
-        <span class="status-badge status-ready">プレイ可能</span>
-      </div>
+      <div class="card-title">中国語（中級〜上級）</div>
+      <div class="card-desc">成語・ビジネス・旅行・ネット流行語など</div>
+      <div class="word-count">408語</div>
     </a>
 
     <a class="card" href="korean_words.html">
       <div class="flag"><img src="https://flagcdn.com/w80/kr.png" alt="韓国国旗"></div>
-      <div class="lang-name-ja">韓国語（単語・中級）</div>
-      <div class="lang-name-native">한국어</div>
-      <div class="card-desc">仕事・食事・健康・買い物など、日常でよく使う中級レベルの語彙264語。挨拶や数字などの基礎は含みません。</div>
-      <div class="card-footer">
-        <span class="word-count">264語</span>
-        <span class="status-badge status-ready">プレイ可能</span>
-      </div>
+      <div class="card-title">韓国語（単語・中級）</div>
+      <div class="card-desc">仕事・食事・健康・買い物など</div>
+      <div class="word-count">264語</div>
     </a>
 
     <a class="card" href="korean.html">
       <div class="flag"><img src="https://flagcdn.com/w80/kr.png" alt="韓国国旗"></div>
-      <div class="lang-name-ja">韓国語（文型ドリル）</div>
-      <div class="lang-name-native">한국어</div>
-      <div class="card-desc">単語ゲームではなく、語順ドリル。日本語の文と同じ語順で韓国語の単語を並べ替える練習ができます。60文・12パターン。</div>
-      <div class="card-footer">
-        <span class="word-count">60文</span>
-        <span class="status-badge status-ready">プレイ可能</span>
-      </div>
+      <div class="card-title">韓国語（文型ドリル）</div>
+      <div class="card-desc">日本語と同じ語順で並べ替える練習</div>
+      <div class="word-count">60文</div>
     </a>
 
     <a class="card" href="tibetan_script.html">
       <div class="flag"><img src="https://commons.wikimedia.org/wiki/Special:FilePath/Flag_of_Tibet.svg" alt="チベットの旗（雪山獅子旗）"></div>
-      <div class="lang-name-ja">チベット文字</div>
-      <div class="lang-name-native">བོད་ཡིག</div>
-      <div class="card-desc">まずは文字から。基本子音30字＋母音記号4つの読み方を覚えるクイズです。単語ゲームの前段階として使えます。</div>
-      <div class="card-footer">
-        <span class="word-count">34項目</span>
-        <span class="status-badge status-ready">プレイ可能</span>
-      </div>
+      <div class="card-title">チベット文字</div>
+      <div class="card-desc">基本子音30字+母音記号4つの読み方</div>
+      <div class="word-count">34項目</div>
     </a>
 
     </div>
